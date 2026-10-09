@@ -1,30 +1,65 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:momentum/main.dart';
+import 'package:momentum/core/database/app_database.dart';
+import 'package:momentum/features/aufgaben/data/aufgaben_repository.dart';
+import 'package:momentum/features/projekte/data/project_repository.dart';
+import 'package:momentum/landing_page.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('welcome message opens the main page', (tester) async {
+    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    final repository = AufgabenRepository(database);
+    final projectRepository = ProjectRepository(database);
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: WelcomePage(
+          aufgabenRepository: repository,
+          projectRepository: projectRepository,
+        ),
+      ),
+    );
 
-    // Tap the '+' icon and trigger a frame.
+    expect(find.text('Willkommen bei Momentum'), findsOneWidget);
+    expect(find.text('Deine Aufgaben'), findsNothing);
+
+    await tester.tap(find.text('Willkommen bei Momentum'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Deine Aufgaben'), findsOneWidget);
+    expect(find.text('Aufgaben'), findsOneWidget);
+    expect(find.text('Projekte'), findsOneWidget);
+    expect(find.byIcon(Icons.add), findsOneWidget);
+
     await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    await tester.pumpAndSettle();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('Freie Erstellung'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.tune));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Freie Erstellung'), findsOneWidget);
+
+    await tester.tap(find.byIcon(Icons.arrow_back));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Projekte'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Noch keine Projekte vorhanden.'), findsOneWidget);
+
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Projekt hinzufügen'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.create_new_folder));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Projekt hinzufügen'), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(milliseconds: 1));
+    await tester.runAsync(database.close);
   });
 }

@@ -1,7 +1,7 @@
 # Momentum – Phase 20: Private Nutzung und Testphase
 
 Stand: 8. Oktober 2026  
-Status: Testvorbereitung im Dialog begonnen; praktischer Teststart noch offen
+Status: Private Nutzung auf eigenem Android-Handy begonnen; Feedback wird gesammelt
 
 ## Zweck
 
@@ -13,6 +13,7 @@ planen, sondern die App im echten Alltag zu prüfen.
 
 - [Arbeitsplan](private_test_plan.md)
 - [Verlauf](private_test_history.md)
+- [Praxistest-Feedback Oktober 2026](mobile_test_feedback_2026_10.md) – 20 Beobachtungen mit Quick Fixes, Prüfpunkten und Erweiterungen
 
 ## Einordnung
 

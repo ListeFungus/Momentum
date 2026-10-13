@@ -8,6 +8,7 @@ Ordner in einer sinnvollen Reihenfolge.
 
 - [App-Masterplan](00_overview/app_masterplan.md) – Vision, Module, Roadmap,
   Architekturprinzipien, offene Fragen und Entscheidungsprotokoll
+- [Übergreifende App-Konzepte aus dem Praxistest](00_overview/app_concept_ideas_2026_10.md) – Navigation/Monitoring und Quick Actions
 
 ## Aufgaben und Habits
 
@@ -25,6 +26,7 @@ Ordner in einer sinnvollen Reihenfolge.
   Projektzuordnung, Projektansicht, Projektauswertung und Löschregeln
 - [Phase 20 – Private Nutzung/Test](10_tasks_habits/phase_20_private_test/README.md) –
   private Nutzung und kleiner Testkreis vor dem Store-Release
+- [Aktuelles Testprotokoll](10_tasks_habits/phase_20_private_test/mobile_test_feedback_2026_10.md) – beobachtete UI-Probleme, Quick Fixes und Erweiterungsideen
 - [Phase 21 – Store-Release](10_tasks_habits/phase_21_store_release/README.md) –
   Store-Vorbereitung, Paywall-Einordnung und öffentliche Releasefähigkeit
 

@@ -554,3 +554,8 @@ Folgendes liefern:
 7. erforderliche Aktualisierung dieses Masterplans
 
 So bleibt Detailarbeit anschlussfähig, ohne den großen Zusammenhang zu verlieren.
+
+
+## Neuer Ideenstand aus der privaten Testphase (13. Oktober 2026)
+
+Die übergreifenden Ideen **Navigation mit Tagesübersicht und Monitoring** (#A01) sowie **Quick Actions / Quick Task** (#A02) sind als noch unbeschlossene Vorschläge im [separaten Konzeptideen-Dokument](app_concept_ideas_2026_10.md) gesammelt. Sie erweitern die Gesamtvision, ohne den Phase-20-Umfang zu ändern. Die [20 konkreten Beobachtungen aus dem Android-Praxistest](../10_tasks_habits/phase_20_private_test/mobile_test_feedback_2026_10.md) bleiben im zugehörigen Testordner.

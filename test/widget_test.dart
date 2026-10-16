@@ -1,6 +1,7 @@
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:momentum/core/backup/backup_service.dart';
 import 'package:momentum/core/database/app_database.dart';
 import 'package:momentum/features/aufgaben/data/aufgaben_repository.dart';
 import 'package:momentum/features/projekte/data/project_repository.dart';
@@ -17,6 +18,8 @@ void main() {
         home: WelcomePage(
           aufgabenRepository: repository,
           projectRepository: projectRepository,
+          backupService: BackupService(database),
+          onRestore: BackupService(database).restore,
         ),
       ),
     );
@@ -31,6 +34,34 @@ void main() {
     expect(find.text('Aufgaben'), findsOneWidget);
     expect(find.text('Projekte'), findsOneWidget);
     expect(find.byIcon(Icons.add), findsOneWidget);
+    expect(
+      tester
+          .widget<IconButton>(
+            find.widgetWithIcon(IconButton, Icons.chevron_right),
+          )
+          .onPressed,
+      isNull,
+    );
+
+    await tester.tap(find.byIcon(Icons.calendar_month_outlined));
+    await tester.pumpAndSettle();
+    expect(find.byType(DatePickerDialog), findsOneWidget);
+    final picker = tester.widget<DatePickerDialog>(
+      find.byType(DatePickerDialog),
+    );
+    final now = DateTime.now();
+    expect(picker.lastDate, DateTime(now.year, now.month, now.day));
+    await tester.tap(find.text('Abbrechen'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.menu));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Import & Export'));
+    await tester.pumpAndSettle();
+    expect(find.text('Sicherung exportieren'), findsOneWidget);
+    expect(find.text('Sicherung importieren'), findsOneWidget);
+    await tester.pageBack();
+    await tester.pumpAndSettle();
 
     await tester.tap(find.byIcon(Icons.add));
     await tester.pumpAndSettle();

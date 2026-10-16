@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:momentum/features/aufgaben/presentation/widgets/daily_completion_chart.dart';
 import 'package:momentum/features/aufgaben/data/aufgaben_repository.dart';
 import 'package:momentum/features/aufgaben/data/task_analytics_period.dart';
 import 'package:momentum/features/aufgaben/data/task_analytics_summary.dart';
@@ -41,6 +42,7 @@ class _OneTimeTaskCollectionAnalyticsScreenState
           }
 
           return _OneTimeTaskCollectionAnalyticsContent(
+            repository: widget.repository,
             summary: snapshot.data!,
             selectedPeriod: _selectedPeriod,
             onPeriodChanged: (period) {
@@ -57,12 +59,14 @@ class _OneTimeTaskCollectionAnalyticsScreenState
 
 class _OneTimeTaskCollectionAnalyticsContent extends StatelessWidget {
   const _OneTimeTaskCollectionAnalyticsContent({
+    required this.repository,
     required this.summary,
     required this.selectedPeriod,
     required this.onPeriodChanged,
   });
 
   final OneTimeTaskAnalyticsSummary summary;
+  final AufgabenRepository repository;
   final TaskAnalyticsPeriod selectedPeriod;
   final ValueChanged<TaskAnalyticsPeriod> onPeriodChanged;
 
@@ -73,6 +77,8 @@ class _OneTimeTaskCollectionAnalyticsContent extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
       children: [
+        DailyCompletionChart(repository: repository),
+        const SizedBox(height: 24),
         Text(
           'Sammelauswertung',
           style: Theme.of(

@@ -47,6 +47,8 @@ class AppDatabase extends _$AppDatabase {
 
   AppDatabase.forTesting(super.e);
 
+  AppDatabase.withExecutor(super.e);
+
   @override
   int get schemaVersion => 22;
 

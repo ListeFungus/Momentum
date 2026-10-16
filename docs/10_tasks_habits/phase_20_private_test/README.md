@@ -1,7 +1,7 @@
 # Momentum – Phase 20: Private Nutzung und Testphase
 
-Stand: 8. Oktober 2026  
-Status: Private Nutzung auf eigenem Android-Handy begonnen; Feedback wird gesammelt
+Stand: 16. Oktober 2026  
+Status: Private Android-Nutzung läuft; Datensicherung, Datumsauswahl und Sieben-Tage-Diagramm umgesetzt, Gerätenachtest offen
 
 ## Zweck
 

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:momentum/features/aufgaben/data/daily_completion_summary.dart';
 
 import 'package:drift/drift.dart';
 import 'package:momentum/core/database/app_database.dart';
@@ -52,6 +53,10 @@ class AufgabenRepository {
       _now = now ?? DateTime.now;
 
   final AppDatabase _database;
+
+  Stream<DailyCompletionSummary> watchDailyCompletionSummary({
+    required DateTime endingOn,
+  }) => watchDailyCompletions(_database, endingOn: endingOn);
   final TaskDefinitionVersionWriter _definitionVersionWriter;
   final TaskDefinitionResolver _definitionResolver;
   final TaskInstanceScheduler _taskInstanceScheduler;

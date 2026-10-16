@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:momentum/core/backup/backup_service.dart';
+import 'package:momentum/core/backup/backup_screen.dart';
 import 'package:momentum/features/aufgaben/data/aufgaben_repository.dart';
 import 'package:momentum/features/aufgaben/presentation/aufgabe_hinzufuegen_screen.dart';
 import 'package:momentum/features/aufgaben/presentation/aufgaben_screen.dart';
@@ -12,11 +14,15 @@ class Hauptseite extends StatefulWidget {
   const Hauptseite({
     required this.aufgabenRepository,
     required this.projectRepository,
+    required this.backupService,
+    required this.onRestore,
     super.key,
   });
 
   final AufgabenRepository aufgabenRepository;
   final ProjectRepository projectRepository;
+  final BackupService backupService;
+  final Future<void> Function(PreparedBackup) onRestore;
 
   @override
   State<Hauptseite> createState() => _HauptseiteState();
@@ -24,6 +30,26 @@ class Hauptseite extends StatefulWidget {
 
 class _HauptseiteState extends State<Hauptseite> {
   int _selectedIndex = 0;
+  bool _backupOpen = false;
+
+  Future<void> _openBackup() async {
+    Navigator.pop(context);
+    setState(() => _backupOpen = true);
+    // Dispose the task views (including pending undo controls) while replacing
+    // the data. They are recreated against the restored snapshot afterwards.
+    await WidgetsBinding.instance.endOfFrame;
+    if (!mounted) return;
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder:
+            (_) => BackupScreen(
+              service: widget.backupService,
+              onRestore: widget.onRestore,
+            ),
+      ),
+    );
+    if (mounted) setState(() => _backupOpen = false);
+  }
 
   void _openTaskCreateScreen() {
     Navigator.of(context).push(
@@ -63,8 +89,50 @@ class _HauptseiteState extends State<Hauptseite> {
     ];
 
     return Scaffold(
+      appBar: AppBar(title: const Text('Momentum'), toolbarHeight: 48),
+      drawer: Drawer(
+        child: SafeArea(
+          child: ListView(
+            children: [
+              const Padding(
+                padding: EdgeInsets.all(24),
+                child: Text(
+                  'Momentum',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.check_circle_outline),
+                title: const Text('Aufgaben & Habits'),
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() => _selectedIndex = 0);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.folder_outlined),
+                title: const Text('Projekte'),
+                onTap: () {
+                  Navigator.pop(context);
+                  setState(() => _selectedIndex = 1);
+                },
+              ),
+              const Divider(),
+              ListTile(
+                leading: const Icon(Icons.save_outlined),
+                title: const Text('Import & Export'),
+                subtitle: const Text('Datensicherung'),
+                onTap: _openBackup,
+              ),
+            ],
+          ),
+        ),
+      ),
       body: SafeArea(
-        child: IndexedStack(index: _selectedIndex, children: pages),
+        child:
+            _backupOpen
+                ? const SizedBox.shrink()
+                : IndexedStack(index: _selectedIndex, children: pages),
       ),
       floatingActionButton: ExpandableFloatingActionButton(
         key: ValueKey(_selectedIndex),

@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:momentum/core/backup/backup_service.dart';
 import 'package:momentum/core/database/app_database.dart';
 import 'package:momentum/features/aufgaben/data/aufgaben_repository.dart';
 import 'package:momentum/features/projekte/data/project_repository.dart';
@@ -23,11 +25,16 @@ class _MomentumAppState extends State<MomentumApp> with WidgetsBindingObserver {
   late final ProjectRepository _projectRepository;
   Timer? _taskInstanceSchedulerTimer;
   bool _isTaskInstanceSchedulerRunning = false;
+  Future<void>? _schedulerFuture;
+  bool _restoring = false;
+  int _session = 0;
+  late final BackupService _backupService;
 
   @override
   void initState() {
     super.initState();
     _database = AppDatabase();
+    _backupService = BackupService(_database);
     _aufgabenRepository = AufgabenRepository(_database);
     _projectRepository = ProjectRepository(_database);
     WidgetsBinding.instance.addObserver(this);
@@ -51,11 +58,12 @@ class _MomentumAppState extends State<MomentumApp> with WidgetsBindingObserver {
     }
   }
 
-  Future<void> _runTaskInstanceScheduler() async {
-    if (_isTaskInstanceSchedulerRunning) {
-      return;
-    }
+  Future<void> _runTaskInstanceScheduler() {
+    if (_restoring || _isTaskInstanceSchedulerRunning) return Future.value();
+    return _schedulerFuture = _performTaskInstanceScheduler();
+  }
 
+  Future<void> _performTaskInstanceScheduler() async {
     _isTaskInstanceSchedulerRunning = true;
 
     try {
@@ -65,6 +73,17 @@ class _MomentumAppState extends State<MomentumApp> with WidgetsBindingObserver {
       debugPrint('TaskInstanceScheduler failed: $error\n$stackTrace');
     } finally {
       _isTaskInstanceSchedulerRunning = false;
+    }
+  }
+
+  Future<void> _restoreBackup(PreparedBackup backup) async {
+    _restoring = true;
+    try {
+      await _schedulerFuture;
+      await _backupService.restore(backup);
+      if (mounted) setState(() => _session++);
+    } finally {
+      _restoring = false;
     }
   }
 
@@ -84,8 +103,12 @@ class _MomentumAppState extends State<MomentumApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      key: ValueKey(_session),
       debugShowCheckedModeBanner: false,
       title: 'Momentum',
+      locale: const Locale('de'),
+      supportedLocales: const [Locale('de')],
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFF607D8B),
@@ -95,6 +118,8 @@ class _MomentumAppState extends State<MomentumApp> with WidgetsBindingObserver {
         useMaterial3: true,
       ),
       home: WelcomePage(
+        backupService: _backupService,
+        onRestore: _restoreBackup,
         aufgabenRepository: _aufgabenRepository,
         projectRepository: _projectRepository,
       ),

@@ -76,15 +76,21 @@ class _AufgabenScreenState extends State<AufgabenScreen>
     final followedToday = _selectedDate == _lastObservedToday;
     setState(() {
       _lastObservedToday = today;
-      if (followedToday) {
+      if (followedToday || _selectedDate.isAfter(today)) {
         _selectedDate = today;
       }
     });
   }
 
   void _changeDate(int days) {
+    final date = DateTime(
+      _selectedDate.year,
+      _selectedDate.month,
+      _selectedDate.day + days,
+    );
+    if (date.isAfter(_dateOnly(DateTime.now()))) return;
     setState(() {
-      _selectedDate = _selectedDate.add(Duration(days: days));
+      _selectedDate = date;
     });
   }
 
@@ -247,8 +253,29 @@ class _AufgabenScreenState extends State<AufgabenScreen>
                     const SizedBox(height: 16),
                     _DateNavigation(
                       selectedDate: _selectedDate,
+                      onSelectDate: () async {
+                        final selected = await showDatePicker(
+                          context: context,
+                          initialDate: _selectedDate,
+                          firstDate: DateTime(
+                            _selectedDate.year < 2000
+                                ? _selectedDate.year
+                                : 2000,
+                          ),
+                          lastDate: _dateOnly(DateTime.now()),
+                          helpText: 'Tag auswählen',
+                          cancelText: 'Abbrechen',
+                          confirmText: 'Auswählen',
+                        );
+                        if (selected != null && mounted) {
+                          setState(() => _selectedDate = selected);
+                        }
+                      },
                       onPreviousDay: () => _changeDate(-1),
-                      onNextDay: () => _changeDate(1),
+                      onNextDay:
+                          _selectedDate.isBefore(_dateOnly(DateTime.now()))
+                              ? () => _changeDate(1)
+                              : null,
                     ),
                   ],
                 ],
@@ -331,11 +358,13 @@ class _DateNavigation extends StatelessWidget {
     required this.selectedDate,
     required this.onPreviousDay,
     required this.onNextDay,
+    required this.onSelectDate,
   });
 
   final DateTime selectedDate;
   final VoidCallback onPreviousDay;
-  final VoidCallback onNextDay;
+  final VoidCallback? onNextDay;
+  final VoidCallback onSelectDate;
 
   @override
   Widget build(BuildContext context) {
@@ -347,12 +376,10 @@ class _DateNavigation extends StatelessWidget {
           icon: const Icon(Icons.chevron_left),
         ),
         Expanded(
-          child: Text(
-            _formatDate(selectedDate),
-            textAlign: TextAlign.center,
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+          child: TextButton.icon(
+            onPressed: onSelectDate,
+            icon: const Icon(Icons.calendar_month_outlined, size: 18),
+            label: Text(_formatDate(selectedDate), textAlign: TextAlign.center),
           ),
         ),
         IconButton.filledTonal(

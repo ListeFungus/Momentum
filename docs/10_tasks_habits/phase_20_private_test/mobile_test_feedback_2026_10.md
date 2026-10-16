@@ -1,8 +1,8 @@
 # Momentum – Praxistest: Beobachtungen und Ideen
 
-Stand: 13. Oktober 2026  
-Status: Sammlung aus der privaten Android-Testphase; keine Umsetzung beauftragt  
-Quelle: fortlaufender Nutzertest im Chat. Die Einträge sind Beobachtungen und Vorschläge, **keine bestätigten Codefehler oder umgesetzten Funktionen**.
+Stand: 16. Oktober 2026  
+Status: #001, #007 und #014 umgesetzt; 149 Tests grün, Android-Version 1.0.0+2 bereit, Gerätenachtest offen
+Quelle: fortlaufender Nutzertest im Chat. Die ursprünglichen Einträge sind Beobachtungen und Vorschläge. Spätere Entscheidungen und Umsetzungsstände sind ausdrücklich gekennzeichnet.
 
 ## Arbeitsweise und Einordnung
 
@@ -38,7 +38,7 @@ Die Aufwandseinschätzung ist vorläufig, bis Code und Auswirkungen geprüft sin
 | 019 | Externe Kalenderanbindung | Ideen & Erweiterungen | Neue Funktion |
 | 020 | Sortierbare Anzeigegruppen | Ideen & Erweiterungen | Design/UI, Neue Funktion |
 
-**Zählung:** 20 Beobachtungen; 2 Quick Fixes, 5 Prüfen & Anpassen, 13 Ideen & Erweiterungen. #003 und #015 sind eng verbunden, aber aus Gründen der Nachvollziehbarkeit separat nummeriert. Bisher keine vom Nutzer als reproduzierter technischer Defekt bestätigten Fehler. Prioritäten (außer begründeter Datensicherung) noch nicht beschlossen.
+**Zählung:** 20 Beobachtungen; 2 Quick Fixes, 5 Prüfen & Anpassen, 13 Ideen & Erweiterungen. #003 und #015 sind eng verbunden, aber aus Gründen der Nachvollziehbarkeit separat nummeriert. Bisher keine vom Nutzer als reproduzierter technischer Defekt bestätigten Fehler. Am 16. Oktober hat der Nutzer Datensicherung (#014) als erste Priorität benannt. Der [Arbeitsplan](private_test_plan.md) enthält die vorgeschlagene Reihenfolge und Aufteilung auf kleine Änderungen in diesem Chat sowie größere separate Konzept-/Umsetzungspakete; weitere Prioritäten sind noch nicht beschlossen.
 
 ## 1 – Quick Fixes
 
@@ -46,11 +46,14 @@ Die Aufwandseinschätzung ist vorläufig, bis Code und Auswirkungen geprüft sin
 - **Ist:** Nur tageweise vor/zurück.
 - **Wunsch:** Tippen auf angezeigtes Datum öffnet Date Picker; direkt zu beliebigem Tag springen.
 - **Prüfung:** Bestehende Datumsnavigation/Anzeigezustände beachten.
+- **Umsetzung am 16. Oktober:** Datum ist antippbar; Kalenderauswahl mit deutschen Texten. Nutzer bestätigt vorläufige Begrenzung der Auswahl und Tagespfeile auf heute/vergangene Tage wegen technischem Befund T20-01 unten.
 
 ### #007 Anzahl geplanter Aufgaben pro Tag anzeigen
 - **Ist:** Bei Planung nicht unmittelbar erkennbar, wie viele Einträge an einem Tag anstehen.
 - **Wunsch:** Heute und nächste Tage zeigen Anzahl geplanter Aufgaben/Habits, gegebenenfalls erledigt/offen.
 - **Prüfung:** Was zählt (Aufgaben, Habits, Tracking, Überträge)? Aufwandseinstufung vorläufig. Anschluss #018.
+- **Präzisierung durch Nutzer am 16. Oktober:** Statt geplanter Anzahl nun erledigte Aufgaben **und Habits** anzeigen, einschließlich Wiederholungen, ohne reine Tracker. Kompaktes Sieben-Tage-Balkendiagramm oberhalb der bestehenden Sammelauswertung „Einmalige Aufgaben“; Erledigungstag maßgeblich, Tage antippbar und vergangene Zeiträume auswählbar.
+- **Umsetzung:** Diagramm und Tagesauswahl ergänzt. Bisherige Kennzahlen der einmaligen Aufgaben bleiben getrennt. Ältere Abschlüsse ohne bekanntes Erledigungsdatum werden nicht einem erfundenen Tag zugeordnet.
 
 ## 2 – Prüfen & Anpassen
 
@@ -75,6 +78,19 @@ Die Aufwandseinschätzung ist vorläufig, bis Code und Auswirkungen geprüft sin
 - **Ist-Beobachtung:** Keine für den Nutzer erkennbare manuelle Sicherungs-/Exportfunktion.
 - **Wunsch:** Vollständiges lokales Backup für Wiederherstellung (auch neues Gerät) und separater lesbarer Export, z. B. CSV/JSON.
 - **Wichtig:** Lokale Drift-Datenbank und noch keine aktive Cloud-Synchronisierung. Datensicherung vor längerer produktiver Testnutzung besonders wichtig; technische Integrität, Anhänge, Formatversion und Restore-Verhalten prüfen. Export ist nicht dasselbe wie verlustfreies Backup.
+- **Entscheidung/Umsetzung am 16. Oktober:** Vollständige Sicherungsdatei über Seitenleiste → Import & Export. Import ersetzt nach Prüfung und Bestätigung den gesamten Bestand. Keine Zusammenführung. Lesbarer Analyseexport vertagt. Formatversion 1 für Schema 22; Einzelheiten und Grenzen im Arbeitsplan.
+
+### T20-01 – Zukunftsnavigation kann aktuelle Daten vorzeitig verändern
+
+- **Technischer Prüfbefund am 16. Oktober:** Die bisherige Tagesnavigation gibt
+  das ausgewählte Datum an die Terminverarbeitung und fällige Definitionsänderungen
+  weiter. Bei zukünftigen Tagen können deshalb noch offene Einträge vorzeitig
+  abgeschlossen und Änderungen zu früh angewendet werden. Keine Behauptung,
+  dass dies bei den vorhandenen Handydaten bereits passiert ist.
+- **Bestätigte Zwischenlösung:** Tagesnavigation einschließlich Pfeilen und
+  Datumsauswahl auf heute/vergangene Tage begrenzen. Im aktuellen Paket umgesetzt.
+- **Offener Folgepunkt:** Sichere Zukunftsvorschau getrennt planen: Vorschau darf
+  weder heutige Abschlüsse noch geplante Änderungen vorzeitig ausführen. Bezug #018.
 
 ### #015 Einklappbare Karten
 - **Wunsch:** Eingeklappt nur Titel und ggf. Erledigungs-/Eingabefeld; aufgeklappt vollständige Informationen/Beschreibung.
@@ -147,7 +163,7 @@ Die Aufwandseinschätzung ist vorläufig, bis Code und Auswirkungen geprüft sin
 ## Weiteres Vorgehen
 
 1. Sammlung im laufenden Praxistest ergänzen, Originalnummern beibehalten.
-2. Für Umsetzung in anderem Chat erst Quick Fixes und Datenrisiken prüfen, bestehende Features/Code und Phase-16-Regeln berücksichtigen.
+2. Nach Nutzerwunsch vom 16. Oktober kleine Änderungen in diesem Chat behandeln, größere Konzept-/Umsetzungspakete auslagern. Zunächst Datensicherung und anschließend Quick Fixes prüfen; bestehende Features/Code und Phase-16-Regeln berücksichtigen.
 3. Vor Veränderungen an Datenmodell, Historie oder Planung konkrete Entscheidungs- und Migrationstests vereinbaren.
 4. Größere Zukunftsideen nicht automatisch als Scope der Phase 20 verstehen.
 5. Übergeordnete App-Struktur (Navigation/Monitoring und Quick Actions) steht separat in [App-weiten Konzeptideen](../../00_overview/app_concept_ideas_2026_10.md).

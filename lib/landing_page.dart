@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:momentum/core/backup/backup_service.dart';
 import 'package:momentum/features/aufgaben/data/aufgaben_repository.dart';
 import 'package:momentum/features/projekte/data/project_repository.dart';
 import 'package:momentum/hauptseiten/hauptseite.dart';
@@ -7,11 +8,15 @@ class WelcomePage extends StatelessWidget {
   const WelcomePage({
     required this.aufgabenRepository,
     required this.projectRepository,
+    required this.backupService,
+    required this.onRestore,
     super.key,
   });
 
   final AufgabenRepository aufgabenRepository;
   final ProjectRepository projectRepository;
+  final BackupService backupService;
+  final Future<void> Function(PreparedBackup) onRestore;
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +36,8 @@ class WelcomePage extends StatelessWidget {
                         (context) => Hauptseite(
                           aufgabenRepository: aufgabenRepository,
                           projectRepository: projectRepository,
+                          backupService: backupService,
+                          onRestore: onRestore,
                         ),
                   ),
                 );

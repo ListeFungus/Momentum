@@ -1,13 +1,15 @@
-# Momentum – Phase 21: Store-Release vorbereiten
+# Momentum – Phase 22: Store-Release vorbereiten
 
-Stand: 21. Juli 2026  
+Stand: 16. Oktober 2026  
 Status: Geplant
 
 ## Zweck
 
 Diese Phase bereitet den ersten öffentlichen Release vor. Sie beginnt erst nach
-der privaten Nutzung/Testphase und soll klären, ob die App wirklich in den Store
-gehen kann.
+der privaten Nutzung/Testphase und der Bearbeitung releasekritischer Ergebnisse
+in [Phase 21](../phase_21_test_improvements/README.md). Sie soll klären, ob die
+App wirklich in den Store gehen kann. Weitere Verbesserungsideen müssen dafür
+nicht vollständig umgesetzt sein.
 
 ## Dokumente
 

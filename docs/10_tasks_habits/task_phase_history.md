@@ -1,6 +1,7 @@
 # Momentum – Phasenprotokoll der Aufgabenstruktur
 
-Stand: 8. Oktober 2026  
+Stand: 16. Oktober 2026
+
 Status: Aufgaben-Konzept, Regeln und Umsetzungshistorie
 
 ## Zweck
@@ -94,8 +95,9 @@ prominenter Ausweichbutton neben der Zielantwort.
 | 17 | abgeschlossen; release-relevant | Papierkorb, Wiederherstellung und Pausen umgesetzt |
 | 18 | abgeschlossen; release-relevant | Projekte als Ordnungs-, Lebenszyklus- und Auswertungsebene umgesetzt |
 | 19 | abgeschlossen; release-relevant | Lokale Grundlagen für spätere Firebase-Synchronisierung umgesetzt; Cloud-Sync bleibt später |
-| 20 | geplant; Release-Vorbereitung | Private Nutzung und kleiner Testkreis ohne Store-Sichtbarkeit |
-| 21 | geplant; Release-Vorbereitung | Store-Release vorbereiten, inklusive Paywall-/Free-Version-Entscheidung |
+| 20 | läuft | Private Nutzung, Beobachtungen und Gerätenachtests ohne Store-Sichtbarkeit |
+| 21 | aktiv | Testergebnisse ausarbeiten und umsetzen; erstes Verbesserungspaket bereits umgesetzt |
+| 22 | geplant; Release-Vorbereitung | Store-Release vorbereiten, inklusive Paywall-/Free-Version-Entscheidung |
 | 22+ | geplant/später | Unteraufgaben, Unterprojekte und weitere Komfortfunktionen nach dem ersten Release |
 
 ## Phase 1 – Fachliche Regelmatrix
@@ -703,7 +705,11 @@ Aufgaben-/Habit-App-Version gehört:
   - App selbst real im Alltag nutzen
   - wenige bekannte Tester ohne öffentliche Store-Sichtbarkeit einladen
   - Rückmeldungen zu Verständlichkeit, Stabilität und Nutzen sammeln
-- Phase 21: Store-Release vorbereiten:
+- Phase 21: Testergebnisse ausarbeiten und umsetzen:
+  - Änderungen und Erweiterungen aus dem Test konzipieren
+  - bestätigte Pakete umsetzen, prüfen und Nachtests zuordnen
+  - Prioritäten, aktuellen Stand und zurückgestellte Ideen dokumentieren
+- Phase 22: Store-Release vorbereiten:
   - Datenintegrität prüfen
   - UX-Feinschliff und leere Zustände prüfen
   - Store-/Distribution-Entscheidung treffen
@@ -1235,3 +1241,7 @@ echte Übertragung. Diese Grenzen sind im Phase-19-Plan als T19-06 festgehalten.
 - Keine fachlichen Regeln nur hier dokumentieren. Fachregeln gehören weiterhin
   in die Regelmatrix.
 - Keine offenen Fragen stillschweigend als entschieden darstellen.
+
+## 16. Oktober 2026 – Verbesserungsphase eingefügt
+
+Phase 20 bleibt der Praxistest. Die neue [Phase 21](phase_21_test_improvements/README.md) führt Ausarbeitung und Umsetzung der Ergebnisse; Store-Release verschiebt sich auf [Phase 22](phase_22_store_release/README.md). Bereits implementierte Verbesserungen aus Commit `7263ea9` sind in Phase 21 dokumentiert; Gerätenachtests bleiben offen.

@@ -9,6 +9,14 @@ Dieses Dokument hält später fest, wie die private Nutzung und der kleine
 Testkreis verlaufen sind, welche Rückmeldungen entstanden sind und welche Punkte
 vor dem öffentlichen Release noch relevant wurden.
 
+## 16. Oktober 2026 – Update und externe Sicherung bestätigt
+
+- Nutzer bestätigt im Phase-21-Chat: neue Version installiert und eine
+  Sicherungsdatei nach Google Drive exportiert.
+- Dies bestätigt Installation und externen Export. Bestandsprüfung, Datumsauswahl,
+  Tagesdiagramm und manuelle Wiederherstellung sind damit nicht mitbestätigt.
+- Keine Einsicht oder technische Prüfung der Drive-Datei durch den Agenten.
+
 ## 16. Oktober 2026 – Datensicherung, Datumsauswahl und Tagesdiagramm
 
 - Nutzer beauftragt #014, #001 und das präzisierte #007 direkt in diesem Chat.
@@ -76,3 +84,7 @@ vor dem öffentlichen Release noch relevant wurden.
   Build bestätigt noch keine Installation oder Funktionsprüfung auf dem Handy.
 - APK-Übertragung per USB und manuelle Installation erklärt. Gerätemodell,
   Android-Version, Installations- und Startbestätigung stehen noch aus.
+
+## 16. Oktober 2026 – Ausarbeitung in eigene Phase verschoben
+
+Auf Nutzerwunsch führt die neue [Phase 21](../phase_21_test_improvements/README.md) die Konzeptklärung, Änderungspakete und den aktuellen Umsetzungsstand. Die oben erwähnten damaligen Planungsabschnitte stehen jetzt im [Phase-21-Arbeitsplan](../phase_21_test_improvements/test_improvements_plan.md) beziehungsweise im [bereits umgesetzten Stand](../phase_21_test_improvements/implemented_changes.md). Originalmeldungen und Nachtests bleiben hier. Phase 20 läuft weiter; die bisherige Store-Phase 21 wird Phase 22. Keine App-Änderung durch diese Neuordnung.

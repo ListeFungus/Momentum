@@ -1,24 +1,24 @@
-# Momentum – Phase 21: Store-Release vorbereiten
+# Momentum – Phase 22: Store-Release vorbereiten
 
-Stand: 21. Juli 2026  
+Stand: 16. Oktober 2026  
 Status: Geplant
 
 ## Ziel
 
 Die erste öffentliche Version soll erst vorbereitet werden, wenn die App als
 Aufgaben-/Habit-Version steht und die private Testphase keine schweren offenen
-Blocker mehr zeigt.
+Blocker mehr zeigt und releasekritische Ergebnisse in Phase 21 bearbeitet sind.
 
 ## Geplanter Ablauf
 
 | Schritt | Inhalt | Status |
 |---:|---|---|
-| 20.1 | Release-Mindestumfang gegen Planung prüfen | offen |
-| 20.2 | Offene Blocker und bewusste Nicht-Ziele festhalten | offen |
-| 20.3 | Paywall-/Free-Version-Entscheidung treffen oder bewusst verschieben | offen |
-| 20.4 | Store-/Distribution-Anforderungen sammeln | offen |
-| 20.5 | Datenschutz, Export, Löschung und rechtliche Pflichttexte prüfen | offen |
-| 20.6 | Release-Notizen und erste öffentliche Version vorbereiten | offen |
+| 22.1 | Release-Mindestumfang gegen Planung prüfen | offen |
+| 22.2 | Offene Blocker und bewusste Nicht-Ziele festhalten | offen |
+| 22.3 | Paywall-/Free-Version-Entscheidung treffen oder bewusst verschieben | offen |
+| 22.4 | Store-/Distribution-Anforderungen sammeln | offen |
+| 22.5 | Datenschutz, Export, Löschung und rechtliche Pflichttexte prüfen | offen |
+| 22.6 | Release-Notizen und erste öffentliche Version vorbereiten | offen |
 
 ## Paywall-Einordnung
 

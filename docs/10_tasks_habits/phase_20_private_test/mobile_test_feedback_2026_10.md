@@ -38,7 +38,7 @@ Die Aufwandseinschätzung ist vorläufig, bis Code und Auswirkungen geprüft sin
 | 019 | Externe Kalenderanbindung | Ideen & Erweiterungen | Neue Funktion |
 | 020 | Sortierbare Anzeigegruppen | Ideen & Erweiterungen | Design/UI, Neue Funktion |
 
-**Zählung:** 20 Beobachtungen; 2 Quick Fixes, 5 Prüfen & Anpassen, 13 Ideen & Erweiterungen. #003 und #015 sind eng verbunden, aber aus Gründen der Nachvollziehbarkeit separat nummeriert. Bisher keine vom Nutzer als reproduzierter technischer Defekt bestätigten Fehler. Am 16. Oktober hat der Nutzer Datensicherung (#014) als erste Priorität benannt. Der [Arbeitsplan](private_test_plan.md) enthält die vorgeschlagene Reihenfolge und Aufteilung auf kleine Änderungen in diesem Chat sowie größere separate Konzept-/Umsetzungspakete; weitere Prioritäten sind noch nicht beschlossen.
+**Zählung:** 20 Beobachtungen; 2 Quick Fixes, 5 Prüfen & Anpassen, 13 Ideen & Erweiterungen. #003 und #015 sind eng verbunden, aber aus Gründen der Nachvollziehbarkeit separat nummeriert. Bisher keine vom Nutzer als reproduzierter technischer Defekt bestätigten Fehler. Am 16. Oktober hat der Nutzer Datensicherung (#014) als erste Priorität benannt. Der [Phase-21-Arbeitsplan](../phase_21_test_improvements/test_improvements_plan.md) enthält die vorgeschlagene Reihenfolge und Aufteilung auf kleine Änderungen in diesem Chat sowie größere separate Konzept-/Umsetzungspakete; weitere Prioritäten sind noch nicht beschlossen.
 
 ## 1 – Quick Fixes
 
@@ -78,7 +78,7 @@ Die Aufwandseinschätzung ist vorläufig, bis Code und Auswirkungen geprüft sin
 - **Ist-Beobachtung:** Keine für den Nutzer erkennbare manuelle Sicherungs-/Exportfunktion.
 - **Wunsch:** Vollständiges lokales Backup für Wiederherstellung (auch neues Gerät) und separater lesbarer Export, z. B. CSV/JSON.
 - **Wichtig:** Lokale Drift-Datenbank und noch keine aktive Cloud-Synchronisierung. Datensicherung vor längerer produktiver Testnutzung besonders wichtig; technische Integrität, Anhänge, Formatversion und Restore-Verhalten prüfen. Export ist nicht dasselbe wie verlustfreies Backup.
-- **Entscheidung/Umsetzung am 16. Oktober:** Vollständige Sicherungsdatei über Seitenleiste → Import & Export. Import ersetzt nach Prüfung und Bestätigung den gesamten Bestand. Keine Zusammenführung. Lesbarer Analyseexport vertagt. Formatversion 1 für Schema 22; Einzelheiten und Grenzen im Arbeitsplan.
+- **Entscheidung/Umsetzung am 16. Oktober:** Vollständige Sicherungsdatei über Seitenleiste → Import & Export. Import ersetzt nach Prüfung und Bestätigung den gesamten Bestand. Keine Zusammenführung. Lesbarer Analyseexport vertagt. Formatversion 1 für Schema 22; Einzelheiten und Grenzen im [umgesetzten Stand der Phase 21](../phase_21_test_improvements/implemented_changes.md).
 
 ### T20-01 – Zukunftsnavigation kann aktuelle Daten vorzeitig verändern
 
@@ -163,7 +163,7 @@ Die Aufwandseinschätzung ist vorläufig, bis Code und Auswirkungen geprüft sin
 ## Weiteres Vorgehen
 
 1. Sammlung im laufenden Praxistest ergänzen, Originalnummern beibehalten.
-2. Nach Nutzerwunsch vom 16. Oktober kleine Änderungen in diesem Chat behandeln, größere Konzept-/Umsetzungspakete auslagern. Zunächst Datensicherung und anschließend Quick Fixes prüfen; bestehende Features/Code und Phase-16-Regeln berücksichtigen.
+2. Konzepte, Entscheidungen und Umsetzungsstand im [Phase-21-Arbeitsplan](../phase_21_test_improvements/test_improvements_plan.md) führen. Größere Themen im neuen Chat ausarbeiten, anschließend im bisherigen Chat umsetzen. #001/#007/#014 sind implementiert; Gerätenachtest und erste externe Sicherung stehen noch aus.
 3. Vor Veränderungen an Datenmodell, Historie oder Planung konkrete Entscheidungs- und Migrationstests vereinbaren.
 4. Größere Zukunftsideen nicht automatisch als Scope der Phase 20 verstehen.
 5. Übergeordnete App-Struktur (Navigation/Monitoring und Quick Actions) steht separat in [App-weiten Konzeptideen](../../00_overview/app_concept_ideas_2026_10.md).

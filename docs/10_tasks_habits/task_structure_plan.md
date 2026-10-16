@@ -1,6 +1,7 @@
-﻿# Momentum â€“ Aufgaben/Habits: Arbeitsplan
+# Momentum â€“ Aufgaben/Habits: Arbeitsplan
 
-Stand: 8. Oktober 2026  
+Stand: 16. Oktober 2026
+
 Status: Aktives Planungsdokument
 
 ## So ist die Dokumentation gedacht
@@ -38,8 +39,9 @@ Detaildokumente dieser Phase zusammen.
 | [Phase 17 â€“ Papierkorb](phase_17_trash/README.md) | [`trash_plan.md`](phase_17_trash/trash_plan.md) | umgesetzt; Details in Plan und Verlauf | [`trash_history.md`](phase_17_trash/trash_history.md) |
 | [Phase 18 â€“ Projekte](phase_18_projects/README.md) | [`projects_plan.md`](phase_18_projects/projects_plan.md) | [`projects_concept.md`](phase_18_projects/projects_concept.md) | [`projects_history.md`](phase_18_projects/projects_history.md) |
 | [Phase 19 â€“ Sync-Vorbereitung](phase_19_sync_preparation/README.md) | [`sync_preparation_plan.md`](phase_19_sync_preparation/sync_preparation_plan.md) | umgesetzt; Details in Plan und Verlauf | [`sync_preparation_history.md`](phase_19_sync_preparation/sync_preparation_history.md) |
-| [Phase 20 â€“ Private Nutzung/Test](phase_20_private_test/README.md) | [`private_test_plan.md`](phase_20_private_test/private_test_plan.md) | noch offen | [`private_test_history.md`](phase_20_private_test/private_test_history.md) |
-| [Phase 21 â€“ Store-Release](phase_21_store_release/README.md) | [`store_release_plan.md`](phase_21_store_release/store_release_plan.md) | noch offen | [`store_release_history.md`](phase_21_store_release/store_release_history.md) |
+| [Phase 20 â€“ Private Nutzung/Test](phase_20_private_test/README.md) | [`private_test_plan.md`](phase_20_private_test/private_test_plan.md) | läuft; Nachtests offen | [`private_test_history.md`](phase_20_private_test/private_test_history.md) |
+| [Phase 21 – Testergebnisse und Verbesserungen](phase_21_test_improvements/README.md) | [Arbeitsplan](phase_21_test_improvements/test_improvements_plan.md) | aktiv; erstes Paket umgesetzt | [Verlauf](phase_21_test_improvements/test_improvements_history.md) |
+| [Phase 22 â€“ Store-Release](phase_22_store_release/README.md) | [`store_release_plan.md`](phase_22_store_release/store_release_plan.md) | noch offen | [`store_release_history.md`](phase_22_store_release/store_release_history.md) |
 | Release-Ideen | [`release_ideas.md`](release_ideas.md) | noch offen | in `release_ideas.md` enthalten |
 
 Die Ã¤lteren Spezialdokumente [`task_rule_matrix.md`](task_rule_matrix.md) und
@@ -51,7 +53,7 @@ die beiden Nachschlagewerke Ã¼bernommen wurden.
 
 Gerade abgeschlossen ist **Phase 19: Sync-Vorbereitung**.
 Die Phasen 14 bis 18 bilden weiterhin die fachliche und technische Grundlage;
-als Nächstes folgt Phase 20 mit privater Nutzung und Praxistests.
+Phase 20 läuft als privater Praxistest; Phase 21 bündelt jetzt die Ausarbeitung und Umsetzung der Ergebnisse.
 Der
 erste fachliche GroÃŸblock der App ist `10_tasks_habits`: Aufgaben, Habits,
 Erfassung und Auswertung. Release-Themen kommen erst danach, wenn dieser Block
@@ -111,8 +113,9 @@ Store-Release-Vorbereitung. Neue Ideen vor dem Release werden in
 | 17 | abgeschlossen; release-relevant | Papierkorb, Wiederherstellung, Pausen, Mehrfachbündel und endgültige Löschung sind umgesetzt und geprüft. |
 | 18 | abgeschlossen; release-relevant | Projekte mit historischer Aufgaben-/Bündelzuordnung, Archiv, Papierkorb, Restore, Übersicht und Zeitraum-Auswertung; Schema 21. |
 | 19 | abgeschlossen; release-relevant | Lokale Sync-Grundlagen, Schema 22, Änderungszeitpunkte, schreibsparende No-ops und nachvollziehbarer Kartenreset; noch keine Cloud-Synchronisierung. |
-| 20 | geplant; Release-Vorbereitung | Private Nutzung und Testphase ohne Store-Sichtbarkeit. |
-| 21 | geplant; Release-Vorbereitung | Store-Release vorbereiten, inklusive Paywall-/Free-Version-Entscheidung. |
+| 20 | läuft | Private Android-Nutzung, Beobachtungen und Gerätenachtests. |
+| 21 | aktiv | Testergebnisse ausarbeiten und Änderungen umsetzen; #001/#007/#014 bereits automatisiert geprüft. |
+| 22 | geplant; Release-Vorbereitung | Store-Release vorbereiten, inklusive Paywall-/Free-Version-Entscheidung. |
 | 22+ | spÃ¤ter | Unteraufgaben, Unterprojekte und weitere Komfortfunktionen nach dem ersten Release. |
 
 ## Aktuelle Phase und nÃ¤chste Schritte
@@ -120,7 +123,8 @@ Store-Release-Vorbereitung. Neue Ideen vor dem Release werden in
 | Bereich | Stand | Was jetzt geklÃ¤rt oder getan wird |
 |---|---|---|
 | Gerade abgeschlossen | Phase 19: Sync-Vorbereitung | Pakete 19a–19d und Schema 22 sind umgesetzt. Echte Änderungen werden nachvollziehbar gestempelt, No-ops bleiben schreibfrei und Kartenresets erhalten; 142 Tests und die vollständige Analyse sind grün. |
-| Als Nächstes | Phase 20: Private Nutzung/Test | App im Alltag nutzen, Pflichtprobleme sammeln und einen kleinen Testkreis samt Feedback- und Abbruchkriterien vorbereiten. |
+| Laufend | Phase 20: Private Nutzung/Test | Beobachtungen und Gerätenachtests sammeln; Update 1.0.0+2 und externe Sicherung noch nicht bestätigt. |
+| Aktuell | Phase 21: Testergebnisse und Verbesserungen | Konzepte in neuem Chat ausarbeiten, anschließend im bisherigen Chat umsetzen. [Führender Plan](phase_21_test_improvements/test_improvements_plan.md). |
 | Abgeschlossen | Phase 16: Historisierung/Bearbeitung | Pakete 16a–16f, Schema 19, historische Auflösung, Korrekturen und Zuordnungen sind umgesetzt. 117 Aufgaben-/Projekt-Tests und die vollständige Analyse sind grün. |
 | Abgeschlossen | Phase 15: Kartenkennzahl | Nutzerauswahl, zielbasierter Default, lokale Berechnung und Schema 18 sind umgesetzt. Drift-Generierung, Analyse, gezielte Tests und manueller Praxistest sind extern bestätigt. |
 | Gerade abgeschlossen | Phase 14: Zielbewertung | 14a Statusziel-Livebewertung, 14b historische Zielbloecke, 14c Zielaenderungen, 14d Wertziele fuer Zahl/Dauer/Buendel und 14e UI-Cleanup sind extern geprueft. Phase 14 ist abgeschlossen. |
@@ -128,20 +132,20 @@ Store-Release-Vorbereitung. Neue Ideen vor dem Release werden in
 | Gerade abgeschlossen | Phase 13c.1: Buendel-Erstellung und Tageszuordnung nachschaerfen | Extern bestaetigt: `build_runner` erfolgreich, Buendel-Tests `+9 All tests passed`, gezielte Analyse `No issues found`. |
 | Gerade abgeschlossen | Phase 12e: Zwei-Werte-Buendel | Buendel verbinden zwei Wert-Trackings, zeigen eine gemeinsame Karte, berechnen Zeitintervall/Differenz/Summe und koennen aufgeloest werden. |
 | Fachliche Release-Voraussetzungen | Phase 15 bis 19 | Abgeschlossen: Kartenkennzahlen, Historisierung, Papierkorb, Projekte und lokale Sync-Vorbereitung stehen. |
-| Danach | Phase 20 bis 21 | Private Testphase und eigentliche Store-Release-Vorbereitung. |
+| Danach | Phase 22: Store-Release | Nach Bearbeitung der releasekritischen Testergebnisse Store-Vorbereitung beginnen. |
 
 ## Aktuell zu klärende Fragen
 
 Für Phase 19 sind keine fachlichen oder technischen Abschlussfragen offen.
 Der [Sync-Plan](phase_19_sync_preparation/sync_preparation_plan.md) trennt die
 umgesetzte lokale Vorbereitung klar von der späteren echten Cloud-
-Synchronisierung. Als Nächstes beginnt Phase 20 mit privater Nutzung und Test.
+Synchronisierung. Phase 20 läuft; aktuelle Änderungsplanung und Umsetzungsstand stehen in Phase 21.
 
 | Frage | Warum wichtig? | Vorläufiger Stand |
 |---|---|---|
 | Wie werden die neuen Historien beim Papierkorb behandelt? | Wiederherstellung darf keine Definitionen, Korrekturen oder Zuordnungen verlieren. | In Phase 17 umgesetzt: Daten bleiben bis zum Purge erhalten und werden während des Papierkorbs nicht angewandt. |
 | Welche Projektfunktionen müssen für Release fertig sein? | Projekte sollen Aufgaben bündeln und selbst auswertbar sein. | In [`projects_plan.md`](phase_18_projects/projects_plan.md) vorbereitet. |
-| Wie wird eine mögliche Paywall eingeordnet? | Bezahlgrenzen sollten erst nach klarer App-Funktion entschieden werden. | Bis Phase 21 nur in [`release_ideas.md`](release_ideas.md) sammeln. |
+| Wie wird eine mögliche Paywall eingeordnet? | Bezahlgrenzen sollten erst nach klarer App-Funktion entschieden werden. | Bis Phase 22 nur in [`release_ideas.md`](release_ideas.md) sammeln. |
 
 Phase 12 ist abgeschlossen. Die Umsetzung speichert Rohwerte nur in Entries
 beziehungsweise Teil-Entries und berechnet Buendelwerte dynamisch, damit spaeter
@@ -189,8 +193,9 @@ bleiben vorerst hier, bis sie vollstÃ¤ndig in
 | 17 | Papierkorb und Wiederherstellung | Zeitversetzte LÃ¶schung, Wiederherstellung und manuelles Leeren | geplant |
 | 18 | Projekte releasefÃ¤hig ausarbeiten | Aufgaben/Habits Projekten zuordnen, Projektansicht und Projektauswertung klÃ¤ren, LÃ¶schregeln entscheiden | geplant; Details in `phase_18_projects` |
 | 19 | Firebase-Synchronisierung vorbereiten | KonfliktfÃ¤hige, synchronisierbare Strukturen | geplant; nach erweitertem Eingabemodell |
-| 20 | Private Nutzung und Testphase | App selbst real nutzen, dann wenigen bekannten Testern geben, ohne Ã¶ffentliche Store-Sichtbarkeit | geplant; Details in `phase_20_private_test` |
-| 21 | Store-Release vorbereiten | ReleasefÃ¤higkeit prÃ¼fen, Paywall-/Free-Version-Entscheidung treffen oder bewusst verschieben, Store-/Distribution-Themen vorbereiten | geplant; Details in `phase_21_store_release` |
+| 20 | Private Nutzung und Testphase | App privat testen, Beobachtungen und Nachtests sammeln | läuft; Details in `phase_20_private_test` |
+| 21 | Testergebnisse ausarbeiten und umsetzen | Änderungen und Erweiterungen konzipieren, umsetzen und nachtesten | aktiv; Details in `phase_21_test_improvements` |
+| 22 | Store-Release vorbereiten | ReleasefÃ¤higkeit prÃ¼fen, Paywall-/Free-Version-Entscheidung treffen oder bewusst verschieben, Store-/Distribution-Themen vorbereiten | geplant; Details in `phase_22_store_release` |
 
 Die Schema-Erweiterung erfolgt bewusst vor der vollstÃ¤ndigen Bearbeitungs-UI.
 Dadurch werden keine Felder angeboten, deren Werte noch nicht dauerhaft
@@ -234,11 +239,12 @@ fachlich nicht mehr nur ein Prototyp sein.
 | Phase 18 | Projekte | Aufgaben/Habits lassen sich Projekten zuordnen; Projekte haben eine brauchbare Detailansicht und Auswertung. |
 | Phase 19 | Sync-Vorbereitung | Das Datenmodell ist auf spÃ¤tere Firebase-Synchronisierung vorbereitet. |
 | Phase 20 | Private Nutzung/Test | Eigene echte Nutzung und kleiner Bekannten-Test ohne Ã¶ffentliche Store-Sichtbarkeit. |
-| Phase 21 | Store-Release | Ã–ffentlicher Release, Paywall-/Free-Version und Distribution werden vorbereitet. |
+| Phase 21 | Testergebnisse und Verbesserungen | Rückmeldungen in begrenzte Änderungspakete übersetzen; aktueller Stand und offene Konzepte werden hier geführt. |
+| Phase 22 | Store-Release | Ã–ffentlicher Release, Paywall-/Free-Version und Distribution werden vorbereitet. |
 
 Paywall- und Monetarisierungsideen werden vorerst nicht als feste Phase
 behandelt, sondern in [`release_ideas.md`](release_ideas.md) gesammelt. Erst
-wenn die App fachlich steht, wird in Phase 21 entschieden, ob eine Free/Paid-
+wenn die App fachlich steht, wird in Phase 22 entschieden, ob eine Free/Paid-
 Grenze fÃ¼r den Store-Release nÃ¶tig ist.
 
 ## Aktuell bestÃ¤tigte Entscheidungen

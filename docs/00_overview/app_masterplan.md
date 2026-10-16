@@ -1,6 +1,7 @@
 # Momentum – App-Masterplan
 
-Stand: 21. Juli 2026  
+Stand: 16. Oktober 2026
+
 Status: Lebendes Konzept- und Orientierungsdokument
 
 ## Zweck dieses Dokuments
@@ -153,7 +154,8 @@ leicht planbar, eindeutig beantwortbar und später sinnvoll auswertbar sein.
 - [Phase 11: Vollständige Auswertung](../10_tasks_habits/phase_11_complete_analytics/README.md)
 - [Phase 18: Projekte](../10_tasks_habits/phase_18_projects/README.md)
 - [Phase 20: Private Nutzung/Test](../10_tasks_habits/phase_20_private_test/README.md)
-- [Phase 21: Store-Release vorbereiten](../10_tasks_habits/phase_21_store_release/README.md)
+- [Phase 21: Testergebnisse ausarbeiten und umsetzen](../10_tasks_habits/phase_21_test_improvements/README.md)
+- [Phase 22: Store-Release vorbereiten](../10_tasks_habits/phase_22_store_release/README.md)
 
 ### Projektlöschung
 
@@ -559,3 +561,5 @@ So bleibt Detailarbeit anschlussfähig, ohne den großen Zusammenhang zu verlier
 ## Neuer Ideenstand aus der privaten Testphase (13. Oktober 2026)
 
 Die übergreifenden Ideen **Navigation mit Tagesübersicht und Monitoring** (#A01) sowie **Quick Actions / Quick Task** (#A02) sind als noch unbeschlossene Vorschläge im [separaten Konzeptideen-Dokument](app_concept_ideas_2026_10.md) gesammelt. Sie erweitern die Gesamtvision, ohne den Phase-20-Umfang zu ändern. Die [20 konkreten Beobachtungen aus dem Android-Praxistest](../10_tasks_habits/phase_20_private_test/mobile_test_feedback_2026_10.md) bleiben im zugehörigen Testordner.
+
+Seit dem 16. Oktober führt [Phase 21](../10_tasks_habits/phase_21_test_improvements/test_improvements_plan.md) die Ausarbeitung, Prioritäten und den Umsetzungsstand dieser Rückmeldungen. Die Store-Vorbereitung ist dadurch Phase 22.

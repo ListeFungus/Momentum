@@ -4,7 +4,84 @@ Stand: 16. Oktober 2026
 
 Status: Kartenpaket umgesetzt und automatisiert geprüft; Gerätenachtest und weitere Konzepte offen
 
+## 16. Oktober 2026 – Beide Umfänge des Artenwechsels bestätigt
+
+- Nutzer verlangt bei #013 beide Optionen zur Auswahl: Artenwechsel ab dem
+  Wechsel sowie Umordnung einschließlich bisheriger Einträge.
+- Im Plan als feste Anforderung übernommen; die vorherige Empfehlung nur für
+  künftige Zuordnung ist damit keine Einschränkung des Umfangs.
+- Nächste offene Regel: bestehenden Rhythmus erhalten und bei einmaliger
+  Aufgabe → Habit einen Rhythmus ausdrücklich wählen. Noch unbestätigter Vorschlag.
+
+## 16. Oktober 2026 – Planung mit #013 fortgesetzt
+
+- Nutzer möchte nach Vorbereitung von #002 zunächst weiter planen. Keine
+  Implementierung von #002 begonnen; nächstes konkretes Thema ist #013.
+- Originalwunsch Konvertierung ohne Neuanlage übernommen. Gemeinsame Datenstruktur,
+  getrennte Felder für Art/Rhythmus und historische Artzuordnung gezielt geprüft.
+- Noch offene Entscheidung zur Zuordnung bisheriger Einträge im Plan festgehalten:
+  Wechsel ab jetzt versus ausdrücklich rückwirkende Korrektur der Art. Empfehlung
+  des Agenten bleibt als unbestätigter Vorschlag erkennbar.
+
+## 16. Oktober 2026 – Technische Umsetzung von #002 vorbereitet
+
+- Nach Bestätigung gezielt Startänderung, Definitionsauflösung, Werteingabe,
+  Korrekturen, Tagesanzeige, Einzel-/Bündelauswertung und Wertziele geprüft.
+- Umsetzung im Plan konkretisiert: aktuelle Startgrenze für erwartete reine
+  Messungen von unveränderter Definitionszuordnung vorhandener Werte trennen;
+  vorhandene Speicherfelder reichen nach dem vorgesehenen Ansatz aus.
+- Zusätzliche Ausblendungsstelle in Bündel-Tagesanzeige und -Auswertung erkannt:
+  vorhandene Messpaare dürfen nicht allein wegen fehlender Fälligkeit entfallen.
+- Gemeinsame Freigabeprüfung, Speichervorgang, frühere Definitionszuordnung,
+  Formular, Auswertungsgrenzen und gezielte Abnahmefälle dokumentiert. Technische
+  Festlegungen ausdrücklich von Nutzerentscheidungen unterschieden.
+- Keine weitere Grundsatzfrage festgestellt. Keine App-Codeänderung, kein
+  Testlauf und kein neuer Build für diese Dokumentationsarbeit.
+
+## 16. Oktober 2026 – Startdatum: Werte erhalten, Terminserien vorerst sperren
+
+- Nutzer bestätigt für #002: Startdatum darf hinter vorhandene Messwerte
+  verschoben werden. Diese bleiben sichtbar und in passenden Auswertungen
+  enthalten; das neue Datum steuert den Beginn erwarteter Messungen.
+- Nutzer schlägt zur Vereinfachung die vorläufige Sperre für wiederkehrende
+  Aufgaben vor, um deren Neuberechnung zu verhindern; als Grenze festgehalten.
+- Gezielter Codebefund: Reines Tracking erzeugt auch bei täglicher Anzeige keine
+  automatische Terminserie. Die Sperre deshalb nicht pauschal anhand eines
+  gesetzten Wiederholungsrhythmus auf den gewünschten Gewichtstracker ausweiten.
+- Bisherige Auswertungsgrenze am Startdatum würde frühere Werte ausblenden.
+  Erforderliche Trennung von Messhistorie und erwarteten Messtagen sowie
+  Prüffälle im Plan ergänzt. Nur Dokumentation geändert; Umsetzung noch offen.
+
+## 16. Oktober 2026 – Anforderungen und eigene Vorschläge abgeglichen
+
+- Auf Nutzerauftrag Originalmeldungen #001–#020, A01/A02 und T20-01 gegen
+  aktive Planung und bisherige Gesprächsentscheidungen geprüft.
+- Restliche Verengung von #002 auch in Titel/Themenübersicht entfernt. Bei
+  #003/#015 den zunächst zu engen Vorschlag ohne Optionen vom später durch den
+  Nutzer bestätigten und umgesetzten Einstellungsumfang unterschieden.
+- #013: Kopie nicht als Ersatz für gewünschte Konvertierung behandeln. A02:
+  bereits beschriebene Quick-Task-Regeln nicht erneut zur Grundsatzfrage machen.
+  #020: Gruppenbenennung und Reihenfolge ausdrücklich im Paket erhalten.
+- Vorläufige Priorisierung nicht als bestätigte Zurückstellung kennzeichnen;
+  Auswahl Timer/manuell/beides bei #016 weiterhin offen lassen. Technische
+  Ausführungsdetails von ausdrücklich bestätigten Kartenregeln getrennt.
+- Bereits dokumentierte Nutzeränderungen bei #001/#007/#014 bleiben gültig;
+  keine weitere ersetzende Umdeutung in den übrigen geprüften Punkten gefunden.
+- Verbindliche Regel gegen Anforderungsverschiebung in `AGENTS.md` und im
+  Arbeitsplan ergänzt. Nur Dokumentation/Arbeitsregeln geändert, kein App-Code.
+
 ## 16. Oktober 2026 – Kartenpaket bestätigt und umgesetzt
+
+Klarstellung zu #002: Der Nutzer verweist auf seine bereits konkrete Beschreibung.
+Startdatum früher/später ändern bleibt der maßgebliche Wunsch. Der alternative
+Vorschlag eines separaten Nachtragswegs wurde nicht bestätigt und ersetzt ihn
+nicht. Weitere Fragen sollen sich auf tatsächlich offene Folgen beschränken.
+
+Anschließend fordert der Nutzer „weiter“ an. #002 wird als nächstes Thema gezielt
+vorgeprüft. Startgrenze, Definitionsversionen und virtuelle fehlende Messungen
+begründen die erste Konzeptfrage: alte Messwerte ergänzen oder den aktiven
+Trackingbeginn ändern? Empfehlung und Befunde im Arbeitsplan, noch keine
+Entscheidung oder Implementierung. Karten-Gerätenachtest weiterhin offen.
 
 - Nutzer bestätigt Standards kompakt/mehrere, dauerhaftes Merken je Aufgabe oder
   Bündel, gespeichertes automatisches Schließen und Aufnahme in die Sicherung.

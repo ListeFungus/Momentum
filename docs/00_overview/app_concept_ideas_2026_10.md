@@ -27,3 +27,7 @@ Bezüge: bestehende geplante Diagnostik und Analyse, Phase-20-Feedback #011 (Tra
 - Konkrete Praxistest-Beobachtungen #001–#020: [Phase-20-Testprotokoll](../10_tasks_habits/phase_20_private_test/mobile_test_feedback_2026_10.md).
 - Der [App-Masterplan](app_masterplan.md) enthält Vision, vorhandene Bereiche und Architekturleitplanken.
 - Dieses Dokument ist ein offener Ideenpool. Umsetzung nur nach Abgleich mit bestehenden Modulen, Priorisierung und fachlicher Entscheidung.
+
+## Ausarbeitung ab 16. Oktober 2026
+
+Priorität, Änderungspakete und Umsetzungsstand zu A01/A02 werden im [Phase-21-Arbeitsplan](../10_tasks_habits/phase_21_test_improvements/test_improvements_plan.md) geführt. Dieses Dokument bleibt die Quelle der übergreifenden Ideen; ihre Aufnahme ist noch kein Umsetzungsauftrag.

@@ -33,14 +33,16 @@ class CheckboxTaskInput extends StatelessWidget {
                 }
               },
             ),
-            Text(
-              isCompleted ? 'Erledigt' : 'Als erledigt markieren',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color:
-                    isCompleted
-                        ? accentColor ?? colorScheme.primary
-                        : colorScheme.onSurfaceVariant,
-                fontWeight: FontWeight.w600,
+            Flexible(
+              child: Text(
+                isCompleted ? 'Erledigt' : 'Als erledigt markieren',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color:
+                      isCompleted
+                          ? accentColor ?? colorScheme.primary
+                          : colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ],

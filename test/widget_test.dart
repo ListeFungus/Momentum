@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:momentum/core/backup/backup_service.dart';
 import 'package:momentum/core/database/app_database.dart';
+import 'package:momentum/core/settings/card_display_repository.dart';
+import 'package:momentum/core/settings/card_display_scope.dart';
 import 'package:momentum/features/aufgaben/data/aufgaben_repository.dart';
 import 'package:momentum/features/projekte/data/project_repository.dart';
 import 'package:momentum/landing_page.dart';
@@ -15,6 +17,12 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
+        navigatorObservers: [cardDisplayRouteObserver],
+        builder:
+            (_, child) => CardDisplayHost(
+              repository: CardDisplayRepository(database),
+              child: child!,
+            ),
         home: WelcomePage(
           aufgabenRepository: repository,
           projectRepository: projectRepository,
@@ -23,6 +31,8 @@ void main() {
         ),
       ),
     );
+
+    await tester.pumpAndSettle();
 
     expect(find.text('Willkommen bei Momentum'), findsOneWidget);
     expect(find.text('Deine Aufgaben'), findsNothing);
@@ -60,6 +70,40 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Sicherung exportieren'), findsOneWidget);
     expect(find.text('Sicherung importieren'), findsOneWidget);
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.menu));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Optionen'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Kartenanzeige'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Nur eine Karte gleichzeitig aufklappen'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Aufgeklappt starten'));
+    await tester.pumpAndSettle();
+    expect(
+      tester.widget<SwitchListTile>(find.byType(SwitchListTile)).onChanged,
+      isNull,
+    );
+    expect(
+      tester.widget<SwitchListTile>(find.byType(SwitchListTile)).value,
+      true,
+    );
+    await tester.tap(find.text('Letzten Zustand merken'));
+    await tester.pumpAndSettle();
+    expect(
+      tester.widget<SwitchListTile>(find.byType(SwitchListTile)).onChanged,
+      isNotNull,
+    );
+    final display = await tester.runAsync(
+      () => CardDisplayRepository(database).load(),
+    );
+    expect(display!.mode, CardDisplayMode.remember);
+    expect(display.singleOpen, true);
+    await tester.pageBack();
+    await tester.pumpAndSettle();
     await tester.pageBack();
     await tester.pumpAndSettle();
 

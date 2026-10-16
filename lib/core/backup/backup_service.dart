@@ -82,9 +82,8 @@ class BackupService {
         );
       }
       final content = jsonDecode(payload) as Map<String, dynamic>;
-      // The first backup format starts at schema 22. When the application schema
-      // changes, add an explicit backup migration here before accepting it.
-      if (content['schemaVersion'] != scratch.schemaVersion) {
+      final schema = content['schemaVersion'];
+      if (schema != 22 && schema != scratch.schemaVersion) {
         throw const BackupException(
           'Die Datenversion dieser Sicherung passt nicht zu dieser App-Version. Der aktuelle Bestand bleibt erhalten.',
         );
@@ -92,11 +91,24 @@ class BackupService {
       final createdAt = DateTime.parse(content['createdAt'] as String);
       final rawTables = content['tables'] as Map<String, dynamic>;
       final expected = scratch.allTables.map((t) => t.actualTableName).toSet();
-      if (rawTables.length != expected.length ||
-          !expected.containsAll(rawTables.keys)) {
+      final sourceTables = {...expected};
+      if (schema == 22) {
+        sourceTables.removeAll({
+          'card_display_settings',
+          'card_expansion_preferences',
+        });
+      }
+      if (rawTables.length != sourceTables.length ||
+          !sourceTables.containsAll(rawTables.keys)) {
         throw const BackupException(
           'Die Sicherung enthält nicht alle benötigten Datenbereiche.',
         );
+      }
+      // Schema 23 only adds presentation preferences. Empty tables resolve to
+      // compact/multiple defaults, including when replacing existing preferences.
+      if (schema == 22) {
+        rawTables['card_display_settings'] = <dynamic>[];
+        rawTables['card_expansion_preferences'] = <dynamic>[];
       }
       final tables = <String, List<Map<String, Object?>>>{};
       for (final name in expected) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:momentum/core/settings/card_display_scope.dart';
 
 import 'package:momentum/core/theme/hex_color.dart';
 import 'package:momentum/features/aufgaben/data/aufgaben_repository.dart';
@@ -27,11 +28,13 @@ class AufgabenScreen extends StatefulWidget {
   const AufgabenScreen({
     required this.aufgabenRepository,
     required this.projectRepository,
+    this.displaySession = 0,
     super.key,
   });
 
   final AufgabenRepository aufgabenRepository;
   final ProjectRepository projectRepository;
+  final int displaySession;
 
   @override
   State<AufgabenScreen> createState() => _AufgabenScreenState();
@@ -300,26 +303,57 @@ class _AufgabenScreenState extends State<AufgabenScreen>
                   final tasks = taskList.tasks;
 
                   if (_selectedView == TaskView.urgency) {
-                    return _UrgencyList(
-                      tasks: tasks.where((task) => !task.isAnswered).toList(),
-                      repository: widget.aufgabenRepository,
-                      projectRepository: widget.projectRepository,
-                      onUndoAvailable: _showUndo,
+                    final visibleTasks =
+                        tasks.where((task) => !task.isAnswered).toList();
+                    return CardDisplaySession(
+                      key: ValueKey(
+                        'urgency:$_selectedDate:${widget.displaySession}',
+                      ),
+                      cards: [
+                        for (final task in visibleTasks)
+                          DisplayCardIdentity.task(
+                            task.task.id,
+                            task.entry?.scheduledDate ?? task.task.startDate,
+                          ),
+                      ],
+                      child: _UrgencyList(
+                        tasks: visibleTasks,
+                        repository: widget.aufgabenRepository,
+                        projectRepository: widget.projectRepository,
+                        onUndoAvailable: _showUndo,
+                      ),
                     );
                   }
 
-                  return _ProjectGroupedTaskList(
-                    tasks: tasks,
-                    valueBundles: taskList.valueBundles,
-                    selectedDate: _selectedDate,
-                    groupAnswered: _selectedView == TaskView.habits,
-                    repository: widget.aufgabenRepository,
-                    projectRepository: widget.projectRepository,
-                    onUndoAvailable: _showUndo,
-                    emptyMessage:
-                        _selectedView == TaskView.habits
-                            ? 'Für diesen Tag sind keine Habits vorhanden.'
-                            : 'Für diesen Tag sind keine Aufgaben vorhanden.',
+                  return CardDisplaySession(
+                    key: ValueKey(
+                      '$_selectedView:$_selectedDate:${widget.displaySession}',
+                    ),
+                    cards: [
+                      for (final task in tasks)
+                        DisplayCardIdentity.task(
+                          task.task.id,
+                          task.entry?.scheduledDate ?? _selectedDate,
+                        ),
+                      for (final bundle in taskList.valueBundles)
+                        DisplayCardIdentity.bundle(
+                          bundle.bundle.id,
+                          _selectedDate,
+                        ),
+                    ],
+                    child: _ProjectGroupedTaskList(
+                      tasks: tasks,
+                      valueBundles: taskList.valueBundles,
+                      selectedDate: _selectedDate,
+                      groupAnswered: _selectedView == TaskView.habits,
+                      repository: widget.aufgabenRepository,
+                      projectRepository: widget.projectRepository,
+                      onUndoAvailable: _showUndo,
+                      emptyMessage:
+                          _selectedView == TaskView.habits
+                              ? 'Für diesen Tag sind keine Habits vorhanden.'
+                              : 'Für diesen Tag sind keine Aufgaben vorhanden.',
+                    ),
                   );
                 },
               ),
@@ -551,6 +585,7 @@ class _ValueBundleSection extends StatelessWidget {
         const SizedBox(height: 12),
         ...bundles.map(
           (bundle) => Padding(
+            key: ValueKey('bundle:${bundle.bundle.id}:$selectedDate'),
             padding: const EdgeInsets.only(bottom: 16),
             child: TaskValueBundleCard(
               bundle: bundle,
@@ -863,6 +898,7 @@ class _TaskGroup extends StatelessWidget {
     return tasks.map((task) {
       final scheduledDate = scheduledDateFor(task);
       return Padding(
+        key: ValueKey('task:${task.task.id}:$scheduledDate'),
         padding: const EdgeInsets.only(top: 12),
         child: TaskCard(
           task: task,

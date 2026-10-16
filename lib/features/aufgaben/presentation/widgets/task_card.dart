@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:momentum/core/settings/card_display_scope.dart';
 import 'package:momentum/core/theme/hex_color.dart';
 import 'package:momentum/features/aufgaben/data/task_for_date.dart';
 import 'package:momentum/features/aufgaben/data/task_capture_mode.dart';
@@ -43,7 +44,13 @@ class TaskCard extends StatelessWidget {
   final String? metaLabel;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => ExpandableCardContent(
+    key: ValueKey('${task.task.id}:$scheduledDate'),
+    identity: DisplayCardIdentity.task(task.task.id, scheduledDate),
+    builder: _buildCard,
+  );
+
+  Widget _buildCard(BuildContext context, bool expanded, Widget toggle) {
     final colorScheme = Theme.of(context).colorScheme;
     final hasDescription = task.task.beschreibung.trim().isNotEmpty;
     final hasQuestion = task.task.questionText.trim().isNotEmpty;
@@ -86,13 +93,28 @@ class TaskCard extends StatelessWidget {
                 SizedBox(width: 6, child: ColoredBox(color: projectColor)),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(18, 16, 18, 14),
+                  padding: EdgeInsets.fromLTRB(
+                    14,
+                    expanded ? 12 : 4,
+                    10,
+                    expanded ? 12 : 8,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          if (!expanded &&
+                              task.task.erfassungsmodus ==
+                                  TaskCaptureMode.checkbox &&
+                              task.task.taskType != TaskTypes.habit)
+                            Checkbox(
+                              value: task.isCompleted,
+                              onChanged: (value) {
+                                if (value != null) onCompletedChanged(value);
+                              },
+                            ),
                           Expanded(
                             child: Text(
                               task.task.name,
@@ -117,6 +139,7 @@ class TaskCard extends StatelessWidget {
                             ),
                           ],
                           const SizedBox(width: 8),
+                          toggle,
                           PopupMenuButton<_TaskAction>(
                             tooltip: 'Aufgabenoptionen',
                             onSelected: (action) {
@@ -221,7 +244,7 @@ class TaskCard extends StatelessWidget {
                           ),
                         ],
                       ),
-                      if (hasDescription) ...[
+                      if (expanded && hasDescription) ...[
                         const SizedBox(height: 8),
                         Text(
                           task.task.beschreibung,
@@ -245,15 +268,16 @@ class TaskCard extends StatelessWidget {
                           ),
                         ),
                       ],
-                      if (task.linkedValueBundle != null) ...[
+                      if (expanded && task.linkedValueBundle != null) ...[
                         const SizedBox(height: 10),
                         _LinkedBundleHint(
                           label:
                               'Teil von ${task.linkedValueBundle!.version.name}',
                         ),
                       ],
-                      if (task.cardMetrics.isNotEmpty ||
-                          task.cardMetric != null) ...[
+                      if (expanded &&
+                          (task.cardMetrics.isNotEmpty ||
+                              task.cardMetric != null)) ...[
                         const SizedBox(height: 10),
                         ...(task.cardMetrics.isNotEmpty
                                 ? task.cardMetrics
@@ -267,8 +291,9 @@ class TaskCard extends StatelessWidget {
                       ],
                       if (task.task.erfassungsmodus ==
                           TaskCaptureMode.value) ...[
-                        const SizedBox(height: 14),
+                        SizedBox(height: expanded ? 14 : 4),
                         ValueTaskInput(
+                          key: ValueKey('input:${task.task.id}:$scheduledDate'),
                           task: task,
                           scheduledDate: scheduledDate,
                           onSave: onValueSaved,
@@ -276,7 +301,7 @@ class TaskCard extends StatelessWidget {
                       ] else if (task.task.erfassungsmodus == 'three_state' ||
                           task.task.taskType == TaskTypes.habit &&
                               task.task.erfassungsmodus == 'checkbox') ...[
-                        const SizedBox(height: 14),
+                        SizedBox(height: expanded ? 14 : 4),
                         BooleanHabitInput(
                           value: task.booleanValue,
                           successValue: task.task.successValue,
@@ -285,8 +310,9 @@ class TaskCard extends StatelessWidget {
                           onChanged: onBooleanValueChanged,
                           onEditNote: onEditNote,
                         ),
-                      ] else if (task.task.erfassungsmodus == 'checkbox') ...[
-                        const SizedBox(height: 14),
+                      ] else if (expanded &&
+                          task.task.erfassungsmodus == 'checkbox') ...[
+                        SizedBox(height: expanded ? 14 : 0),
                         CheckboxTaskInput(
                           isCompleted: task.isCompleted,
                           accentColor: projectColor,

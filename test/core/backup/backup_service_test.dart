@@ -7,6 +7,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:momentum/core/backup/backup_service.dart';
 import 'package:momentum/core/database/app_database.dart';
+import 'package:momentum/core/settings/card_display_repository.dart';
 import 'package:momentum/features/aufgaben/data/aufgaben_repository.dart';
 
 Future<void> seed(AppDatabase db) async {
@@ -26,6 +27,9 @@ Future<void> seed(AppDatabase db) async {
   final tasks = await db.select(db.aufgaben).get();
   final task = tasks.first.id;
   final other = tasks.last.id;
+  final display = CardDisplayRepository(db);
+  await display.configure(mode: CardDisplayMode.remember, singleOpen: true);
+  await display.remember(entityKey: 'task:$task', expanded: true);
   await repository.setTaskCompleted(
     taskId: task,
     scheduledDate: DateTime(2026, 10, 16),
@@ -110,7 +114,7 @@ Uint8List changePayload(
 }
 
 void main() {
-  test('all 16 populated tables survive replacement and reopening', () async {
+  test('all 18 populated tables survive replacement and reopening', () async {
     final source = AppDatabase.forTesting(NativeDatabase.memory());
     final directory = await Directory.systemTemp.createTemp(
       'momentum-backup-test-',
@@ -124,7 +128,7 @@ void main() {
     });
     await seed(source);
     final before = await snapshot(source);
-    expect(before.length, 16);
+    expect(before.length, 18);
     expect(before.values.every((rows) => (rows as List).isNotEmpty), isTrue);
     await seed(target);
     await target.customStatement(
@@ -211,4 +215,38 @@ void main() {
       isTrue,
     );
   });
+
+  test(
+    'schema 22 backup preserves all old tables and resets display preferences',
+    () async {
+      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      addTearDown(db.close);
+      await seed(db);
+      final before = await snapshot(db);
+      final service = BackupService(db);
+      final oldBackup = changePayload(await service.export(), (payload) {
+        payload['schemaVersion'] = 22;
+        payload['tables'].remove('card_display_settings');
+        payload['tables'].remove('card_expansion_preferences');
+      });
+      await service.restore(await service.prepare(oldBackup));
+      final after = await snapshot(db);
+      for (final table in before.keys.where(
+        (name) => !name.startsWith('card_'),
+      )) {
+        expect(after[table], before[table], reason: table);
+      }
+      final preferences = await CardDisplayRepository(db).load();
+      expect(preferences.mode, CardDisplayMode.compact);
+      expect(preferences.singleOpen, false);
+      expect(preferences.opened, isEmpty);
+      // Declaring the old schema must not bypass table completeness validation.
+      await expectLater(
+        service.prepare(
+          changePayload(oldBackup, (p) => p['tables'].remove('aufgaben')),
+        ),
+        throwsA(isA<BackupException>()),
+      );
+    },
+  );
 }

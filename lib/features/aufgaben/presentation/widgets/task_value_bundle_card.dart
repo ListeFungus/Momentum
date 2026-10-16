@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:momentum/core/settings/card_display_scope.dart';
 import 'package:momentum/features/aufgaben/data/task_for_date.dart';
 import 'package:momentum/features/aufgaben/data/task_value_bundle_calculation.dart';
 import 'package:momentum/features/aufgaben/data/task_value_bundle_for_date.dart';
@@ -27,7 +28,13 @@ class TaskValueBundleCard extends StatelessWidget {
   final VoidCallback onDelete;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => ExpandableCardContent(
+    key: ValueKey('${bundle.bundle.id}:$scheduledDate'),
+    identity: DisplayCardIdentity.bundle(bundle.bundle.id, scheduledDate),
+    builder: _buildCard,
+  );
+
+  Widget _buildCard(BuildContext context, bool expanded, Widget toggle) {
     final colorScheme = Theme.of(context).colorScheme;
 
     return ClipRRect(
@@ -48,7 +55,12 @@ class TaskValueBundleCard extends StatelessWidget {
           ],
         ),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
+          padding: EdgeInsets.fromLTRB(
+            14,
+            expanded ? 12 : 8,
+            10,
+            expanded ? 12 : 8,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -70,8 +82,9 @@ class TaskValueBundleCard extends StatelessWidget {
                           style: Theme.of(context).textTheme.labelMedium
                               ?.copyWith(color: colorScheme.onSurfaceVariant),
                         ),
-                        if (bundle.cardMetrics.isNotEmpty ||
-                            bundle.cardMetric != null) ...[
+                        if (expanded &&
+                            (bundle.cardMetrics.isNotEmpty ||
+                                bundle.cardMetric != null)) ...[
                           const SizedBox(height: 8),
                           ...(bundle.cardMetrics.isNotEmpty
                                   ? bundle.cardMetrics
@@ -86,6 +99,7 @@ class TaskValueBundleCard extends StatelessWidget {
                       ],
                     ),
                   ),
+                  toggle,
                   IconButton(
                     tooltip: 'Bündel-Auswertung öffnen',
                     icon: const Icon(Icons.insights_outlined),
@@ -139,7 +153,7 @@ class TaskValueBundleCard extends StatelessWidget {
                   ),
                 ],
               ),
-              if (bundle.version.description.trim().isNotEmpty) ...[
+              if (expanded && bundle.version.description.trim().isNotEmpty) ...[
                 const SizedBox(height: 8),
                 Text(
                   bundle.version.description,
@@ -148,22 +162,39 @@ class TaskValueBundleCard extends StatelessWidget {
                   ),
                 ),
               ],
-              const SizedBox(height: 14),
-              _BundlePartInput(
-                label: bundle.version.firstRoleLabel,
-                task: bundle.firstTask,
-                scheduledDate: scheduledDate,
-                onValueSaved: onValueSaved,
+              ExcludeFocus(
+                excluding: !expanded,
+                child: Visibility(
+                  visible: expanded,
+                  maintainState: true,
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 14),
+                      _BundlePartInput(
+                        key: ValueKey(
+                          'first:${bundle.bundle.id}:$scheduledDate',
+                        ),
+                        label: bundle.version.firstRoleLabel,
+                        task: bundle.firstTask,
+                        scheduledDate: scheduledDate,
+                        onValueSaved: onValueSaved,
+                      ),
+                      const SizedBox(height: 14),
+                      _BundlePartInput(
+                        key: ValueKey(
+                          'second:${bundle.bundle.id}:$scheduledDate',
+                        ),
+                        label: bundle.version.secondRoleLabel,
+                        task: bundle.secondTask,
+                        scheduledDate: scheduledDate,
+                        onValueSaved: onValueSaved,
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              const SizedBox(height: 14),
-              _BundlePartInput(
-                label: bundle.version.secondRoleLabel,
-                task: bundle.secondTask,
-                scheduledDate: scheduledDate,
-                onValueSaved: onValueSaved,
-              ),
-              const SizedBox(height: 14),
-              _DerivedValueBox(bundle: bundle),
+              SizedBox(height: expanded ? 14 : 6),
+              _DerivedValueBox(bundle: bundle, compact: !expanded),
             ],
           ),
         ),
@@ -178,6 +209,7 @@ class _BundlePartInput extends StatelessWidget {
     required this.task,
     required this.scheduledDate,
     required this.onValueSaved,
+    super.key,
   });
 
   final String label;
@@ -208,9 +240,10 @@ class _BundlePartInput extends StatelessWidget {
 }
 
 class _DerivedValueBox extends StatelessWidget {
-  const _DerivedValueBox({required this.bundle});
+  const _DerivedValueBox({required this.bundle, this.compact = false});
 
   final TaskValueBundleForDate bundle;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -220,6 +253,14 @@ class _DerivedValueBox extends StatelessWidget {
             ? 'Ergebnis'
             : bundle.version.resultLabel.trim();
 
+    if (compact) {
+      return Text(
+        '$label: ${_formatCalculation(bundle)}',
+        style: Theme.of(
+          context,
+        ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
+      );
+    }
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(14),

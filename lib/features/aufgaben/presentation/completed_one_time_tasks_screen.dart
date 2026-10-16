@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:momentum/core/settings/card_display_scope.dart';
 import 'package:momentum/features/aufgaben/data/aufgaben_repository.dart';
 import 'package:momentum/features/aufgaben/data/task_capture_mode.dart';
 import 'package:momentum/features/aufgaben/data/task_for_date.dart';
@@ -47,107 +48,118 @@ class CompletedOneTimeTasksScreen extends StatelessWidget {
               );
             }
 
-            return ListView.separated(
-              padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
-              itemCount: tasks.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                final task = tasks[index];
-                final scheduledDate =
-                    task.entry?.scheduledDate ?? task.task.startDate;
+            return CardDisplaySession(
+              cards: [
+                for (final task in tasks)
+                  DisplayCardIdentity.task(
+                    task.task.id,
+                    task.entry?.scheduledDate ?? task.task.startDate,
+                  ),
+              ],
+              child: ListView.separated(
+                padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+                itemCount: tasks.length,
+                separatorBuilder:
+                    (context, index) => const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final task = tasks[index];
+                  final scheduledDate =
+                      task.entry?.scheduledDate ?? task.task.startDate;
 
-                return TaskCard(
-                  task: task,
-                  scheduledDate: scheduledDate,
-                  metaLabel: _statusLabel(task),
-                  onCompletedChanged: (isCompleted) {
-                    repository.setTaskCompleted(
-                      taskId: task.task.id,
-                      scheduledDate: scheduledDate,
-                      isCompleted: isCompleted,
-                    );
-                  },
-                  onBooleanValueChanged: (value) {
-                    repository.setBooleanHabitValue(
-                      task: task.task,
-                      scheduledDate: scheduledDate,
-                      value: value,
-                    );
-                  },
-                  onValueSaved: (value) {
-                    repository.setTaskEntryValue(
-                      task: task.task,
-                      scheduledDate: scheduledDate,
-                      valueType: task.task.valueType,
-                      numberValue: value.numberValue,
-                      durationSeconds: value.durationSeconds,
-                      timeMinutes: value.timeMinutes,
-                      dayOffset: value.dayOffset,
-                    );
-                  },
-                  onEditNote: () {
-                    _editTaskEntryNote(
-                      context: context,
-                      repository: repository,
-                      task: task,
-                      scheduledDate: scheduledDate,
-                    );
-                  },
-                  onOpenDetails: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder:
-                            (context) => TaskDetailScreen(
-                              task: task.task,
-                              repository: repository,
-                              project: task.project,
-                            ),
-                      ),
-                    );
-                  },
-                  onConfigureCardMetric: () {
-                    showTaskCardMetricSelectionSheet(
-                      context: context,
-                      repository: repository,
-                      task: task.task,
-                    );
-                  },
-                  onCreateBundle:
-                      task.task.erfassungsmodus == TaskCaptureMode.value
-                          ? () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute<void>(
-                                builder:
-                                    (context) => TaskValueBundleCreateScreen(
-                                      baseTask: task.task,
-                                      repository: repository,
-                                      projectRepository: projectRepository,
-                                    ),
+                  return TaskCard(
+                    key: ValueKey('task:${task.task.id}:$scheduledDate'),
+                    task: task,
+                    scheduledDate: scheduledDate,
+                    metaLabel: _statusLabel(task),
+                    onCompletedChanged: (isCompleted) {
+                      repository.setTaskCompleted(
+                        taskId: task.task.id,
+                        scheduledDate: scheduledDate,
+                        isCompleted: isCompleted,
+                      );
+                    },
+                    onBooleanValueChanged: (value) {
+                      repository.setBooleanHabitValue(
+                        task: task.task,
+                        scheduledDate: scheduledDate,
+                        value: value,
+                      );
+                    },
+                    onValueSaved: (value) {
+                      repository.setTaskEntryValue(
+                        task: task.task,
+                        scheduledDate: scheduledDate,
+                        valueType: task.task.valueType,
+                        numberValue: value.numberValue,
+                        durationSeconds: value.durationSeconds,
+                        timeMinutes: value.timeMinutes,
+                        dayOffset: value.dayOffset,
+                      );
+                    },
+                    onEditNote: () {
+                      _editTaskEntryNote(
+                        context: context,
+                        repository: repository,
+                        task: task,
+                        scheduledDate: scheduledDate,
+                      );
+                    },
+                    onOpenDetails: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder:
+                              (context) => TaskDetailScreen(
+                                task: task.task,
+                                repository: repository,
+                                project: task.project,
                               ),
-                            );
-                          }
-                          : null,
-                  onEdit: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder:
-                            (context) => TaskEditScreen(
-                              task: task.task,
-                              repository: repository,
-                              projectRepository: projectRepository,
-                            ),
-                      ),
-                    );
-                  },
-                  onDelete: () {
-                    _confirmDeleteTask(
-                      context: context,
-                      repository: repository,
-                      task: task,
-                    );
-                  },
-                );
-              },
+                        ),
+                      );
+                    },
+                    onConfigureCardMetric: () {
+                      showTaskCardMetricSelectionSheet(
+                        context: context,
+                        repository: repository,
+                        task: task.task,
+                      );
+                    },
+                    onCreateBundle:
+                        task.task.erfassungsmodus == TaskCaptureMode.value
+                            ? () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute<void>(
+                                  builder:
+                                      (context) => TaskValueBundleCreateScreen(
+                                        baseTask: task.task,
+                                        repository: repository,
+                                        projectRepository: projectRepository,
+                                      ),
+                                ),
+                              );
+                            }
+                            : null,
+                    onEdit: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder:
+                              (context) => TaskEditScreen(
+                                task: task.task,
+                                repository: repository,
+                                projectRepository: projectRepository,
+                              ),
+                        ),
+                      );
+                    },
+                    onDelete: () {
+                      _confirmDeleteTask(
+                        context: context,
+                        repository: repository,
+                        task: task,
+                      );
+                    },
+                  );
+                },
+              ),
             );
           },
         ),

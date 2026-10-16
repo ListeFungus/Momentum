@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:momentum/core/settings/options_screen.dart';
 import 'package:momentum/core/backup/backup_service.dart';
 import 'package:momentum/core/backup/backup_screen.dart';
 import 'package:momentum/features/aufgaben/data/aufgaben_repository.dart';
@@ -31,6 +32,14 @@ class Hauptseite extends StatefulWidget {
 class _HauptseiteState extends State<Hauptseite> {
   int _selectedIndex = 0;
   bool _backupOpen = false;
+  int _taskViewSession = 0;
+
+  void _selectPage(int index) {
+    setState(() {
+      if (index != _selectedIndex) _taskViewSession++;
+      _selectedIndex = index;
+    });
+  }
 
   Future<void> _openBackup() async {
     Navigator.pop(context);
@@ -79,6 +88,7 @@ class _HauptseiteState extends State<Hauptseite> {
     final isTaskPage = _selectedIndex == 0;
     final pages = [
       AufgabenScreen(
+        displaySession: _taskViewSession,
         aufgabenRepository: widget.aufgabenRepository,
         projectRepository: widget.projectRepository,
       ),
@@ -106,7 +116,7 @@ class _HauptseiteState extends State<Hauptseite> {
                 title: const Text('Aufgaben & Habits'),
                 onTap: () {
                   Navigator.pop(context);
-                  setState(() => _selectedIndex = 0);
+                  _selectPage(0);
                 },
               ),
               ListTile(
@@ -114,10 +124,22 @@ class _HauptseiteState extends State<Hauptseite> {
                 title: const Text('Projekte'),
                 onTap: () {
                   Navigator.pop(context);
-                  setState(() => _selectedIndex = 1);
+                  _selectPage(1);
                 },
               ),
               const Divider(),
+              ListTile(
+                leading: const Icon(Icons.settings_outlined),
+                title: const Text('Optionen'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const OptionsScreen(),
+                    ),
+                  );
+                },
+              ),
               ListTile(
                 leading: const Icon(Icons.save_outlined),
                 title: const Text('Import & Export'),
@@ -155,11 +177,7 @@ class _HauptseiteState extends State<Hauptseite> {
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
-        onDestinationSelected: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
+        onDestinationSelected: _selectPage,
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.check_circle_outline),

@@ -12772,6 +12772,591 @@ class ProjectDeletionBatchItemsCompanion
   }
 }
 
+class $CardDisplaySettingsTable extends CardDisplaySettings
+    with TableInfo<$CardDisplaySettingsTable, CardDisplaySetting> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CardDisplaySettingsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  static const VerificationMeta _modeMeta = const VerificationMeta('mode');
+  @override
+  late final GeneratedColumn<String> mode = GeneratedColumn<String>(
+    'mode',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('compact'),
+  );
+  static const VerificationMeta _singleOpenMeta = const VerificationMeta(
+    'singleOpen',
+  );
+  @override
+  late final GeneratedColumn<bool> singleOpen = GeneratedColumn<bool>(
+    'single_open',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("single_open" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, mode, singleOpen];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'card_display_settings';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CardDisplaySetting> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('mode')) {
+      context.handle(
+        _modeMeta,
+        mode.isAcceptableOrUnknown(data['mode']!, _modeMeta),
+      );
+    }
+    if (data.containsKey('single_open')) {
+      context.handle(
+        _singleOpenMeta,
+        singleOpen.isAcceptableOrUnknown(data['single_open']!, _singleOpenMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CardDisplaySetting map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CardDisplaySetting(
+      id:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}id'],
+          )!,
+      mode:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}mode'],
+          )!,
+      singleOpen:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.bool,
+            data['${effectivePrefix}single_open'],
+          )!,
+    );
+  }
+
+  @override
+  $CardDisplaySettingsTable createAlias(String alias) {
+    return $CardDisplaySettingsTable(attachedDatabase, alias);
+  }
+}
+
+class CardDisplaySetting extends DataClass
+    implements Insertable<CardDisplaySetting> {
+  final int id;
+  final String mode;
+  final bool singleOpen;
+  const CardDisplaySetting({
+    required this.id,
+    required this.mode,
+    required this.singleOpen,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['mode'] = Variable<String>(mode);
+    map['single_open'] = Variable<bool>(singleOpen);
+    return map;
+  }
+
+  CardDisplaySettingsCompanion toCompanion(bool nullToAbsent) {
+    return CardDisplaySettingsCompanion(
+      id: Value(id),
+      mode: Value(mode),
+      singleOpen: Value(singleOpen),
+    );
+  }
+
+  factory CardDisplaySetting.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CardDisplaySetting(
+      id: serializer.fromJson<int>(json['id']),
+      mode: serializer.fromJson<String>(json['mode']),
+      singleOpen: serializer.fromJson<bool>(json['singleOpen']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'mode': serializer.toJson<String>(mode),
+      'singleOpen': serializer.toJson<bool>(singleOpen),
+    };
+  }
+
+  CardDisplaySetting copyWith({int? id, String? mode, bool? singleOpen}) =>
+      CardDisplaySetting(
+        id: id ?? this.id,
+        mode: mode ?? this.mode,
+        singleOpen: singleOpen ?? this.singleOpen,
+      );
+  CardDisplaySetting copyWithCompanion(CardDisplaySettingsCompanion data) {
+    return CardDisplaySetting(
+      id: data.id.present ? data.id.value : this.id,
+      mode: data.mode.present ? data.mode.value : this.mode,
+      singleOpen:
+          data.singleOpen.present ? data.singleOpen.value : this.singleOpen,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CardDisplaySetting(')
+          ..write('id: $id, ')
+          ..write('mode: $mode, ')
+          ..write('singleOpen: $singleOpen')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, mode, singleOpen);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CardDisplaySetting &&
+          other.id == this.id &&
+          other.mode == this.mode &&
+          other.singleOpen == this.singleOpen);
+}
+
+class CardDisplaySettingsCompanion extends UpdateCompanion<CardDisplaySetting> {
+  final Value<int> id;
+  final Value<String> mode;
+  final Value<bool> singleOpen;
+  const CardDisplaySettingsCompanion({
+    this.id = const Value.absent(),
+    this.mode = const Value.absent(),
+    this.singleOpen = const Value.absent(),
+  });
+  CardDisplaySettingsCompanion.insert({
+    this.id = const Value.absent(),
+    this.mode = const Value.absent(),
+    this.singleOpen = const Value.absent(),
+  });
+  static Insertable<CardDisplaySetting> custom({
+    Expression<int>? id,
+    Expression<String>? mode,
+    Expression<bool>? singleOpen,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (mode != null) 'mode': mode,
+      if (singleOpen != null) 'single_open': singleOpen,
+    });
+  }
+
+  CardDisplaySettingsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? mode,
+    Value<bool>? singleOpen,
+  }) {
+    return CardDisplaySettingsCompanion(
+      id: id ?? this.id,
+      mode: mode ?? this.mode,
+      singleOpen: singleOpen ?? this.singleOpen,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (mode.present) {
+      map['mode'] = Variable<String>(mode.value);
+    }
+    if (singleOpen.present) {
+      map['single_open'] = Variable<bool>(singleOpen.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CardDisplaySettingsCompanion(')
+          ..write('id: $id, ')
+          ..write('mode: $mode, ')
+          ..write('singleOpen: $singleOpen')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CardExpansionPreferencesTable extends CardExpansionPreferences
+    with TableInfo<$CardExpansionPreferencesTable, CardExpansionPreference> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CardExpansionPreferencesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _taskIdMeta = const VerificationMeta('taskId');
+  @override
+  late final GeneratedColumn<String> taskId = GeneratedColumn<String>(
+    'task_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES aufgaben (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _bundleIdMeta = const VerificationMeta(
+    'bundleId',
+  );
+  @override
+  late final GeneratedColumn<String> bundleId = GeneratedColumn<String>(
+    'bundle_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES task_value_bundles (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _openedOrderMeta = const VerificationMeta(
+    'openedOrder',
+  );
+  @override
+  late final GeneratedColumn<int> openedOrder = GeneratedColumn<int>(
+    'opened_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, taskId, bundleId, openedOrder];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'card_expansion_preferences';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CardExpansionPreference> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('task_id')) {
+      context.handle(
+        _taskIdMeta,
+        taskId.isAcceptableOrUnknown(data['task_id']!, _taskIdMeta),
+      );
+    }
+    if (data.containsKey('bundle_id')) {
+      context.handle(
+        _bundleIdMeta,
+        bundleId.isAcceptableOrUnknown(data['bundle_id']!, _bundleIdMeta),
+      );
+    }
+    if (data.containsKey('opened_order')) {
+      context.handle(
+        _openedOrderMeta,
+        openedOrder.isAcceptableOrUnknown(
+          data['opened_order']!,
+          _openedOrderMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_openedOrderMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {taskId},
+    {bundleId},
+  ];
+  @override
+  CardExpansionPreference map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CardExpansionPreference(
+      id:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}id'],
+          )!,
+      taskId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}task_id'],
+      ),
+      bundleId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}bundle_id'],
+      ),
+      openedOrder:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}opened_order'],
+          )!,
+    );
+  }
+
+  @override
+  $CardExpansionPreferencesTable createAlias(String alias) {
+    return $CardExpansionPreferencesTable(attachedDatabase, alias);
+  }
+}
+
+class CardExpansionPreference extends DataClass
+    implements Insertable<CardExpansionPreference> {
+  final String id;
+  final String? taskId;
+  final String? bundleId;
+  final int openedOrder;
+  const CardExpansionPreference({
+    required this.id,
+    this.taskId,
+    this.bundleId,
+    required this.openedOrder,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    if (!nullToAbsent || taskId != null) {
+      map['task_id'] = Variable<String>(taskId);
+    }
+    if (!nullToAbsent || bundleId != null) {
+      map['bundle_id'] = Variable<String>(bundleId);
+    }
+    map['opened_order'] = Variable<int>(openedOrder);
+    return map;
+  }
+
+  CardExpansionPreferencesCompanion toCompanion(bool nullToAbsent) {
+    return CardExpansionPreferencesCompanion(
+      id: Value(id),
+      taskId:
+          taskId == null && nullToAbsent ? const Value.absent() : Value(taskId),
+      bundleId:
+          bundleId == null && nullToAbsent
+              ? const Value.absent()
+              : Value(bundleId),
+      openedOrder: Value(openedOrder),
+    );
+  }
+
+  factory CardExpansionPreference.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CardExpansionPreference(
+      id: serializer.fromJson<String>(json['id']),
+      taskId: serializer.fromJson<String?>(json['taskId']),
+      bundleId: serializer.fromJson<String?>(json['bundleId']),
+      openedOrder: serializer.fromJson<int>(json['openedOrder']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'taskId': serializer.toJson<String?>(taskId),
+      'bundleId': serializer.toJson<String?>(bundleId),
+      'openedOrder': serializer.toJson<int>(openedOrder),
+    };
+  }
+
+  CardExpansionPreference copyWith({
+    String? id,
+    Value<String?> taskId = const Value.absent(),
+    Value<String?> bundleId = const Value.absent(),
+    int? openedOrder,
+  }) => CardExpansionPreference(
+    id: id ?? this.id,
+    taskId: taskId.present ? taskId.value : this.taskId,
+    bundleId: bundleId.present ? bundleId.value : this.bundleId,
+    openedOrder: openedOrder ?? this.openedOrder,
+  );
+  CardExpansionPreference copyWithCompanion(
+    CardExpansionPreferencesCompanion data,
+  ) {
+    return CardExpansionPreference(
+      id: data.id.present ? data.id.value : this.id,
+      taskId: data.taskId.present ? data.taskId.value : this.taskId,
+      bundleId: data.bundleId.present ? data.bundleId.value : this.bundleId,
+      openedOrder:
+          data.openedOrder.present ? data.openedOrder.value : this.openedOrder,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CardExpansionPreference(')
+          ..write('id: $id, ')
+          ..write('taskId: $taskId, ')
+          ..write('bundleId: $bundleId, ')
+          ..write('openedOrder: $openedOrder')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, taskId, bundleId, openedOrder);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CardExpansionPreference &&
+          other.id == this.id &&
+          other.taskId == this.taskId &&
+          other.bundleId == this.bundleId &&
+          other.openedOrder == this.openedOrder);
+}
+
+class CardExpansionPreferencesCompanion
+    extends UpdateCompanion<CardExpansionPreference> {
+  final Value<String> id;
+  final Value<String?> taskId;
+  final Value<String?> bundleId;
+  final Value<int> openedOrder;
+  final Value<int> rowid;
+  const CardExpansionPreferencesCompanion({
+    this.id = const Value.absent(),
+    this.taskId = const Value.absent(),
+    this.bundleId = const Value.absent(),
+    this.openedOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CardExpansionPreferencesCompanion.insert({
+    required String id,
+    this.taskId = const Value.absent(),
+    this.bundleId = const Value.absent(),
+    required int openedOrder,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       openedOrder = Value(openedOrder);
+  static Insertable<CardExpansionPreference> custom({
+    Expression<String>? id,
+    Expression<String>? taskId,
+    Expression<String>? bundleId,
+    Expression<int>? openedOrder,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (taskId != null) 'task_id': taskId,
+      if (bundleId != null) 'bundle_id': bundleId,
+      if (openedOrder != null) 'opened_order': openedOrder,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CardExpansionPreferencesCompanion copyWith({
+    Value<String>? id,
+    Value<String?>? taskId,
+    Value<String?>? bundleId,
+    Value<int>? openedOrder,
+    Value<int>? rowid,
+  }) {
+    return CardExpansionPreferencesCompanion(
+      id: id ?? this.id,
+      taskId: taskId ?? this.taskId,
+      bundleId: bundleId ?? this.bundleId,
+      openedOrder: openedOrder ?? this.openedOrder,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (taskId.present) {
+      map['task_id'] = Variable<String>(taskId.value);
+    }
+    if (bundleId.present) {
+      map['bundle_id'] = Variable<String>(bundleId.value);
+    }
+    if (openedOrder.present) {
+      map['opened_order'] = Variable<int>(openedOrder.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CardExpansionPreferencesCompanion(')
+          ..write('id: $id, ')
+          ..write('taskId: $taskId, ')
+          ..write('bundleId: $bundleId, ')
+          ..write('openedOrder: $openedOrder, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -12806,6 +13391,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $ProjectDeletionBatchesTable(this);
   late final $ProjectDeletionBatchItemsTable projectDeletionBatchItems =
       $ProjectDeletionBatchItemsTable(this);
+  late final $CardDisplaySettingsTable cardDisplaySettings =
+      $CardDisplaySettingsTable(this);
+  late final $CardExpansionPreferencesTable cardExpansionPreferences =
+      $CardExpansionPreferencesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -12827,6 +13416,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     entityDeletionMarkers,
     projectDeletionBatches,
     projectDeletionBatchItems,
+    cardDisplaySettings,
+    cardExpansionPreferences,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -12985,6 +13576,24 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       ),
       result: [
         TableUpdate('project_deletion_batch_items', kind: UpdateKind.delete),
+      ],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'aufgaben',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate('card_expansion_preferences', kind: UpdateKind.delete),
+      ],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'task_value_bundles',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate('card_expansion_preferences', kind: UpdateKind.delete),
       ],
     ),
   ]);
@@ -14137,6 +14746,34 @@ final class $$AufgabenTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<
+    $CardExpansionPreferencesTable,
+    List<CardExpansionPreference>
+  >
+  _cardExpansionPreferencesRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.cardExpansionPreferences,
+        aliasName: $_aliasNameGenerator(
+          db.aufgaben.id,
+          db.cardExpansionPreferences.taskId,
+        ),
+      );
+
+  $$CardExpansionPreferencesTableProcessedTableManager
+  get cardExpansionPreferencesRefs {
+    final manager = $$CardExpansionPreferencesTableTableManager(
+      $_db,
+      $_db.cardExpansionPreferences,
+    ).filter((f) => f.taskId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _cardExpansionPreferencesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$AufgabenTableFilterComposer
@@ -14517,6 +15154,33 @@ class $$AufgabenTableFilterComposer
               }) => $$TaskPlanningInterruptionsTableFilterComposer(
                 $db: $db,
                 $table: $db.taskPlanningInterruptions,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<bool> cardExpansionPreferencesRefs(
+    Expression<bool> Function($$CardExpansionPreferencesTableFilterComposer f)
+    f,
+  ) {
+    final $$CardExpansionPreferencesTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.cardExpansionPreferences,
+          getReferencedColumn: (t) => t.taskId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$CardExpansionPreferencesTableFilterComposer(
+                $db: $db,
+                $table: $db.cardExpansionPreferences,
                 $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
                 joinBuilder: joinBuilder,
                 $removeJoinBuilderFromRootComposer:
@@ -15083,6 +15747,33 @@ class $$AufgabenTableAnnotationComposer
         );
     return f(composer);
   }
+
+  Expression<T> cardExpansionPreferencesRefs<T extends Object>(
+    Expression<T> Function($$CardExpansionPreferencesTableAnnotationComposer a)
+    f,
+  ) {
+    final $$CardExpansionPreferencesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.cardExpansionPreferences,
+          getReferencedColumn: (t) => t.taskId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$CardExpansionPreferencesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.cardExpansionPreferences,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$AufgabenTableTableManager
@@ -15107,6 +15798,7 @@ class $$AufgabenTableTableManager
             bool taskProjectAssignmentChangesRefs,
             bool taskCorrectionOperationsRefs,
             bool taskPlanningInterruptionsRefs,
+            bool cardExpansionPreferencesRefs,
           })
         > {
   $$AufgabenTableTableManager(_$AppDatabase db, $AufgabenTable table)
@@ -15287,6 +15979,7 @@ class $$AufgabenTableTableManager
             taskProjectAssignmentChangesRefs = false,
             taskCorrectionOperationsRefs = false,
             taskPlanningInterruptionsRefs = false,
+            cardExpansionPreferencesRefs = false,
           }) {
             return PrefetchHooks(
               db: db,
@@ -15300,6 +15993,7 @@ class $$AufgabenTableTableManager
                   db.taskProjectAssignmentChanges,
                 if (taskCorrectionOperationsRefs) db.taskCorrectionOperations,
                 if (taskPlanningInterruptionsRefs) db.taskPlanningInterruptions,
+                if (cardExpansionPreferencesRefs) db.cardExpansionPreferences,
               ],
               addJoins: <
                 T extends TableManagerState<
@@ -15482,6 +16176,27 @@ class $$AufgabenTableTableManager
                               referencedItems.where((e) => e.taskId == item.id),
                       typedResults: items,
                     ),
+                  if (cardExpansionPreferencesRefs)
+                    await $_getPrefetchedData<
+                      Aufgabe,
+                      $AufgabenTable,
+                      CardExpansionPreference
+                    >(
+                      currentTable: table,
+                      referencedTable: $$AufgabenTableReferences
+                          ._cardExpansionPreferencesRefsTable(db),
+                      managerFromTypedResult:
+                          (p0) =>
+                              $$AufgabenTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).cardExpansionPreferencesRefs,
+                      referencedItemsForCurrentItem:
+                          (item, referencedItems) =>
+                              referencedItems.where((e) => e.taskId == item.id),
+                      typedResults: items,
+                    ),
                 ];
               },
             );
@@ -15511,6 +16226,7 @@ typedef $$AufgabenTableProcessedTableManager =
         bool taskProjectAssignmentChangesRefs,
         bool taskCorrectionOperationsRefs,
         bool taskPlanningInterruptionsRefs,
+        bool cardExpansionPreferencesRefs,
       })
     >;
 typedef $$TaskDefinitionVersionsTableCreateCompanionBuilder =
@@ -18101,6 +18817,34 @@ final class $$TaskValueBundlesTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<
+    $CardExpansionPreferencesTable,
+    List<CardExpansionPreference>
+  >
+  _cardExpansionPreferencesRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.cardExpansionPreferences,
+        aliasName: $_aliasNameGenerator(
+          db.taskValueBundles.id,
+          db.cardExpansionPreferences.bundleId,
+        ),
+      );
+
+  $$CardExpansionPreferencesTableProcessedTableManager
+  get cardExpansionPreferencesRefs {
+    final manager = $$CardExpansionPreferencesTableTableManager(
+      $_db,
+      $_db.cardExpansionPreferences,
+    ).filter((f) => f.bundleId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _cardExpansionPreferencesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$TaskValueBundlesTableFilterComposer
@@ -18248,6 +18992,33 @@ class $$TaskValueBundlesTableFilterComposer
               }) => $$TaskProjectAssignmentChangesTableFilterComposer(
                 $db: $db,
                 $table: $db.taskProjectAssignmentChanges,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<bool> cardExpansionPreferencesRefs(
+    Expression<bool> Function($$CardExpansionPreferencesTableFilterComposer f)
+    f,
+  ) {
+    final $$CardExpansionPreferencesTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.cardExpansionPreferences,
+          getReferencedColumn: (t) => t.bundleId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$CardExpansionPreferencesTableFilterComposer(
+                $db: $db,
+                $table: $db.cardExpansionPreferences,
                 $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
                 joinBuilder: joinBuilder,
                 $removeJoinBuilderFromRootComposer:
@@ -18473,6 +19244,33 @@ class $$TaskValueBundlesTableAnnotationComposer
         );
     return f(composer);
   }
+
+  Expression<T> cardExpansionPreferencesRefs<T extends Object>(
+    Expression<T> Function($$CardExpansionPreferencesTableAnnotationComposer a)
+    f,
+  ) {
+    final $$CardExpansionPreferencesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.cardExpansionPreferences,
+          getReferencedColumn: (t) => t.bundleId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$CardExpansionPreferencesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.cardExpansionPreferences,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$TaskValueBundlesTableTableManager
@@ -18493,6 +19291,7 @@ class $$TaskValueBundlesTableTableManager
             bool taskValueBundleVersionsRefs,
             bool taskCardMetricPreferencesRefs,
             bool taskProjectAssignmentChangesRefs,
+            bool cardExpansionPreferencesRefs,
           })
         > {
   $$TaskValueBundlesTableTableManager(
@@ -18578,6 +19377,7 @@ class $$TaskValueBundlesTableTableManager
             taskValueBundleVersionsRefs = false,
             taskCardMetricPreferencesRefs = false,
             taskProjectAssignmentChangesRefs = false,
+            cardExpansionPreferencesRefs = false,
           }) {
             return PrefetchHooks(
               db: db,
@@ -18586,6 +19386,7 @@ class $$TaskValueBundlesTableTableManager
                 if (taskCardMetricPreferencesRefs) db.taskCardMetricPreferences,
                 if (taskProjectAssignmentChangesRefs)
                   db.taskProjectAssignmentChanges,
+                if (cardExpansionPreferencesRefs) db.cardExpansionPreferences,
               ],
               addJoins: <
                 T extends TableManagerState<
@@ -18687,6 +19488,28 @@ class $$TaskValueBundlesTableTableManager
                           ),
                       typedResults: items,
                     ),
+                  if (cardExpansionPreferencesRefs)
+                    await $_getPrefetchedData<
+                      TaskValueBundle,
+                      $TaskValueBundlesTable,
+                      CardExpansionPreference
+                    >(
+                      currentTable: table,
+                      referencedTable: $$TaskValueBundlesTableReferences
+                          ._cardExpansionPreferencesRefsTable(db),
+                      managerFromTypedResult:
+                          (p0) =>
+                              $$TaskValueBundlesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).cardExpansionPreferencesRefs,
+                      referencedItemsForCurrentItem:
+                          (item, referencedItems) => referencedItems.where(
+                            (e) => e.bundleId == item.id,
+                          ),
+                      typedResults: items,
+                    ),
                 ];
               },
             );
@@ -18712,6 +19535,7 @@ typedef $$TaskValueBundlesTableProcessedTableManager =
         bool taskValueBundleVersionsRefs,
         bool taskCardMetricPreferencesRefs,
         bool taskProjectAssignmentChangesRefs,
+        bool cardExpansionPreferencesRefs,
       })
     >;
 typedef $$TaskValueBundleVersionsTableCreateCompanionBuilder =
@@ -23556,6 +24380,615 @@ typedef $$ProjectDeletionBatchItemsTableProcessedTableManager =
       ProjectDeletionBatchItem,
       PrefetchHooks Function({bool batchId})
     >;
+typedef $$CardDisplaySettingsTableCreateCompanionBuilder =
+    CardDisplaySettingsCompanion Function({
+      Value<int> id,
+      Value<String> mode,
+      Value<bool> singleOpen,
+    });
+typedef $$CardDisplaySettingsTableUpdateCompanionBuilder =
+    CardDisplaySettingsCompanion Function({
+      Value<int> id,
+      Value<String> mode,
+      Value<bool> singleOpen,
+    });
+
+class $$CardDisplaySettingsTableFilterComposer
+    extends Composer<_$AppDatabase, $CardDisplaySettingsTable> {
+  $$CardDisplaySettingsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get mode => $composableBuilder(
+    column: $table.mode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get singleOpen => $composableBuilder(
+    column: $table.singleOpen,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CardDisplaySettingsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CardDisplaySettingsTable> {
+  $$CardDisplaySettingsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get mode => $composableBuilder(
+    column: $table.mode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get singleOpen => $composableBuilder(
+    column: $table.singleOpen,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CardDisplaySettingsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CardDisplaySettingsTable> {
+  $$CardDisplaySettingsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get mode =>
+      $composableBuilder(column: $table.mode, builder: (column) => column);
+
+  GeneratedColumn<bool> get singleOpen => $composableBuilder(
+    column: $table.singleOpen,
+    builder: (column) => column,
+  );
+}
+
+class $$CardDisplaySettingsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CardDisplaySettingsTable,
+          CardDisplaySetting,
+          $$CardDisplaySettingsTableFilterComposer,
+          $$CardDisplaySettingsTableOrderingComposer,
+          $$CardDisplaySettingsTableAnnotationComposer,
+          $$CardDisplaySettingsTableCreateCompanionBuilder,
+          $$CardDisplaySettingsTableUpdateCompanionBuilder,
+          (
+            CardDisplaySetting,
+            BaseReferences<
+              _$AppDatabase,
+              $CardDisplaySettingsTable,
+              CardDisplaySetting
+            >,
+          ),
+          CardDisplaySetting,
+          PrefetchHooks Function()
+        > {
+  $$CardDisplaySettingsTableTableManager(
+    _$AppDatabase db,
+    $CardDisplaySettingsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer:
+              () => $$CardDisplaySettingsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer:
+              () => $$CardDisplaySettingsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer:
+              () => $$CardDisplaySettingsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> mode = const Value.absent(),
+                Value<bool> singleOpen = const Value.absent(),
+              }) => CardDisplaySettingsCompanion(
+                id: id,
+                mode: mode,
+                singleOpen: singleOpen,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> mode = const Value.absent(),
+                Value<bool> singleOpen = const Value.absent(),
+              }) => CardDisplaySettingsCompanion.insert(
+                id: id,
+                mode: mode,
+                singleOpen: singleOpen,
+              ),
+          withReferenceMapper:
+              (p0) =>
+                  p0
+                      .map(
+                        (e) => (
+                          e.readTable(table),
+                          BaseReferences(db, table, e),
+                        ),
+                      )
+                      .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CardDisplaySettingsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CardDisplaySettingsTable,
+      CardDisplaySetting,
+      $$CardDisplaySettingsTableFilterComposer,
+      $$CardDisplaySettingsTableOrderingComposer,
+      $$CardDisplaySettingsTableAnnotationComposer,
+      $$CardDisplaySettingsTableCreateCompanionBuilder,
+      $$CardDisplaySettingsTableUpdateCompanionBuilder,
+      (
+        CardDisplaySetting,
+        BaseReferences<
+          _$AppDatabase,
+          $CardDisplaySettingsTable,
+          CardDisplaySetting
+        >,
+      ),
+      CardDisplaySetting,
+      PrefetchHooks Function()
+    >;
+typedef $$CardExpansionPreferencesTableCreateCompanionBuilder =
+    CardExpansionPreferencesCompanion Function({
+      required String id,
+      Value<String?> taskId,
+      Value<String?> bundleId,
+      required int openedOrder,
+      Value<int> rowid,
+    });
+typedef $$CardExpansionPreferencesTableUpdateCompanionBuilder =
+    CardExpansionPreferencesCompanion Function({
+      Value<String> id,
+      Value<String?> taskId,
+      Value<String?> bundleId,
+      Value<int> openedOrder,
+      Value<int> rowid,
+    });
+
+final class $$CardExpansionPreferencesTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $CardExpansionPreferencesTable,
+          CardExpansionPreference
+        > {
+  $$CardExpansionPreferencesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $AufgabenTable _taskIdTable(_$AppDatabase db) =>
+      db.aufgaben.createAlias(
+        $_aliasNameGenerator(
+          db.cardExpansionPreferences.taskId,
+          db.aufgaben.id,
+        ),
+      );
+
+  $$AufgabenTableProcessedTableManager? get taskId {
+    final $_column = $_itemColumn<String>('task_id');
+    if ($_column == null) return null;
+    final manager = $$AufgabenTableTableManager(
+      $_db,
+      $_db.aufgaben,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_taskIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $TaskValueBundlesTable _bundleIdTable(_$AppDatabase db) =>
+      db.taskValueBundles.createAlias(
+        $_aliasNameGenerator(
+          db.cardExpansionPreferences.bundleId,
+          db.taskValueBundles.id,
+        ),
+      );
+
+  $$TaskValueBundlesTableProcessedTableManager? get bundleId {
+    final $_column = $_itemColumn<String>('bundle_id');
+    if ($_column == null) return null;
+    final manager = $$TaskValueBundlesTableTableManager(
+      $_db,
+      $_db.taskValueBundles,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_bundleIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$CardExpansionPreferencesTableFilterComposer
+    extends Composer<_$AppDatabase, $CardExpansionPreferencesTable> {
+  $$CardExpansionPreferencesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get openedOrder => $composableBuilder(
+    column: $table.openedOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$AufgabenTableFilterComposer get taskId {
+    final $$AufgabenTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.taskId,
+      referencedTable: $db.aufgaben,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AufgabenTableFilterComposer(
+            $db: $db,
+            $table: $db.aufgaben,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$TaskValueBundlesTableFilterComposer get bundleId {
+    final $$TaskValueBundlesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bundleId,
+      referencedTable: $db.taskValueBundles,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TaskValueBundlesTableFilterComposer(
+            $db: $db,
+            $table: $db.taskValueBundles,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CardExpansionPreferencesTableOrderingComposer
+    extends Composer<_$AppDatabase, $CardExpansionPreferencesTable> {
+  $$CardExpansionPreferencesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get openedOrder => $composableBuilder(
+    column: $table.openedOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$AufgabenTableOrderingComposer get taskId {
+    final $$AufgabenTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.taskId,
+      referencedTable: $db.aufgaben,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AufgabenTableOrderingComposer(
+            $db: $db,
+            $table: $db.aufgaben,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$TaskValueBundlesTableOrderingComposer get bundleId {
+    final $$TaskValueBundlesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bundleId,
+      referencedTable: $db.taskValueBundles,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TaskValueBundlesTableOrderingComposer(
+            $db: $db,
+            $table: $db.taskValueBundles,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CardExpansionPreferencesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CardExpansionPreferencesTable> {
+  $$CardExpansionPreferencesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get openedOrder => $composableBuilder(
+    column: $table.openedOrder,
+    builder: (column) => column,
+  );
+
+  $$AufgabenTableAnnotationComposer get taskId {
+    final $$AufgabenTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.taskId,
+      referencedTable: $db.aufgaben,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AufgabenTableAnnotationComposer(
+            $db: $db,
+            $table: $db.aufgaben,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$TaskValueBundlesTableAnnotationComposer get bundleId {
+    final $$TaskValueBundlesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.bundleId,
+      referencedTable: $db.taskValueBundles,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TaskValueBundlesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.taskValueBundles,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CardExpansionPreferencesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CardExpansionPreferencesTable,
+          CardExpansionPreference,
+          $$CardExpansionPreferencesTableFilterComposer,
+          $$CardExpansionPreferencesTableOrderingComposer,
+          $$CardExpansionPreferencesTableAnnotationComposer,
+          $$CardExpansionPreferencesTableCreateCompanionBuilder,
+          $$CardExpansionPreferencesTableUpdateCompanionBuilder,
+          (CardExpansionPreference, $$CardExpansionPreferencesTableReferences),
+          CardExpansionPreference,
+          PrefetchHooks Function({bool taskId, bool bundleId})
+        > {
+  $$CardExpansionPreferencesTableTableManager(
+    _$AppDatabase db,
+    $CardExpansionPreferencesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer:
+              () => $$CardExpansionPreferencesTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer:
+              () => $$CardExpansionPreferencesTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer:
+              () => $$CardExpansionPreferencesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String?> taskId = const Value.absent(),
+                Value<String?> bundleId = const Value.absent(),
+                Value<int> openedOrder = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CardExpansionPreferencesCompanion(
+                id: id,
+                taskId: taskId,
+                bundleId: bundleId,
+                openedOrder: openedOrder,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                Value<String?> taskId = const Value.absent(),
+                Value<String?> bundleId = const Value.absent(),
+                required int openedOrder,
+                Value<int> rowid = const Value.absent(),
+              }) => CardExpansionPreferencesCompanion.insert(
+                id: id,
+                taskId: taskId,
+                bundleId: bundleId,
+                openedOrder: openedOrder,
+                rowid: rowid,
+              ),
+          withReferenceMapper:
+              (p0) =>
+                  p0
+                      .map(
+                        (e) => (
+                          e.readTable(table),
+                          $$CardExpansionPreferencesTableReferences(
+                            db,
+                            table,
+                            e,
+                          ),
+                        ),
+                      )
+                      .toList(),
+          prefetchHooksCallback: ({taskId = false, bundleId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                T extends TableManagerState<
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic
+                >
+              >(state) {
+                if (taskId) {
+                  state =
+                      state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.taskId,
+                            referencedTable:
+                                $$CardExpansionPreferencesTableReferences
+                                    ._taskIdTable(db),
+                            referencedColumn:
+                                $$CardExpansionPreferencesTableReferences
+                                    ._taskIdTable(db)
+                                    .id,
+                          )
+                          as T;
+                }
+                if (bundleId) {
+                  state =
+                      state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.bundleId,
+                            referencedTable:
+                                $$CardExpansionPreferencesTableReferences
+                                    ._bundleIdTable(db),
+                            referencedColumn:
+                                $$CardExpansionPreferencesTableReferences
+                                    ._bundleIdTable(db)
+                                    .id,
+                          )
+                          as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$CardExpansionPreferencesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CardExpansionPreferencesTable,
+      CardExpansionPreference,
+      $$CardExpansionPreferencesTableFilterComposer,
+      $$CardExpansionPreferencesTableOrderingComposer,
+      $$CardExpansionPreferencesTableAnnotationComposer,
+      $$CardExpansionPreferencesTableCreateCompanionBuilder,
+      $$CardExpansionPreferencesTableUpdateCompanionBuilder,
+      (CardExpansionPreference, $$CardExpansionPreferencesTableReferences),
+      CardExpansionPreference,
+      PrefetchHooks Function({bool taskId, bool bundleId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -23620,5 +25053,12 @@ class $AppDatabaseManager {
       $$ProjectDeletionBatchItemsTableTableManager(
         _db,
         _db.projectDeletionBatchItems,
+      );
+  $$CardDisplaySettingsTableTableManager get cardDisplaySettings =>
+      $$CardDisplaySettingsTableTableManager(_db, _db.cardDisplaySettings);
+  $$CardExpansionPreferencesTableTableManager get cardExpansionPreferences =>
+      $$CardExpansionPreferencesTableTableManager(
+        _db,
+        _db.cardExpansionPreferences,
       );
 }

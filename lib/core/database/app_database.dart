@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:momentum/core/settings/card_display_tables.dart';
 
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
@@ -40,6 +41,8 @@ part 'app_database.g.dart';
     EntityDeletionMarkers,
     ProjectDeletionBatches,
     ProjectDeletionBatchItems,
+    CardDisplaySettings,
+    CardExpansionPreferences,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -50,7 +53,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.withExecutor(super.e);
 
   @override
-  int get schemaVersion => 22;
+  int get schemaVersion => 23;
 
   @override
   MigrationStrategy get migration {
@@ -227,6 +230,10 @@ class AppDatabase extends _$AppDatabase {
 
         if (from < 22) {
           await _migrateSyncPreparation(migrator);
+        }
+        if (from < 23) {
+          await migrator.createTable(cardDisplaySettings);
+          await migrator.createTable(cardExpansionPreferences);
         }
       },
       beforeOpen: (details) async {

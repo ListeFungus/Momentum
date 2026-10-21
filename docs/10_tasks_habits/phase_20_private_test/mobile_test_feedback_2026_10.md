@@ -167,3 +167,8 @@ Die Aufwandseinschätzung ist vorläufig, bis Code und Auswirkungen geprüft sin
 3. Vor Veränderungen an Datenmodell, Historie oder Planung konkrete Entscheidungs- und Migrationstests vereinbaren.
 4. Größere Zukunftsideen nicht automatisch als Scope der Phase 20 verstehen.
 5. Übergeordnete App-Struktur (Navigation/Monitoring und Quick Actions) steht separat in [App-weiten Konzeptideen](../../00_overview/app_concept_ideas_2026_10.md).
+
+
+## Vertiefung Kalender (21. Oktober 2026)
+
+Die Nutzerentscheidungen zu Kalenderansichten, Zeit-/Dauereingaben, gesperrten Wiederholungen und unbestimmten Folgeterminen sind im separaten [Kalenderkonzept V0.4](calendar_concept.md) dokumentiert. Dieses Dokument ist ein **Konzept**, keine Code-Umsetzung. Es vertieft insbesondere #017 und #018; #019 (externe Kalender) bleibt separat und langfristig.

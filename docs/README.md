@@ -27,6 +27,7 @@ Ordner in einer sinnvollen Reihenfolge.
 - [Phase 20 – Private Nutzung/Test](10_tasks_habits/phase_20_private_test/README.md) –
   private Nutzung und kleiner Testkreis vor dem Store-Release
 - [Aktuelles Testprotokoll](10_tasks_habits/phase_20_private_test/mobile_test_feedback_2026_10.md) – beobachtete UI-Probleme, Quick Fixes und Erweiterungsideen
+- [Kalenderkonzept V0.4](10_tasks_habits/phase_20_private_test/calendar_concept.md) – Planung einer eigenen Kalenderansicht und Wiederholungsprojektion
 - [Phase 21 – Testergebnisse und Verbesserungen](10_tasks_habits/phase_21_test_improvements/README.md) –
   Konzepte, Änderungspakete, Prioritäten und aktueller Umsetzungsstand
 - [Phase 22 – Store-Release](10_tasks_habits/phase_22_store_release/README.md) –

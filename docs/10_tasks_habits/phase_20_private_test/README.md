@@ -14,6 +14,7 @@ planen, sondern die App im echten Alltag zu prüfen.
 - [Arbeitsplan](private_test_plan.md)
 - [Verlauf](private_test_history.md)
 - [Praxistest-Feedback Oktober 2026](mobile_test_feedback_2026_10.md) – 20 Beobachtungen mit Quick Fixes, Prüfpunkten und Erweiterungen
+- [Kalenderkonzept V0.4](calendar_concept.md) – Ansichten, Zeitblöcke, Drag-and-drop, wiederkehrende und unbestimmte Folgetermine
 - [Phase 21: Ausarbeitung und Umsetzungsstand](../phase_21_test_improvements/README.md) – führender Einstieg für Änderungen aus dem Test
 
 ## Einordnung

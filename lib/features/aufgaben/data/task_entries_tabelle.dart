@@ -19,6 +19,9 @@ class TaskEntries extends Table {
 
   DateTimeColumn get scheduledDate => dateTime()();
 
+  IntColumn get plannedStartMinute => integer().nullable()();
+  IntColumn get plannedDurationMinutes => integer().nullable()();
+
   DateTimeColumn get originalScheduledDate => dateTime().nullable()();
 
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();

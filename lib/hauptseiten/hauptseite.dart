@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:momentum/features/calendar/presentation/calendar_screen.dart';
 import 'package:momentum/core/settings/options_screen.dart';
 import 'package:momentum/core/backup/backup_service.dart';
 import 'package:momentum/core/backup/backup_screen.dart';
@@ -128,6 +129,22 @@ class _HauptseiteState extends State<Hauptseite> {
                 },
               ),
               const Divider(),
+              ListTile(
+                leading: const Icon(Icons.calendar_month),
+                title: const Text('Kalender'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder:
+                          (_) => CalendarScreen(
+                            tasks: widget.aufgabenRepository,
+                            projects: widget.projectRepository,
+                          ),
+                    ),
+                  );
+                },
+              ),
               ListTile(
                 leading: const Icon(Icons.settings_outlined),
                 title: const Text('Optionen'),

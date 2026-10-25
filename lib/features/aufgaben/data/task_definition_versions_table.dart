@@ -45,6 +45,9 @@ class TaskDefinitionVersions extends Table {
 
   DateTimeColumn get dueDate => dateTime().nullable()();
 
+  IntColumn get plannedStartMinute => integer().nullable()();
+  IntColumn get plannedDurationMinutes => integer().nullable()();
+
   TextColumn get missedPolicy =>
       text().withDefault(const Constant(MissedPolicy.none))();
 

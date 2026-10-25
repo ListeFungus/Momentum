@@ -1,8 +1,20 @@
 # Momentum – App-Masterplan
 
-Stand: 16. Oktober 2026
+Stand: 22. Oktober 2026
 
 Status: Lebendes Konzept- und Orientierungsdokument
+
+Aktueller Umsetzungsstand: Phase 21 #013 ermöglicht Aufgabe ↔ Habit bei
+wiederkehrenden Einträgen, mit ausdrücklich gewähltem Historienumfang und Sperrmatrix.
+Schema 25, 212 Tests und gezielte Analyse grün; Kalender und #002 erhalten.
+Gerätenachtest offen, keine neue APK.
+[Details und Nachtest](../10_tasks_habits/phase_21_test_improvements/task_type_change_implementation_plan.md).
+
+Vorheriger Stand: Der lokale Kalender (Phase 21 K0–K7) ist mit
+Tag/Woche/Monat/Liste, Planungszeiten, Filtern und schreibfreier Zukunft umgesetzt.
+Schema 24, APK `1.0.0+4`, 174 Tests und Analyse grün; Gerätenachtest offen.
+Keine externe Kalenderanbindung, kein Timer und kein Store-Release.
+[Kalenderauftrag und Nachweise](../10_tasks_habits/phase_21_test_improvements/calendar_implementation_plan.md).
 
 ## Zweck dieses Dokuments
 

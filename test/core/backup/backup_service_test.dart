@@ -11,6 +11,7 @@ import 'package:momentum/core/settings/card_display_repository.dart';
 import 'package:momentum/features/aufgaben/data/aufgaben_repository.dart';
 
 Future<void> seed(AppDatabase db) async {
+  await db.customStatement('INSERT INTO calendar_settings (id) VALUES (1)');
   final repository = AufgabenRepository(db, now: () => DateTime(2026, 10, 16));
   await db.customStatement(
     "INSERT INTO projects (id, name) VALUES ('p', 'Gesundheit 🪴')",
@@ -27,6 +28,12 @@ Future<void> seed(AppDatabase db) async {
   final tasks = await db.select(db.aufgaben).get();
   final task = tasks.first.id;
   final other = tasks.last.id;
+  final definition = (await db.select(db.taskDefinitionVersions).get())
+      .firstWhere((v) => v.taskId == task);
+  await db.customStatement(
+    "INSERT INTO task_type_changes (id, task_id, sequence, changed_at, previous_type, target_type, scope, definition_version_id) VALUES ('type-change', ?, 1, 1234, 'task', 'habit', 'new_entries', ?)",
+    [task, definition.id],
+  );
   final display = CardDisplayRepository(db);
   await display.configure(mode: CardDisplayMode.remember, singleOpen: true);
   await display.remember(entityKey: 'task:$task', expanded: true);
@@ -114,7 +121,7 @@ Uint8List changePayload(
 }
 
 void main() {
-  test('all 18 populated tables survive replacement and reopening', () async {
+  test('all 20 populated tables survive replacement and reopening', () async {
     final source = AppDatabase.forTesting(NativeDatabase.memory());
     final directory = await Directory.systemTemp.createTemp(
       'momentum-backup-test-',
@@ -128,7 +135,7 @@ void main() {
     });
     await seed(source);
     final before = await snapshot(source);
-    expect(before.length, 18);
+    expect(before.length, 20);
     expect(before.values.every((rows) => (rows as List).isNotEmpty), isTrue);
     await seed(target);
     await target.customStatement(
@@ -226,13 +233,28 @@ void main() {
       final service = BackupService(db);
       final oldBackup = changePayload(await service.export(), (payload) {
         payload['schemaVersion'] = 22;
+        payload['tables'].remove('task_type_changes');
+        payload['tables'].remove('calendar_settings');
+        for (final table in [
+          'aufgaben',
+          'task_entries',
+          'task_definition_versions',
+        ]) {
+          for (final row in payload['tables'][table]) {
+            row.remove('planned_start_minute');
+            row.remove('planned_duration_minutes');
+          }
+        }
         payload['tables'].remove('card_display_settings');
         payload['tables'].remove('card_expansion_preferences');
       });
       await service.restore(await service.prepare(oldBackup));
       final after = await snapshot(db);
       for (final table in before.keys.where(
-        (name) => !name.startsWith('card_'),
+        (name) =>
+            !name.startsWith('card_') &&
+            name != 'calendar_settings' &&
+            name != 'task_type_changes',
       )) {
         expect(after[table], before[table], reason: table);
       }

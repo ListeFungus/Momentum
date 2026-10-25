@@ -1,8 +1,19 @@
 # Momentum â€“ Aufgaben/Habits: Arbeitsplan
 
-Stand: 16. Oktober 2026
+Stand: 22. Oktober 2026
 
 Status: Aktives Planungsdokument
+
+Aktuell: #013 „Aufgabenart Aufgabe ↔ Habit ändern“ A0–A5 in Phase 21 implementiert.
+212 Tests und gezielte Analyse grün; Schema 25. Kalender und #002 erhalten.
+Nachweis und offener Gerätenachtest im [Umsetzungsplan](phase_21_test_improvements/task_type_change_implementation_plan.md).
+Keine neue APK; weitere Pakete nicht umgesetzt.
+
+Vorheriger Stand: Kalender K0–K7 in Phase 21 implementiert, Schema 24, APK `1.0.0+4`.
+174 Tests und Analyse grün; Gerätenachtest offen. Siehe
+[Kalenderplan](phase_21_test_improvements/calendar_implementation_plan.md) und
+[APK/Nachtest](phase_21_test_improvements/calendar_retest.md).
+Andere Phase-21-Themen bleiben davon unabhängig.
 
 ## So ist die Dokumentation gedacht
 

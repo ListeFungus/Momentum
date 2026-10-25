@@ -1,8 +1,150 @@
 # Momentum – Testergebnisse und Verbesserungen: Verlauf
 
-Stand: 16. Oktober 2026
+Stand: 25. Oktober 2026
 
-Status: Kartenpaket umgesetzt und automatisiert geprüft; Gerätenachtest und weitere Konzepte offen
+Status: #013, #002, Kartenpaket und Kalender umgesetzt und automatisiert geprüft; Gerätenachtests und weitere Konzepte offen
+
+## 25. Oktober 2026 – Gruppen konkretisiert, Monitoring verschoben
+
+- Eigener Gruppentab; zugeordnete Aufgaben/Habits nicht zusätzlich in ihren
+  bisherigen Tabs anzeigen. Die übrige Navigation bleibt erhalten.
+- Gemeinsamer Abschluss aus #004 jetzt Teil von #020. Vollständig erledigt nur
+  bei vollständigen Eingaben und Abschlüssen; fehlende Felder markieren und
+  ausdrücklich eine Teilaktion für einfache abhakbare Einträge anbieten.
+- Einzelbearbeitung ergibt automatisch den Gruppenstatus. Bewusste Nein-Antworten
+  zählen als bearbeitet, individuelle Bewertungen und Messwerte bleiben erhalten.
+- Nutzer verschiebt den eigenen Monitoringbereich aus A01 ausdrücklich auf
+  später. Gruppentab, Abschlusslogik und kompakte Tracker #011 bleiben im Paket.
+- Entscheidungen und gezielte Codebefunde im `daily_overview_groups_plan.md`;
+  anschließend technische Vorbereitung auf Nutzerfrage vervollständigt: Auftrag
+  G0–G6 mit einfacher Gruppenzuordnung, Daten-/Transaktionsregeln, V1-Sperren,
+  Schema-/Backup-Migration und Abnahmetests. Umsetzungsbereit, nicht implementiert.
+  Bündelzuordnung zunächst gesperrt, ältere Vorkommen einzeln bearbeiten;
+  abgeleitete Grenzen getrennt von ausdrücklichen Nutzerentscheidungen markiert.
+  Nur Dokumentation geändert, keine App-Tests/Builds ausgeführt.
+
+## 22. Oktober 2026 – #013 A0–A5 umgesetzt
+
+- Separater Artenwechsel mit zwei expliziten Historienumfängen, gemeinsamer
+  Sperrprüfung, Fingerprint, Versions-Pinning und atomarem Schema-25-Protokoll.
+- Historische Listen-/Schedulerfilter, aktueller Editor auch bei alten Karten,
+  Detailhinweis und Projektbestandskorrektur. Kalender und #002 erhalten.
+- Vollständige Suite: 212 Tests grün (65 Sekunden); Analyse 17 Dateien ohne Befunde.
+  Migration/Restore 22–25, Korrektur/Undo, Formular und Sperren geprüft.
+- Dokumentation aktualisiert; Gerätenachtest separat offen. Keine APK,
+  keine anderen Pakete, keine Veröffentlichung. Frühere Planungsstände unten bleiben erhalten.
+
+## 22. Oktober 2026 – #013 zur Umsetzung vorbereitet
+
+- Auf Nutzerauftrag technische Vorbereitung abgeschlossen und eigenen Auftrag
+  `task_type_change_implementation_plan.md` mit Paketen A0–A5 erstellt.
+- Aktuellen Kalender und inzwischen implementiertes #002 berücksichtigt.
+  Keine neue fachliche Fragerunde; bestehende Nutzerentscheidungen erhalten.
+- Freigaben/Sperren für Rückstände, Vormerkungen, Bündel und historische
+  Konfigurationen konkretisiert. Bestehende Versionen tragen die Artzuordnung;
+  ausdrücklich rückwirkende Option korrigiert nur dieses Metadatum und wird
+  einschließlich vorheriger Zuordnung protokolliert.
+- Notwendige Filterkorrekturen in Tagesansicht/Scheduler/Kalender, separaten
+  Wechsel-Command/Dialog, Migration/Backup und konkrete Abnahmetests festgehalten.
+- Arbeitsplan und README auf umsetzungsbereit aktualisiert. Nur Dokumentation
+  geändert, keine App-Implementierung, Migration, Tests oder APK für #013.
+
+## 22. Oktober 2026 – Ausschließlich #002 umgesetzt
+
+- Vorbereitete Regeln mit aktuellem Kalender-/Historiencode abgeglichen; keine
+  neue Produktentscheidung erforderlich. Fremde lokale Änderungen erhalten.
+- Startdatum für sichere reine Tracker editierbar; Erwartungsbeginn getrennt
+  von Messhistorie, Kalender/Bündel/Korrekturen/Auswertungen angepasst.
+- Automatisierte Abnahmefälle für Daten, Kalender, Tagversatz, Wertziele,
+  Backup/Restore, Formular und laufende Streams ergänzt. Alle 184 Tests bestanden,
+  gezielte Analyse ohne Befunde. Ein bestehendes Testdatum auf lokale Kalendertage
+  statt 24-Stunden-Abstände umgestellt (Zeitumstellung); keine Statuszielregel geändert.
+- Schema unverändert, keine APK, kein #013 und kein anderes Paket umgesetzt.
+  Gerätenachtest im Änderungsdokument bleibt ausdrücklich offen.
+
+## 21. Oktober 2026 – Kalender K0–K7 umgesetzt
+
+- Bestätigten Kalenderauftrag gegen Konzept, Bestand und Sperren abgeglichen;
+  keine neuen fachlichen Rückfragen erforderlich. Fremde lokale Planänderungen
+  erhalten, keine anderen Phase-21-Themen umgesetzt.
+- Schema 24, Zeitplanung/Snapshots, Serienvormerkung, Backup-Kompatibilität,
+  separate reine Projektion und atomare Änderungsbefehle ergänzt.
+- Vier Ansichten, Filter, separate Sonderlisten, Details, Zeitachsen mit
+  Überlappungen, Drag/Resize und alternative Dialogbedienung implementiert.
+- 174 Tests im finalen Gesamtlauf bestanden, Analyse ohne Befunde. Historische
+  Migrationsfälle und ein DST-abhängiger Alt-Test während Prüfung berichtigt.
+- Release-APK `1.0.0+4` gebaut, Manifest und Signatur geprüft; Geräteinstallation
+  nicht durchgeführt. Nachweis/Hash/Nachtest in [calendar_retest.md](calendar_retest.md).
+- Keine automatische Veröffentlichung, kein anderer Chat angelegt.
+
+## 21. Oktober 2026 – Kalenderauftrag K0–K7 für anderen Chat vorbereitet
+
+- Nutzer beauftragt explizite Arbeitsschritte in der aktuellen Phase, um einen
+  anderen Chat mit der Umsetzung beauftragen zu können. Vorhandenen Kalenderplan
+  erweitert statt ein konkurrierendes zweites Planungsdokument anzulegen.
+- Datenhaltung für Planungszeiten/Snapshots, Vormerkung regelmäßiger Zeitänderungen,
+  Migration und Schema-22/23-Backup-Kompatibilität konkretisiert. Neue technische
+  Festlegungen als abgeleitet gekennzeichnet; bestätigte Produktregeln erhalten.
+- Lesende Projektion, Abschlussabhängigkeiten, Filter/Zählung, atomare Commands,
+  vier Ansichten und Sperrfälle beschrieben. K0–K7 mit Abhängigkeiten,
+  Codebereichen und überprüfbaren Abnahmekriterien angelegt.
+- Kopierbaren Auftrag sowie Paket-/Fortschrittsregeln ergänzt. README und
+  Themenübersicht verweisen auf den Auftrag. Alle Umsetzungspakete stehen offen.
+- Nur Dokumentation; kein App-Code, keine Migration, kein Testlauf oder Build
+  ausgeführt. Kein anderer Chat angelegt und keine GitHub-Veröffentlichung erfolgt.
+
+## 21. Oktober 2026 – Kalenderfilter: Standard nur Aufgaben
+
+- Nutzer präzisiert: Alle Kategorien zuschaltbar, standardmäßig nur Aufgaben.
+  Habits und reine Tracker sind optional; vorheriger Vorschlag mit standardmäßig
+  sichtbaren Habits ersetzt. Tageszahlen folgen der Filterauswahl.
+- Gemeinsamen Filter für alle Ansichten und überschneidungsfreie Einordnung
+  reiner Tracker als abgeleitete Ausführungsdetails dokumentiert.
+- Erste Fallmatrix ergänzt: einfache freie Termine bearbeitbar, Serien,
+  Abschlüsse, Abhängigkeiten und komplexe Zeitfälle geschützt. Zusätzlichen
+  Codebefund zur abschlussabhängigen Projektion festgehalten: „ab Datum fällig“
+  darf nicht als tägliches neues Vorkommen interpretiert werden.
+- Nur Planung geändert, keine Kalenderfunktion implementiert.
+
+## 21. Oktober 2026 – Kalender: Kalendertag entspricht Fälligkeit
+
+- Nutzer bestätigt für V1: Eine freie Aufgabe auf einen anderen Kalendertag
+  verschieben ändert zugleich ihre Fälligkeit. Keine zusätzliche unabhängige
+  Deadline neben dem Planungstag. Im Kalender-Umsetzungsplan festgehalten.
+- Nächste offene fachliche Frage ist die Sichtbarkeit/Zählung reiner Tracker;
+  der Kalenderumfang für Aufgaben und Habits wird nicht erneut abgefragt.
+
+## 21. Oktober 2026 – #013 fachlich abgeschlossen, Kalender priorisiert
+
+- Auf Nutzerwunsch #013 als für ihn fachlich abgeschlossen markiert. Technische
+  Vorbereitung bleibt Agentenarbeit; keine Umsetzung oder Umsetzungsreife behauptet.
+- Neuer Auftrag: aktuelle Kalenderbeschreibung prüfen, umsetzungsbereit planen
+  und anschließend in diesem Chat umsetzen.
+- Lokaler Kalenderstand war älter. Über den Chat „Momentum Testprotokoll“ und
+  GitHub das Kalenderkonzept V0.4 vom 21. Oktober gefunden. Quelldatei von GitHub
+  lokal übernommen; eigener Phase-21-Umsetzungsplan verlinkt. Kein Pull/Merge und
+  keine Überschreibung bestehender Planungsänderungen.
+- Vorprüfung: sichere Zukunftsprojektion fehlt; Zeitplanung muss getrennt von
+  gemessenen Werten ergänzt werden. Vorhandener Verschiebepfad unterstützt nur
+  offene einmalige Aufgaben, keine bereits abgeschlossenen oder Terminserien.
+- Erste offene Produktentscheidung betrifft Planungstag gegenüber Fälligkeit;
+  bereits im Konzept enthaltene Ansichten, Sperren und Bedienwünsche nicht erneut
+  zur Wahl gestellt. Kein App-Code geändert, kein intensiver Gesamtumbau begonnen.
+
+## 21. Oktober 2026 – Seltene Konvertierung ausgeschlossen, Planung begrenzt
+
+- Nutzer präzisiert: Alle Fälle bedenken, komplexe Fälle jedoch zunächst sperren
+  statt auszuarbeiten. Arbeitsregel und Plan um Fallübersicht, Sperrgrund,
+  Nutzerhinweis und Absicherung beim Speichern ergänzt. Kein Auftrag, Randfälle
+  zu ignorieren; vorläufige Sperren selbst ableiten, Kernanforderungen bewahren.
+- Nutzer schließt einmalige Aufgabe → Habit ausdrücklich aus. Einen neuen Habit
+  anzulegen ist für diesen seltenen Fall ausreichend. Frühere Frage nach einer
+  speziellen Rhythmusauswahl war unnötige Ausweitung; Vorschlag verworfen.
+- Beide bestätigten Optionen zur historischen Artzuordnung bleiben erhalten.
+  Rhythmuserhalt beim begrenzten Artenwechsel als abgeleitete Umsetzung notiert.
+- Arbeitsregel in AGENTS.md und Plan ergänzt: Alltagsnutzen und Aufwand abwägen,
+  seltene Komfortfälle mit einfachem Ausweg nicht perfektionieren; Fragen auf
+  relevante Folgen beschränken. Nur Dokumentation geändert.
 
 ## 16. Oktober 2026 – Beide Umfänge des Artenwechsels bestätigt
 

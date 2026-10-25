@@ -342,7 +342,8 @@ void main() {
     final repository = AufgabenRepository(database);
     addTearDown(database.close);
 
-    final dueDate = _today().add(const Duration(days: 5));
+    final today = _today();
+    final dueDate = DateTime(today.year, today.month, today.day + 5);
 
     await repository.createTask(
       name: 'Steuererklaerung',
@@ -1762,7 +1763,7 @@ void main() {
 
       final history = await repository.getTaskGoalHistorySummary(
         task: task,
-        today: today.add(const Duration(days: 4)),
+        today: DateTime(today.year, today.month, today.day + 4),
       );
 
       expect(history.blocks, hasLength(1));

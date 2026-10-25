@@ -1,4 +1,10 @@
 import 'dart:async';
+import 'task_type_change_service.dart';
+import 'tracking_start_policy.dart';
+import 'package:momentum/features/calendar/data/calendar_planning.dart';
+import 'package:momentum/features/calendar/data/calendar_clock.dart';
+import 'package:momentum/features/calendar/data/calendar_commands.dart';
+import 'package:momentum/features/calendar/data/calendar_repository.dart';
 import 'package:momentum/features/aufgaben/data/daily_completion_summary.dart';
 
 import 'package:drift/drift.dart';
@@ -53,6 +59,21 @@ class AufgabenRepository {
       _now = now ?? DateTime.now;
 
   final AppDatabase _database;
+
+  TaskTypeChangeService get taskTypeChanges =>
+      TaskTypeChangeService(_database, now: _now);
+  Future<Aufgabe> currentTask(String id) => _taskById(id);
+  Stream<TaskTypeChange?> watchLatestTypeChange(String id) =>
+      (_database.select(_database.taskTypeChanges)
+            ..where((c) => c.taskId.equals(id))
+            ..orderBy([(c) => OrderingTerm.desc(c.sequence)])
+            ..limit(1))
+          .watchSingleOrNull();
+
+  CalendarCommands get calendarCommands =>
+      CalendarCommands(_database, clock: CalendarClock(now: _now));
+  CalendarRepository get calendarRepository =>
+      CalendarRepository(_database, clock: CalendarClock(now: _now));
 
   Stream<DailyCompletionSummary> watchDailyCompletionSummary({
     required DateTime endingOn,
@@ -109,8 +130,7 @@ class AufgabenRepository {
 
     query.where(
       _database.aufgaben.isActive.equals(true) &
-          _database.aufgaben.trashedAt.isNull() &
-          _database.aufgaben.taskType.equals(taskType),
+          _database.aufgaben.trashedAt.isNull(),
     );
 
     yield* _watchWithCardMetricDependencies(query.watch(), (rows) async {
@@ -123,7 +143,8 @@ class AufgabenRepository {
       final visibleTasks = <TaskForDate>[];
 
       for (final task in tasks) {
-        if (await _isTaskVisibleOnDate(task, selectedDate)) {
+        if (task.task.taskType == taskType &&
+            await _isTaskVisibleOnDate(task, selectedDate)) {
           visibleTasks.add(task);
         }
       }
@@ -145,8 +166,9 @@ class AufgabenRepository {
           allValueBundles
               .where(
                 (bundle) =>
+                    bundle.firstTask.task.taskType == taskType &&
                     bundle.version.displayMode ==
-                    TaskValueBundleDisplayMode.combinedCard,
+                        TaskValueBundleDisplayMode.combinedCard,
               )
               .expand((bundle) => bundle.taskIds)
               .toSet();
@@ -172,8 +194,9 @@ class AufgabenRepository {
           allValueBundles
               .where(
                 (bundle) =>
+                    bundle.firstTask.task.taskType == taskType &&
                     bundle.version.displayMode ==
-                    TaskValueBundleDisplayMode.combinedCard,
+                        TaskValueBundleDisplayMode.combinedCard,
               )
               .toList(),
           selectedDate,
@@ -526,7 +549,6 @@ class AufgabenRepository {
     ])..where(
       _database.aufgaben.isActive.equals(true) &
           _database.aufgaben.trashedAt.isNull() &
-          _database.aufgaben.taskType.equals(TaskTypes.task) &
           (_database.taskEntries.status.equals(TaskEntryStatus.pending) |
               (_database.taskEntries.id.isNull() &
                   _database.aufgaben.recurrence.equals(HabitRecurrence.none) &
@@ -543,7 +565,8 @@ class AufgabenRepository {
       final tasks = <TaskForDate>[];
       final today = _dateOnly(DateTime.now());
       for (final task in rawTasks) {
-        tasks.add(await _resolvedTaskForDate(task, today));
+        final resolved = await _resolvedTaskForDate(task, today);
+        if (resolved.task.taskType == TaskTypes.task) tasks.add(resolved);
       }
       return _withTaskCardMetrics(tasks, today);
     });
@@ -1013,7 +1036,10 @@ class AufgabenRepository {
                 version.validFrom.isSmallerThanValue(nextDay) &
                 version.supersededAt.isNull(),
           )
-          ..orderBy([(version) => OrderingTerm.desc(version.validFrom)])
+          ..orderBy([
+            (version) => OrderingTerm.desc(version.validFrom),
+            (version) => OrderingTerm.desc(version.versionNumber),
+          ])
           ..limit(1))
         .getSingleOrNull();
   }
@@ -1196,7 +1222,8 @@ class AufgabenRepository {
     DateTime? today,
   }) async {
     final referenceDate = _dateOnly(today ?? DateTime.now());
-    final range = _valueAnalyticsRange(
+    task = await _taskByIdOrNull(task.id) ?? task;
+    final range = await _valueAnalyticsRange(
       task: task,
       period: period,
       today: referenceDate,
@@ -1242,26 +1269,13 @@ class AufgabenRepository {
     required TaskAnalyticsPeriod period,
     DateTime? today,
   }) {
-    final referenceDate = _dateOnly(today ?? DateTime.now());
-    final range = _valueAnalyticsRange(
-      task: task,
-      period: period,
-      today: referenceDate,
-    );
-    final query = _taskValueAnalyticsRowsQuery(
-      taskId: task.id,
-      from: range.start,
-      to: range.end,
-    );
-
-    return query.watch().asyncMap((rows) {
-      return _buildTaskValueAnalyticsSummary(
+    return _watchValueAnalyticsChanges().asyncMap(
+      (_) => getTaskValueAnalyticsSummaryForPeriod(
         task: task,
-        periodStart: range.start,
-        periodEnd: range.end,
-        rows: rows,
-      );
-    });
+        period: period,
+        today: today,
+      ),
+    );
   }
 
   Stream<TaskValueAnalyticsSummary>
@@ -1271,21 +1285,29 @@ class AufgabenRepository {
     required DateTime to,
     DateTime? today,
   }) {
-    final query = _taskValueAnalyticsRowsQuery(
-      taskId: task.id,
-      from: _dateOnly(from),
-      to: _dateOnly(to),
-    );
-
-    return query.watch().asyncMap((rows) {
-      return _buildTaskValueAnalyticsSummary(
+    return _watchValueAnalyticsChanges().asyncMap(
+      (_) => getTaskValueAnalyticsSummaryForPeriodRange(
         task: task,
-        periodStart: _dateOnly(from),
-        periodEnd: _dateOnly(to),
-        rows: rows,
-      );
-    });
+        from: from,
+        to: to,
+        today: today,
+      ),
+    );
   }
+
+  Stream<List<QueryRow>> _watchValueAnalyticsChanges() =>
+      _database
+          .customSelect(
+            'SELECT 1',
+            readsFrom: {
+              _database.aufgaben,
+              _database.taskEntries,
+              _database.taskEntryValues,
+              _database.taskDefinitionVersions,
+              _database.taskPlanningInterruptions,
+            },
+          )
+          .watch();
 
   Stream<OneTimeTaskAnalyticsSummary>
   watchOneTimeTaskAnalyticsSummaryForPeriod({
@@ -1476,7 +1498,10 @@ class AufgabenRepository {
         secondDate,
       );
 
-      if (!firstDue && !secondDue) {
+      if (!firstDue &&
+          !secondDue &&
+          firstTask.entryValue == null &&
+          secondTask.entryValue == null) {
         continue;
       }
 
@@ -2948,18 +2973,34 @@ class AufgabenRepository {
     if (!periodStart.isAfter(periodEnd)) {
       var date = periodStart;
       while (!date.isAfter(periodEnd)) {
+        if (version.cancelledAt != null ||
+            date.isBefore(_dateOnly(version.validFrom)) ||
+            (version.validTo != null &&
+                !date.isBefore(_dateOnly(version.validTo!)))) {
+          date = DateTime(date.year, date.month, date.day + 1);
+          continue;
+        }
         final firstDate = _bundleSourceDate(date, version.firstTaskDayOffset);
         final secondDate = _bundleSourceDate(date, version.secondTaskDayOffset);
         final firstDue = await _taskInstanceScheduler.isDueOnDate(
           availableFirstTask,
           firstDate,
+          trackingStart: availableFirstTask.startDate,
         );
         final secondDue = await _taskInstanceScheduler.isDueOnDate(
           availableSecondTask,
           secondDate,
+          trackingStart: availableSecondTask.startDate,
         );
 
-        if (firstDue || secondDue) {
+        if (firstDue ||
+            secondDue ||
+            pairsByTaskDate[_taskDateKey(availableFirstTask.id, firstDate)]
+                    ?.entryValue !=
+                null ||
+            pairsByTaskDate[_taskDateKey(availableSecondTask.id, secondDate)]
+                    ?.entryValue !=
+                null) {
           final firstPair =
               pairsByTaskDate[_taskDateKey(availableFirstTask.id, firstDate)];
           final secondPair =
@@ -3040,7 +3081,7 @@ class AufgabenRepository {
           );
         }
 
-        date = date.add(const Duration(days: 1));
+        date = DateTime(date.year, date.month, date.day + 1);
       }
     }
 
@@ -3144,15 +3185,31 @@ class AufgabenRepository {
     return query;
   }
 
-  _ValueAnalyticsRange _valueAnalyticsRange({
+  Future<_ValueAnalyticsRange> _valueAnalyticsRange({
     required Aufgabe task,
     required TaskAnalyticsPeriod period,
     required DateTime today,
-  }) {
-    final start = period.rangeStart(
-      taskStartDate: task.startDate,
-      today: today,
-    );
+  }) async {
+    var start = period.rangeStart(taskStartDate: task.startDate, today: today);
+    if (_isPureTrackingTask(task)) {
+      if (period.days != null) {
+        start = DateTime(today.year, today.month, today.day - period.days! + 1);
+      } else {
+        final first =
+            await (_database.select(_database.taskEntries)
+                  ..where(
+                    (e) =>
+                        e.taskId.equals(task.id) &
+                        e.status.equals(TaskEntryStatus.recorded),
+                  )
+                  ..orderBy([(e) => OrderingTerm.asc(e.scheduledDate)])
+                  ..limit(1))
+                .getSingleOrNull();
+        if (first != null && first.scheduledDate.isBefore(start)) {
+          start = _dateOnly(first.scheduledDate);
+        }
+      }
+    }
     var end = period.rangeEnd(today);
     final taskEndDate = task.endDate;
 
@@ -3169,6 +3226,7 @@ class AufgabenRepository {
     required DateTime periodEnd,
     required List<TypedResult> rows,
   }) async {
+    task = await _taskByIdOrNull(task.id) ?? task;
     final points = <TaskValueAnalyticsPoint>[];
     final values = <double>[];
     var recordedCount = 0;
@@ -3229,7 +3287,11 @@ class AufgabenRepository {
       var date = periodStart;
       while (!date.isAfter(periodEnd)) {
         if (!entryDates.contains(date) &&
-            await _taskInstanceScheduler.isDueOnDate(task, date)) {
+            await _taskInstanceScheduler.isDueOnDate(
+              task,
+              date,
+              trackingStart: task.startDate,
+            )) {
           virtualMissingCount++;
           points.add(
             TaskValueAnalyticsPoint(
@@ -3239,7 +3301,7 @@ class AufgabenRepository {
             ),
           );
         }
-        date = date.add(const Duration(days: 1));
+        date = DateTime(date.year, date.month, date.day + 1);
       }
     }
 
@@ -3536,6 +3598,7 @@ class AufgabenRepository {
       taskId,
       date,
     );
+    final planning = await _calendarPlanningForVersion(definitionVersionId);
     final existingEntry = await _entryForTaskDate(taskId, date);
     final planningOrigin = await _planningOriginForEntry(
       taskId,
@@ -3568,6 +3631,14 @@ class AufgabenRepository {
             taskId: taskId,
             taskDefinitionVersionId: Value(definitionVersionId),
             scheduledDate: date,
+            plannedStartMinute:
+                existingEntry == null
+                    ? Value(planning.startMinute)
+                    : const Value.absent(),
+            plannedDurationMinutes:
+                existingEntry == null
+                    ? Value(planning.durationMinutes)
+                    : const Value.absent(),
             createdAt: Value(existingEntry?.createdAt ?? now),
             status: Value(
               isCompleted ? TaskEntryStatus.success : TaskEntryStatus.pending,
@@ -3613,6 +3684,7 @@ class AufgabenRepository {
       task.id,
       date,
     );
+    final planning = await _calendarPlanningForVersion(definitionVersionId);
     final existingEntry = await _entryForTaskDate(task.id, date);
     final planningOrigin = await _planningOriginForEntry(
       task.id,
@@ -3649,6 +3721,14 @@ class AufgabenRepository {
             taskId: task.id,
             taskDefinitionVersionId: Value(definitionVersionId),
             scheduledDate: date,
+            plannedStartMinute:
+                existingEntry == null
+                    ? Value(planning.startMinute)
+                    : const Value.absent(),
+            plannedDurationMinutes:
+                existingEntry == null
+                    ? Value(planning.durationMinutes)
+                    : const Value.absent(),
             createdAt: Value(existingEntry?.createdAt ?? now),
             status: Value(
               isPending
@@ -3696,6 +3776,7 @@ class AufgabenRepository {
       date,
     );
     final existingEntry = await _entryForTaskDate(task.id, date);
+    final planning = await _calendarPlanningForVersion(definitionVersionId);
     final planningOrigin = await _planningOriginForEntry(
       task.id,
       date,
@@ -3726,6 +3807,14 @@ class AufgabenRepository {
             scheduledDate: date,
             createdAt: Value(existingEntry?.createdAt ?? now),
             status: const Value(TaskEntryStatus.noEntry),
+            plannedStartMinute:
+                existingEntry == null
+                    ? Value(planning.startMinute)
+                    : const Value.absent(),
+            plannedDurationMinutes:
+                existingEntry == null
+                    ? Value(planning.durationMinutes)
+                    : const Value.absent(),
             updatedAt: now,
             respondedAt: Value(now),
             finalizedAt: const Value(null),
@@ -3757,12 +3846,43 @@ class AufgabenRepository {
     }
 
     final date = _dateOnly(scheduledDate);
-    final performedDate =
-        performedOn == null
-            ? date
-            : await _validatedPerformedOn(task.id, performedOn);
-    final now = DateTime.now();
     final existingEntry = await _entryForTaskDate(task.id, date);
+    final current = await _taskByIdOrNull(task.id) ?? task;
+    if (_isPureTrackingTask(current) && date.isAfter(_dateOnly(_now()))) {
+      throw ArgumentError('Messungen dürfen nicht in der Zukunft liegen.');
+    }
+    final previousValue =
+        existingEntry == null
+            ? null
+            : await (_database.select(_database.taskEntryValues)..where(
+              (v) => v.entryId.equals(existingEntry.id),
+            )).getSingleOrNull();
+    final oldPerformed =
+        existingEntry?.performedOn ?? existingEntry?.scheduledDate;
+    final requestedPerformed = _dateOnly(
+      performedOn ?? (previousValue != null ? oldPerformed : null) ?? date,
+    );
+    final preserveOldDate =
+        _isPureTrackingTask(current) &&
+        previousValue != null &&
+        requestedPerformed == _dateOnly(oldPerformed!);
+    if (_isPureTrackingTask(current) &&
+        date.isBefore(_dateOnly(current.startDate)) &&
+        !preserveOldDate) {
+      throw ArgumentError(
+        'Neue Messungen dürfen nicht vor dem Trackingbeginn liegen.',
+      );
+    }
+    final performedDate = await _validatedPerformedOn(
+      task.id,
+      requestedPerformed,
+      allowBeforeStart: preserveOldDate,
+    );
+    task =
+        existingEntry == null
+            ? await _definitionResolver.taskForDate(current, date)
+            : await _definitionResolver.taskForEntry(current, existingEntry);
+    final now = _now();
     final planningOrigin = await _planningOriginForEntry(
       task.id,
       date,
@@ -3774,6 +3894,7 @@ class AufgabenRepository {
       date,
     );
     final unitDefinition = TaskValueUnits.byKey(task.valueUnitKey);
+    final planning = await _calendarPlanningForVersion(definitionVersionId);
     final normalizedNumberValue =
         numberValue == null
             ? null
@@ -3812,6 +3933,14 @@ class AufgabenRepository {
               scheduledDate: date,
               createdAt: Value(existingEntry?.createdAt ?? now),
               status: const Value(TaskEntryStatus.recorded),
+              plannedStartMinute:
+                  existingEntry == null
+                      ? Value(planning.startMinute)
+                      : const Value.absent(),
+              plannedDurationMinutes:
+                  existingEntry == null
+                      ? Value(planning.durationMinutes)
+                      : const Value.absent(),
               updatedAt: now,
               respondedAt: Value(now),
               finalizedAt: Value(now),
@@ -3866,7 +3995,7 @@ class AufgabenRepository {
     final entryId = existingEntry?.id ?? _uuid.v4();
     final definitionVersionId =
         existingEntry?.taskDefinitionVersionId ??
-        await _definitionVersionWriter.currentVersionId(taskId);
+        await _definitionVersionIdForEntry(taskId, date);
 
     if (existingEntry != null) {
       await _correctionService.correctNote(
@@ -3877,6 +4006,8 @@ class AufgabenRepository {
       return;
     }
 
+    final planning = await _calendarPlanningForVersion(definitionVersionId);
+
     await _database
         .into(_database.taskEntries)
         .insertOnConflictUpdate(
@@ -3886,6 +4017,8 @@ class AufgabenRepository {
             taskDefinitionVersionId: Value(definitionVersionId),
             scheduledDate: date,
             createdAt: Value(existingEntry?.createdAt ?? DateTime.now()),
+            plannedStartMinute: Value(planning.startMinute),
+            plannedDurationMinutes: Value(planning.durationMinutes),
             status: Value(existingEntry?.status ?? TaskEntryStatus.pending),
             updatedAt: DateTime.now(),
             respondedAt: Value(existingEntry?.respondedAt),
@@ -3909,6 +4042,9 @@ class AufgabenRepository {
     await moveTaskToTrash(await previewTaskDeletion(taskId));
   }
 
+  Future<String?> startDateBlockedReason(String taskId) =>
+      TrackingStartPolicy.blockedReason(_database, taskId);
+
   Future<void> updateTask({
     required String taskId,
     required String name,
@@ -3917,6 +4053,7 @@ class AufgabenRepository {
     required String taskType,
     required DateTime startDate,
     required DateTime? dueDate,
+    CalendarPlanning? calendarPlanning,
     required String questionText,
     required bool successValue,
     required Set<int> activeWeekdays,
@@ -3938,12 +4075,71 @@ class AufgabenRepository {
   }) async {
     await _lifecycleService.ensureTaskWritable(taskId);
     await _database.transaction(() async {
+      if (calendarPlanning != null) {
+        calendarPlanning.validate();
+        final current =
+            await (_database.select(_database.aufgaben)
+              ..where((t) => t.id.equals(taskId))).getSingle();
+        final pendingCalendar = await _definitionResolver.pendingChange(
+          taskId,
+          TaskPendingDefinitionChangeGroup.calendar,
+        );
+        if ((pendingCalendar != null &&
+                pendingCalendar.payloadJson != calendarPlanning.encode()) ||
+            current.plannedStartMinute != calendarPlanning.startMinute ||
+            current.plannedDurationMinutes !=
+                calendarPlanning.durationMinutes) {
+          if (current.recurrence == HabitRecurrence.none &&
+              recurrence == HabitRecurrence.none) {
+            final entries =
+                await (_database.select(_database.taskEntries)
+                  ..where((e) => e.taskId.equals(taskId))).get();
+            await calendarCommands.change(
+              expectedTask: current,
+              expectedEntry: entries.firstOrNull,
+              day: dueDate,
+              planning: calendarPlanning,
+            );
+          } else {
+            CalendarClock(
+              now: _now,
+            ).validate(_nextLocalDay(_now()), calendarPlanning);
+            await _definitionResolver.scheduleChange(
+              taskId: taskId,
+              group: TaskPendingDefinitionChangeGroup.calendar,
+              effectiveDate: _nextLocalDay(_now()),
+              payloadJson: calendarPlanning.encode(),
+            );
+          }
+        }
+      }
       final previousTask =
           await (_database.select(_database.aufgaben)
             ..where((task) => task.id.equals(taskId))).getSingle();
 
+      final nextStart = _dateOnly(startDate);
+      final startDateChanged = _dateOnly(previousTask.startDate) != nextStart;
+      if (startDateChanged) {
+        final reason = await startDateBlockedReason(taskId);
+        if (reason != null) throw StateError(reason);
+        if (!TrackingStartPolicy.safeSchedule(
+          recurrence,
+          missedPolicy ?? previousTask.missedPolicy,
+        )) {
+          throw StateError(
+            'Die gleichzeitige Planungsänderung erlaubt keine Startänderung.',
+          );
+        }
+        if ((previousTask.endDate != null &&
+                nextStart.isAfter(_dateOnly(previousTask.endDate!))) ||
+            (dueDate != null && nextStart.isAfter(_dateOnly(dueDate)))) {
+          throw StateError(
+            'Der Beginn darf nicht nach dem End- oder Fälligkeitsdatum liegen.',
+          );
+        }
+      }
+
       if (previousTask.taskType != taskType ||
-          _dateOnly(previousTask.startDate) != _dateOnly(startDate) ||
           (valueType != null && previousTask.valueType != valueType) ||
           (valueCommitment != null &&
               previousTask.valueCommitment != valueCommitment) ||
@@ -3951,7 +4147,7 @@ class AufgabenRepository {
           (valueUnitLabel != null &&
               previousTask.valueUnitLabel.trim() != valueUnitLabel.trim())) {
         throw StateError(
-          'Aufgabenart, Startdatum und Messkonfiguration sind nach der '
+          'Aufgabenart und Messkonfiguration sind nach der '
           'Erstellung gesperrt. Verwende „Als neue Aufgabe kopieren“.',
         );
       }
@@ -3999,6 +4195,7 @@ class AufgabenRepository {
       final successValueChanged = previousTask.successValue != successValue;
       final directGoalChanged = !scheduleChanged && goalChanged;
       final taskRowChanged =
+          startDateChanged ||
           textChanged ||
           successValueChanged ||
           dueDateChanged ||
@@ -4056,6 +4253,7 @@ class AufgabenRepository {
         await (_database.update(_database.aufgaben)
           ..where((task) => task.id.equals(taskId))).write(
           AufgabenCompanion(
+            startDate: Value(nextStart),
             name: Value(nextName),
             beschreibung: Value(nextDescription),
             questionText: Value(nextQuestionText),
@@ -4097,7 +4295,8 @@ class AufgabenRepository {
       final updatedTask =
           await (_database.select(_database.aufgaben)
             ..where((task) => task.id.equals(taskId))).getSingle();
-      if (textChanged ||
+      if (startDateChanged ||
+          textChanged ||
           successValueChanged ||
           dueDateChanged ||
           directGoalChanged) {
@@ -4171,6 +4370,8 @@ class AufgabenRepository {
                 await _definitionVersionWriter.currentVersionId(task.id),
               ),
               scheduledDate: normalizedDueDate,
+              plannedStartMinute: Value(task.plannedStartMinute),
+              plannedDurationMinutes: Value(task.plannedDurationMinutes),
               createdAt: Value(now),
               updatedAt: now,
             ),
@@ -4202,6 +4403,8 @@ class AufgabenRepository {
     String taskType = TaskTypes.habit,
     DateTime? startDate,
     DateTime? dueDate,
+    int? plannedStartMinute,
+    int? plannedDurationMinutes,
     String questionText = '',
     bool successValue = true,
     Set<int> activeWeekdays = const {1, 2, 3, 4, 5, 6, 7},
@@ -4221,12 +4424,23 @@ class AufgabenRepository {
     String valueUnitKey = TaskValueUnitKey.none,
     String valueUnitLabel = '',
   }) {
+    CalendarPlanning(
+      startMinute: plannedStartMinute,
+      durationMinutes: plannedDurationMinutes,
+    ).validate();
     final taskId = _uuid.v4();
     final clock = _now();
     final now = clock.toUtc();
     final today = _dateOnly(clock);
     final selectedStartDate = startDate == null ? today : _dateOnly(startDate);
     final selectedDueDate = dueDate == null ? null : _dateOnly(dueDate);
+    CalendarClock(now: _now).validate(
+      selectedDueDate ?? selectedStartDate,
+      CalendarPlanning(
+        startMinute: plannedStartMinute,
+        durationMinutes: plannedDurationMinutes,
+      ),
+    );
     final initialEntryDate =
         taskType == TaskTypes.task &&
                 recurrence == HabitRecurrence.none &&
@@ -4258,6 +4472,8 @@ class AufgabenRepository {
               recurrence: Value(recurrence),
               startDate: selectedStartDate,
               dueDate: Value(selectedDueDate),
+              plannedStartMinute: Value(plannedStartMinute),
+              plannedDurationMinutes: Value(plannedDurationMinutes),
               missedPolicy: Value(missedPolicy),
               missedConsequence: Value(missedConsequence),
               missedBufferDays: Value(missedBufferDays),
@@ -4293,12 +4509,24 @@ class AufgabenRepository {
                 taskId: taskId,
                 taskDefinitionVersionId: Value(definitionVersionId),
                 scheduledDate: initialEntryDate,
+                plannedStartMinute: Value(plannedStartMinute),
+                plannedDurationMinutes: Value(plannedDurationMinutes),
                 createdAt: Value(now),
                 updatedAt: now,
               ),
             );
       }
     });
+  }
+
+  Future<CalendarPlanning> _calendarPlanningForVersion(String versionId) async {
+    final version =
+        await (_database.select(_database.taskDefinitionVersions)
+          ..where((row) => row.id.equals(versionId))).getSingle();
+    return CalendarPlanning(
+      startMinute: version.plannedStartMinute,
+      durationMinutes: version.plannedDurationMinutes,
+    );
   }
 
   List<TaskForDate> _mapAndSortTasks(List<TypedResult> rows) {
@@ -4439,9 +4667,13 @@ class AufgabenRepository {
         : TaskEntryPlanningOrigin.planned;
   }
 
-  Future<DateTime> _validatedPerformedOn(String taskId, DateTime value) async {
+  Future<DateTime> _validatedPerformedOn(
+    String taskId,
+    DateTime value, {
+    bool allowBeforeStart = false,
+  }) async {
     final performedOn = _dateOnly(value);
-    final today = _dateOnly(DateTime.now());
+    final today = _dateOnly(_now());
     final task =
         await (_database.select(_database.aufgaben)
           ..where((candidate) => candidate.id.equals(taskId))).getSingle();
@@ -4452,7 +4684,7 @@ class AufgabenRepository {
         'Der Durchführungstag darf nicht in der Zukunft liegen.',
       );
     }
-    if (performedOn.isBefore(_dateOnly(task.startDate))) {
+    if (!allowBeforeStart && performedOn.isBefore(_dateOnly(task.startDate))) {
       throw ArgumentError.value(
         value,
         'performedOn',

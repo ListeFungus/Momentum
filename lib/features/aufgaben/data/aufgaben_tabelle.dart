@@ -42,6 +42,9 @@ class Aufgaben extends Table {
 
   DateTimeColumn get dueDate => dateTime().nullable()();
 
+  IntColumn get plannedStartMinute => integer().nullable()();
+  IntColumn get plannedDurationMinutes => integer().nullable()();
+
   BoolColumn get isActive => boolean().withDefault(const Constant(true))();
 
   DateTimeColumn get trashedAt => dateTime().nullable()();

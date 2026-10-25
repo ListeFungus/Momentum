@@ -117,6 +117,9 @@ class ProjectRepository {
           for (final row in rows) {
             final task = row.readTable(_database.aufgaben);
             final entry = row.readTableOrNull(_database.taskEntries);
+            // Inventory follows the current assignment and type; only entry
+            // statistics are restricted to their historical project.
+            taskMap.putIfAbsent(task.id, () => _TaskSummaryBuilder(task));
             if (entry != null) {
               final snapshotTask = await _definitionResolver.taskForEntry(
                 task,
@@ -130,8 +133,6 @@ class ProjectRepository {
                   );
               if (resolvedProjectId != projectId) continue;
             }
-            taskMap.putIfAbsent(task.id, () => _TaskSummaryBuilder(task));
-
             if (entry != null) {
               taskMap[task.id]!.addEntry(entry);
             }

@@ -86,10 +86,6 @@ class TaskInstanceScheduler {
     final taskQuery = _database.select(_database.aufgaben)
       ..where((task) => task.isActive.equals(true) & task.trashedAt.isNull());
 
-    if (taskType != null) {
-      taskQuery.where((task) => task.taskType.equals(taskType));
-    }
-
     final activeTasks = await taskQuery.get();
     DateTime? earliestDate;
 
@@ -134,10 +130,6 @@ class TaskInstanceScheduler {
           _database.taskEntries.scheduledDate.isSmallerThanValue(cutoffDate),
     );
 
-    if (taskType != null) {
-      query.where(_database.aufgaben.taskType.equals(taskType));
-    }
-
     final rows = await query.get();
     if (rows.isEmpty) {
       return 0;
@@ -150,6 +142,7 @@ class TaskInstanceScheduler {
       final currentTask = row.readTable(_database.aufgaben);
       final entry = row.readTable(_database.taskEntries);
       final task = await _definitionResolver.taskForEntry(currentTask, entry);
+      if (taskType != null && task.taskType != taskType) continue;
       if (task.missedPolicy != MissedPolicy.direct) {
         continue;
       }
@@ -197,10 +190,6 @@ class TaskInstanceScheduler {
           _database.taskEntries.scheduledDate.isSmallerThanValue(cutoffDate),
     );
 
-    if (taskType != null) {
-      query.where(_database.aufgaben.taskType.equals(taskType));
-    }
-
     final rows = await query.get();
     if (rows.isEmpty) {
       return 0;
@@ -213,6 +202,7 @@ class TaskInstanceScheduler {
       final currentTask = row.readTable(_database.aufgaben);
       final entry = row.readTable(_database.taskEntries);
       final task = await _definitionResolver.taskForEntry(currentTask, entry);
+      if (taskType != null && task.taskType != taskType) continue;
       if (task.missedPolicy != MissedPolicy.buffer) {
         continue;
       }
@@ -261,10 +251,6 @@ class TaskInstanceScheduler {
     final cutoffDate = _dateOnly(referenceDate);
     final taskQuery = _database.select(_database.aufgaben)
       ..where((task) => task.isActive.equals(true) & task.trashedAt.isNull());
-
-    if (taskType != null) {
-      taskQuery.where((task) => task.taskType.equals(taskType));
-    }
 
     final tasks = await taskQuery.get();
     var updatedCount = 0;
@@ -315,6 +301,7 @@ class TaskInstanceScheduler {
                 : TaskEntryStatus.failure;
 
         for (final pair in group.take(overflowCount)) {
+          if (taskType != null && pair.$2.taskType != taskType) continue;
           final entry = pair.$1;
           await (_database.update(_database.taskEntries)
             ..where((candidate) => candidate.id.equals(entry.id))).write(
@@ -341,7 +328,11 @@ class TaskInstanceScheduler {
     return updatedCount;
   }
 
-  Future<bool> isDueOnDate(Aufgabe task, DateTime date) async {
+  Future<bool> isDueOnDate(
+    Aufgabe task,
+    DateTime date, {
+    DateTime? trackingStart,
+  }) async {
     final selectedDate = _dateOnly(date);
     if (task.trashedAt != null ||
         await _lifecycleService.isTaskExcludedOnDay(task.id, selectedDate)) {
@@ -352,6 +343,16 @@ class TaskInstanceScheduler {
       selectedDate,
     );
     task = effectiveTask;
+
+    if (_isPureTrackingTask(task)) {
+      final currentStart =
+          trackingStart ??
+          (await (_database.select(_database.aufgaben)
+                ..where((t) => t.id.equals(task.id))).getSingle())
+              .startDate;
+      task = task.copyWith(startDate: _dateOnly(currentStart));
+      if (selectedDate.isBefore(task.startDate)) return false;
+    }
 
     if (task.taskType == TaskTypes.task &&
         task.recurrence == HabitRecurrence.none) {
@@ -407,15 +408,12 @@ class TaskInstanceScheduler {
     final taskQuery = _database.select(_database.aufgaben)
       ..where((task) => task.isActive.equals(true) & task.trashedAt.isNull());
 
-    if (taskType != null) {
-      taskQuery.where((task) => task.taskType.equals(taskType));
-    }
-
     final activeTasks = await taskQuery.get();
     final dueTasks = <Aufgabe>[];
 
     for (final task in activeTasks) {
       final effectiveTask = await _definitionResolver.taskForDate(task, date);
+      if (taskType != null && effectiveTask.taskType != taskType) continue;
       if (await isDueOnDate(effectiveTask, date)) {
         dueTasks.add(effectiveTask);
       }
@@ -452,6 +450,8 @@ class TaskInstanceScheduler {
                 ),
               ),
               scheduledDate: date,
+              plannedStartMinute: Value(task.plannedStartMinute),
+              plannedDurationMinutes: Value(task.plannedDurationMinutes),
               createdAt: Value(now),
               updatedAt: now,
             ),

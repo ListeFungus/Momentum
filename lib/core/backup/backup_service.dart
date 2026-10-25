@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:momentum/features/calendar/data/calendar_planning.dart';
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
@@ -83,7 +84,10 @@ class BackupService {
       }
       final content = jsonDecode(payload) as Map<String, dynamic>;
       final schema = content['schemaVersion'];
-      if (schema != 22 && schema != scratch.schemaVersion) {
+      if (schema != 22 &&
+          schema != 23 &&
+          schema != 24 &&
+          schema != scratch.schemaVersion) {
         throw const BackupException(
           'Die Datenversion dieser Sicherung passt nicht zu dieser App-Version. Der aktuelle Bestand bleibt erhalten.',
         );
@@ -92,6 +96,10 @@ class BackupService {
       final rawTables = content['tables'] as Map<String, dynamic>;
       final expected = scratch.allTables.map((t) => t.actualTableName).toSet();
       final sourceTables = {...expected};
+      if (schema < 24) {
+        sourceTables.remove('calendar_settings');
+      }
+      if (schema < 25) sourceTables.remove('task_type_changes');
       if (schema == 22) {
         sourceTables.removeAll({
           'card_display_settings',
@@ -111,9 +119,30 @@ class BackupService {
         rawTables['card_expansion_preferences'] = <dynamic>[];
       }
       final tables = <String, List<Map<String, Object?>>>{};
+      if (schema < 25) rawTables['task_type_changes'] = <dynamic>[];
+      if (schema < 24) {
+        rawTables['calendar_settings'] = <dynamic>[];
+      }
       for (final name in expected) {
-        final columns =
+        final currentColumns =
             await scratch.customSelect('PRAGMA table_info("$name")').get();
+        final hasPlanning = {
+          'aufgaben',
+          'task_entries',
+          'task_definition_versions',
+        }.contains(name);
+        final legacyPlanning = schema < 24 && hasPlanning;
+        final columns =
+            currentColumns
+                .where(
+                  (column) =>
+                      !legacyPlanning ||
+                      !{
+                        'planned_start_minute',
+                        'planned_duration_minutes',
+                      }.contains(column.read<String>('name')),
+                )
+                .toList();
         final rows = rawTables[name] as List<dynamic>;
         tables[name] = [];
         for (final rawRow in rows) {
@@ -143,9 +172,30 @@ class BackupService {
               );
             }
           }
+          // Validate the original schema first; only then introduce new nullable fields.
+          if (legacyPlanning) {
+            row['planned_start_minute'] = null;
+            row['planned_duration_minutes'] = null;
+          }
+          if (hasPlanning) {
+            CalendarPlanning(
+              startMinute: row['planned_start_minute'] as int?,
+              durationMinutes: row['planned_duration_minutes'] as int?,
+            ).validate();
+          }
+          if (name == 'task_pending_definition_changes' &&
+              row['group_key'] == 'calendar') {
+            if (schema < 24 || row['payload_version'] != 1) {
+              throw const BackupException(
+                'Ungültige Version einer Kalenderänderung.',
+              );
+            }
+            CalendarPlanning.decode(row['payload_json'] as String);
+          }
           tables[name]!.add(row);
         }
       }
+      _validateTypeChanges(tables);
       final backup = PreparedBackup._(createdAt, tables);
       await _replace(scratch, backup);
       return backup;
@@ -168,6 +218,57 @@ class BackupService {
       throw const BackupException(
         'Wiederherstellung fehlgeschlagen. Der vorherige Datenbestand wurde beibehalten.',
       );
+    }
+  }
+
+  void _validateTypeChanges(Map<String, List<Map<String, Object?>>> tables) {
+    final versions = {
+      for (final v in tables['task_definition_versions']!) v['id']: v,
+    };
+    for (final change in tables['task_type_changes']!) {
+      final version = versions[change['definition_version_id']];
+      if (version == null || version['task_id'] != change['task_id']) {
+        throw const BackupException(
+          'Ungültige Definitionszuordnung im Artenwechsel.',
+        );
+      }
+      final decoded = jsonDecode(change['previous_types_json'] as String);
+      if (decoded is! List ||
+          (change['scope'] == 'new_entries' && decoded.isNotEmpty)) {
+        throw const BackupException('Ungültiges Artenwechsel-Protokoll.');
+      }
+      final seen = <String>{};
+      for (final item in decoded) {
+        if (item is! Map ||
+            item.length != 2 ||
+            item['versionId'] is! String ||
+            !{'task', 'habit'}.contains(item['taskType']) ||
+            !seen.add(item['versionId'] as String) ||
+            versions[item['versionId']]?['task_id'] != change['task_id'] ||
+            (versions[item['versionId']]!['version_number'] as int) >=
+                (version['version_number'] as int)) {
+          throw const BackupException(
+            'Ungültige frühere Artzuordnung im Protokoll.',
+          );
+        }
+      }
+      if (change['scope'] == 'all_history') {
+        final expected =
+            versions.values
+                .where(
+                  (v) =>
+                      v['task_id'] == change['task_id'] &&
+                      (v['version_number'] as int) <
+                          (version['version_number'] as int),
+                )
+                .map((v) => v['id'])
+                .toSet();
+        if (seen.length != expected.length || !seen.containsAll(expected)) {
+          throw const BackupException(
+            'Unvollständige frühere Artzuordnung im Protokoll.',
+          );
+        }
+      }
     }
   }
 

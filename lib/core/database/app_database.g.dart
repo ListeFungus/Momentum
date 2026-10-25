@@ -845,6 +845,26 @@ class $AufgabenTable extends Aufgaben with TableInfo<$AufgabenTable, Aufgabe> {
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _plannedStartMinuteMeta =
+      const VerificationMeta('plannedStartMinute');
+  @override
+  late final GeneratedColumn<int> plannedStartMinute = GeneratedColumn<int>(
+    'planned_start_minute',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _plannedDurationMinutesMeta =
+      const VerificationMeta('plannedDurationMinutes');
+  @override
+  late final GeneratedColumn<int> plannedDurationMinutes = GeneratedColumn<int>(
+    'planned_duration_minutes',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _isActiveMeta = const VerificationMeta(
     'isActive',
   );
@@ -1090,6 +1110,8 @@ class $AufgabenTable extends Aufgaben with TableInfo<$AufgabenTable, Aufgabe> {
     updatedAt,
     endDate,
     dueDate,
+    plannedStartMinute,
+    plannedDurationMinutes,
     isActive,
     trashedAt,
     purgeAt,
@@ -1230,6 +1252,24 @@ class $AufgabenTable extends Aufgaben with TableInfo<$AufgabenTable, Aufgabe> {
       context.handle(
         _dueDateMeta,
         dueDate.isAcceptableOrUnknown(data['due_date']!, _dueDateMeta),
+      );
+    }
+    if (data.containsKey('planned_start_minute')) {
+      context.handle(
+        _plannedStartMinuteMeta,
+        plannedStartMinute.isAcceptableOrUnknown(
+          data['planned_start_minute']!,
+          _plannedStartMinuteMeta,
+        ),
+      );
+    }
+    if (data.containsKey('planned_duration_minutes')) {
+      context.handle(
+        _plannedDurationMinutesMeta,
+        plannedDurationMinutes.isAcceptableOrUnknown(
+          data['planned_duration_minutes']!,
+          _plannedDurationMinutesMeta,
+        ),
       );
     }
     if (data.containsKey('is_active')) {
@@ -1462,6 +1502,14 @@ class $AufgabenTable extends Aufgaben with TableInfo<$AufgabenTable, Aufgabe> {
         DriftSqlType.dateTime,
         data['${effectivePrefix}due_date'],
       ),
+      plannedStartMinute: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}planned_start_minute'],
+      ),
+      plannedDurationMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}planned_duration_minutes'],
+      ),
       isActive:
           attachedDatabase.typeMapping.read(
             DriftSqlType.bool,
@@ -1578,6 +1626,8 @@ class Aufgabe extends DataClass implements Insertable<Aufgabe> {
   final DateTime? updatedAt;
   final DateTime? endDate;
   final DateTime? dueDate;
+  final int? plannedStartMinute;
+  final int? plannedDurationMinutes;
   final bool isActive;
   final DateTime? trashedAt;
   final DateTime? purgeAt;
@@ -1613,6 +1663,8 @@ class Aufgabe extends DataClass implements Insertable<Aufgabe> {
     this.updatedAt,
     this.endDate,
     this.dueDate,
+    this.plannedStartMinute,
+    this.plannedDurationMinutes,
     required this.isActive,
     this.trashedAt,
     this.purgeAt,
@@ -1658,6 +1710,12 @@ class Aufgabe extends DataClass implements Insertable<Aufgabe> {
     }
     if (!nullToAbsent || dueDate != null) {
       map['due_date'] = Variable<DateTime>(dueDate);
+    }
+    if (!nullToAbsent || plannedStartMinute != null) {
+      map['planned_start_minute'] = Variable<int>(plannedStartMinute);
+    }
+    if (!nullToAbsent || plannedDurationMinutes != null) {
+      map['planned_duration_minutes'] = Variable<int>(plannedDurationMinutes);
     }
     map['is_active'] = Variable<bool>(isActive);
     if (!nullToAbsent || trashedAt != null) {
@@ -1718,6 +1776,14 @@ class Aufgabe extends DataClass implements Insertable<Aufgabe> {
           dueDate == null && nullToAbsent
               ? const Value.absent()
               : Value(dueDate),
+      plannedStartMinute:
+          plannedStartMinute == null && nullToAbsent
+              ? const Value.absent()
+              : Value(plannedStartMinute),
+      plannedDurationMinutes:
+          plannedDurationMinutes == null && nullToAbsent
+              ? const Value.absent()
+              : Value(plannedDurationMinutes),
       isActive: Value(isActive),
       trashedAt:
           trashedAt == null && nullToAbsent
@@ -1773,6 +1839,10 @@ class Aufgabe extends DataClass implements Insertable<Aufgabe> {
       updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
       endDate: serializer.fromJson<DateTime?>(json['endDate']),
       dueDate: serializer.fromJson<DateTime?>(json['dueDate']),
+      plannedStartMinute: serializer.fromJson<int?>(json['plannedStartMinute']),
+      plannedDurationMinutes: serializer.fromJson<int?>(
+        json['plannedDurationMinutes'],
+      ),
       isActive: serializer.fromJson<bool>(json['isActive']),
       trashedAt: serializer.fromJson<DateTime?>(json['trashedAt']),
       purgeAt: serializer.fromJson<DateTime?>(json['purgeAt']),
@@ -1819,6 +1889,8 @@ class Aufgabe extends DataClass implements Insertable<Aufgabe> {
       'updatedAt': serializer.toJson<DateTime?>(updatedAt),
       'endDate': serializer.toJson<DateTime?>(endDate),
       'dueDate': serializer.toJson<DateTime?>(dueDate),
+      'plannedStartMinute': serializer.toJson<int?>(plannedStartMinute),
+      'plannedDurationMinutes': serializer.toJson<int?>(plannedDurationMinutes),
       'isActive': serializer.toJson<bool>(isActive),
       'trashedAt': serializer.toJson<DateTime?>(trashedAt),
       'purgeAt': serializer.toJson<DateTime?>(purgeAt),
@@ -1857,6 +1929,8 @@ class Aufgabe extends DataClass implements Insertable<Aufgabe> {
     Value<DateTime?> updatedAt = const Value.absent(),
     Value<DateTime?> endDate = const Value.absent(),
     Value<DateTime?> dueDate = const Value.absent(),
+    Value<int?> plannedStartMinute = const Value.absent(),
+    Value<int?> plannedDurationMinutes = const Value.absent(),
     bool? isActive,
     Value<DateTime?> trashedAt = const Value.absent(),
     Value<DateTime?> purgeAt = const Value.absent(),
@@ -1892,6 +1966,14 @@ class Aufgabe extends DataClass implements Insertable<Aufgabe> {
     updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
     endDate: endDate.present ? endDate.value : this.endDate,
     dueDate: dueDate.present ? dueDate.value : this.dueDate,
+    plannedStartMinute:
+        plannedStartMinute.present
+            ? plannedStartMinute.value
+            : this.plannedStartMinute,
+    plannedDurationMinutes:
+        plannedDurationMinutes.present
+            ? plannedDurationMinutes.value
+            : this.plannedDurationMinutes,
     isActive: isActive ?? this.isActive,
     trashedAt: trashedAt.present ? trashedAt.value : this.trashedAt,
     purgeAt: purgeAt.present ? purgeAt.value : this.purgeAt,
@@ -1949,6 +2031,14 @@ class Aufgabe extends DataClass implements Insertable<Aufgabe> {
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       endDate: data.endDate.present ? data.endDate.value : this.endDate,
       dueDate: data.dueDate.present ? data.dueDate.value : this.dueDate,
+      plannedStartMinute:
+          data.plannedStartMinute.present
+              ? data.plannedStartMinute.value
+              : this.plannedStartMinute,
+      plannedDurationMinutes:
+          data.plannedDurationMinutes.present
+              ? data.plannedDurationMinutes.value
+              : this.plannedDurationMinutes,
       isActive: data.isActive.present ? data.isActive.value : this.isActive,
       trashedAt: data.trashedAt.present ? data.trashedAt.value : this.trashedAt,
       purgeAt: data.purgeAt.present ? data.purgeAt.value : this.purgeAt,
@@ -2026,6 +2116,8 @@ class Aufgabe extends DataClass implements Insertable<Aufgabe> {
           ..write('updatedAt: $updatedAt, ')
           ..write('endDate: $endDate, ')
           ..write('dueDate: $dueDate, ')
+          ..write('plannedStartMinute: $plannedStartMinute, ')
+          ..write('plannedDurationMinutes: $plannedDurationMinutes, ')
           ..write('isActive: $isActive, ')
           ..write('trashedAt: $trashedAt, ')
           ..write('purgeAt: $purgeAt, ')
@@ -2066,6 +2158,8 @@ class Aufgabe extends DataClass implements Insertable<Aufgabe> {
     updatedAt,
     endDate,
     dueDate,
+    plannedStartMinute,
+    plannedDurationMinutes,
     isActive,
     trashedAt,
     purgeAt,
@@ -2105,6 +2199,8 @@ class Aufgabe extends DataClass implements Insertable<Aufgabe> {
           other.updatedAt == this.updatedAt &&
           other.endDate == this.endDate &&
           other.dueDate == this.dueDate &&
+          other.plannedStartMinute == this.plannedStartMinute &&
+          other.plannedDurationMinutes == this.plannedDurationMinutes &&
           other.isActive == this.isActive &&
           other.trashedAt == this.trashedAt &&
           other.purgeAt == this.purgeAt &&
@@ -2142,6 +2238,8 @@ class AufgabenCompanion extends UpdateCompanion<Aufgabe> {
   final Value<DateTime?> updatedAt;
   final Value<DateTime?> endDate;
   final Value<DateTime?> dueDate;
+  final Value<int?> plannedStartMinute;
+  final Value<int?> plannedDurationMinutes;
   final Value<bool> isActive;
   final Value<DateTime?> trashedAt;
   final Value<DateTime?> purgeAt;
@@ -2178,6 +2276,8 @@ class AufgabenCompanion extends UpdateCompanion<Aufgabe> {
     this.updatedAt = const Value.absent(),
     this.endDate = const Value.absent(),
     this.dueDate = const Value.absent(),
+    this.plannedStartMinute = const Value.absent(),
+    this.plannedDurationMinutes = const Value.absent(),
     this.isActive = const Value.absent(),
     this.trashedAt = const Value.absent(),
     this.purgeAt = const Value.absent(),
@@ -2215,6 +2315,8 @@ class AufgabenCompanion extends UpdateCompanion<Aufgabe> {
     this.updatedAt = const Value.absent(),
     this.endDate = const Value.absent(),
     this.dueDate = const Value.absent(),
+    this.plannedStartMinute = const Value.absent(),
+    this.plannedDurationMinutes = const Value.absent(),
     this.isActive = const Value.absent(),
     this.trashedAt = const Value.absent(),
     this.purgeAt = const Value.absent(),
@@ -2255,6 +2357,8 @@ class AufgabenCompanion extends UpdateCompanion<Aufgabe> {
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? endDate,
     Expression<DateTime>? dueDate,
+    Expression<int>? plannedStartMinute,
+    Expression<int>? plannedDurationMinutes,
     Expression<bool>? isActive,
     Expression<DateTime>? trashedAt,
     Expression<DateTime>? purgeAt,
@@ -2292,6 +2396,10 @@ class AufgabenCompanion extends UpdateCompanion<Aufgabe> {
       if (updatedAt != null) 'updated_at': updatedAt,
       if (endDate != null) 'end_date': endDate,
       if (dueDate != null) 'due_date': dueDate,
+      if (plannedStartMinute != null)
+        'planned_start_minute': plannedStartMinute,
+      if (plannedDurationMinutes != null)
+        'planned_duration_minutes': plannedDurationMinutes,
       if (isActive != null) 'is_active': isActive,
       if (trashedAt != null) 'trashed_at': trashedAt,
       if (purgeAt != null) 'purge_at': purgeAt,
@@ -2334,6 +2442,8 @@ class AufgabenCompanion extends UpdateCompanion<Aufgabe> {
     Value<DateTime?>? updatedAt,
     Value<DateTime?>? endDate,
     Value<DateTime?>? dueDate,
+    Value<int?>? plannedStartMinute,
+    Value<int?>? plannedDurationMinutes,
     Value<bool>? isActive,
     Value<DateTime?>? trashedAt,
     Value<DateTime?>? purgeAt,
@@ -2371,6 +2481,9 @@ class AufgabenCompanion extends UpdateCompanion<Aufgabe> {
       updatedAt: updatedAt ?? this.updatedAt,
       endDate: endDate ?? this.endDate,
       dueDate: dueDate ?? this.dueDate,
+      plannedStartMinute: plannedStartMinute ?? this.plannedStartMinute,
+      plannedDurationMinutes:
+          plannedDurationMinutes ?? this.plannedDurationMinutes,
       isActive: isActive ?? this.isActive,
       trashedAt: trashedAt ?? this.trashedAt,
       purgeAt: purgeAt ?? this.purgeAt,
@@ -2441,6 +2554,14 @@ class AufgabenCompanion extends UpdateCompanion<Aufgabe> {
     }
     if (dueDate.present) {
       map['due_date'] = Variable<DateTime>(dueDate.value);
+    }
+    if (plannedStartMinute.present) {
+      map['planned_start_minute'] = Variable<int>(plannedStartMinute.value);
+    }
+    if (plannedDurationMinutes.present) {
+      map['planned_duration_minutes'] = Variable<int>(
+        plannedDurationMinutes.value,
+      );
     }
     if (isActive.present) {
       map['is_active'] = Variable<bool>(isActive.value);
@@ -2527,6 +2648,8 @@ class AufgabenCompanion extends UpdateCompanion<Aufgabe> {
           ..write('updatedAt: $updatedAt, ')
           ..write('endDate: $endDate, ')
           ..write('dueDate: $dueDate, ')
+          ..write('plannedStartMinute: $plannedStartMinute, ')
+          ..write('plannedDurationMinutes: $plannedDurationMinutes, ')
           ..write('isActive: $isActive, ')
           ..write('trashedAt: $trashedAt, ')
           ..write('purgeAt: $purgeAt, ')
@@ -2772,6 +2895,26 @@ class $TaskDefinitionVersionsTable extends TaskDefinitionVersions
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _plannedStartMinuteMeta =
+      const VerificationMeta('plannedStartMinute');
+  @override
+  late final GeneratedColumn<int> plannedStartMinute = GeneratedColumn<int>(
+    'planned_start_minute',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _plannedDurationMinutesMeta =
+      const VerificationMeta('plannedDurationMinutes');
+  @override
+  late final GeneratedColumn<int> plannedDurationMinutes = GeneratedColumn<int>(
+    'planned_duration_minutes',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _missedPolicyMeta = const VerificationMeta(
     'missedPolicy',
   );
@@ -2961,6 +3104,8 @@ class $TaskDefinitionVersionsTable extends TaskDefinitionVersions
     startDate,
     endDate,
     dueDate,
+    plannedStartMinute,
+    plannedDurationMinutes,
     missedPolicy,
     missedConsequence,
     missedBufferDays,
@@ -3141,6 +3286,24 @@ class $TaskDefinitionVersionsTable extends TaskDefinitionVersions
       context.handle(
         _dueDateMeta,
         dueDate.isAcceptableOrUnknown(data['due_date']!, _dueDateMeta),
+      );
+    }
+    if (data.containsKey('planned_start_minute')) {
+      context.handle(
+        _plannedStartMinuteMeta,
+        plannedStartMinute.isAcceptableOrUnknown(
+          data['planned_start_minute']!,
+          _plannedStartMinuteMeta,
+        ),
+      );
+    }
+    if (data.containsKey('planned_duration_minutes')) {
+      context.handle(
+        _plannedDurationMinutesMeta,
+        plannedDurationMinutes.isAcceptableOrUnknown(
+          data['planned_duration_minutes']!,
+          _plannedDurationMinutesMeta,
+        ),
       );
     }
     if (data.containsKey('missed_policy')) {
@@ -3360,6 +3523,14 @@ class $TaskDefinitionVersionsTable extends TaskDefinitionVersions
         DriftSqlType.dateTime,
         data['${effectivePrefix}due_date'],
       ),
+      plannedStartMinute: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}planned_start_minute'],
+      ),
+      plannedDurationMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}planned_duration_minutes'],
+      ),
       missedPolicy:
           attachedDatabase.typeMapping.read(
             DriftSqlType.string,
@@ -3459,6 +3630,8 @@ class TaskDefinitionVersion extends DataClass
   final DateTime startDate;
   final DateTime? endDate;
   final DateTime? dueDate;
+  final int? plannedStartMinute;
+  final int? plannedDurationMinutes;
   final String missedPolicy;
   final String missedConsequence;
   final int missedBufferDays;
@@ -3493,6 +3666,8 @@ class TaskDefinitionVersion extends DataClass
     required this.startDate,
     this.endDate,
     this.dueDate,
+    this.plannedStartMinute,
+    this.plannedDurationMinutes,
     required this.missedPolicy,
     required this.missedConsequence,
     required this.missedBufferDays,
@@ -3539,6 +3714,12 @@ class TaskDefinitionVersion extends DataClass
     }
     if (!nullToAbsent || dueDate != null) {
       map['due_date'] = Variable<DateTime>(dueDate);
+    }
+    if (!nullToAbsent || plannedStartMinute != null) {
+      map['planned_start_minute'] = Variable<int>(plannedStartMinute);
+    }
+    if (!nullToAbsent || plannedDurationMinutes != null) {
+      map['planned_duration_minutes'] = Variable<int>(plannedDurationMinutes);
     }
     map['missed_policy'] = Variable<String>(missedPolicy);
     map['missed_consequence'] = Variable<String>(missedConsequence);
@@ -3595,6 +3776,14 @@ class TaskDefinitionVersion extends DataClass
           dueDate == null && nullToAbsent
               ? const Value.absent()
               : Value(dueDate),
+      plannedStartMinute:
+          plannedStartMinute == null && nullToAbsent
+              ? const Value.absent()
+              : Value(plannedStartMinute),
+      plannedDurationMinutes:
+          plannedDurationMinutes == null && nullToAbsent
+              ? const Value.absent()
+              : Value(plannedDurationMinutes),
       missedPolicy: Value(missedPolicy),
       missedConsequence: Value(missedConsequence),
       missedBufferDays: Value(missedBufferDays),
@@ -3642,6 +3831,10 @@ class TaskDefinitionVersion extends DataClass
       startDate: serializer.fromJson<DateTime>(json['startDate']),
       endDate: serializer.fromJson<DateTime?>(json['endDate']),
       dueDate: serializer.fromJson<DateTime?>(json['dueDate']),
+      plannedStartMinute: serializer.fromJson<int?>(json['plannedStartMinute']),
+      plannedDurationMinutes: serializer.fromJson<int?>(
+        json['plannedDurationMinutes'],
+      ),
       missedPolicy: serializer.fromJson<String>(json['missedPolicy']),
       missedConsequence: serializer.fromJson<String>(json['missedConsequence']),
       missedBufferDays: serializer.fromJson<int>(json['missedBufferDays']),
@@ -3685,6 +3878,8 @@ class TaskDefinitionVersion extends DataClass
       'startDate': serializer.toJson<DateTime>(startDate),
       'endDate': serializer.toJson<DateTime?>(endDate),
       'dueDate': serializer.toJson<DateTime?>(dueDate),
+      'plannedStartMinute': serializer.toJson<int?>(plannedStartMinute),
+      'plannedDurationMinutes': serializer.toJson<int?>(plannedDurationMinutes),
       'missedPolicy': serializer.toJson<String>(missedPolicy),
       'missedConsequence': serializer.toJson<String>(missedConsequence),
       'missedBufferDays': serializer.toJson<int>(missedBufferDays),
@@ -3722,6 +3917,8 @@ class TaskDefinitionVersion extends DataClass
     DateTime? startDate,
     Value<DateTime?> endDate = const Value.absent(),
     Value<DateTime?> dueDate = const Value.absent(),
+    Value<int?> plannedStartMinute = const Value.absent(),
+    Value<int?> plannedDurationMinutes = const Value.absent(),
     String? missedPolicy,
     String? missedConsequence,
     int? missedBufferDays,
@@ -3759,6 +3956,14 @@ class TaskDefinitionVersion extends DataClass
     startDate: startDate ?? this.startDate,
     endDate: endDate.present ? endDate.value : this.endDate,
     dueDate: dueDate.present ? dueDate.value : this.dueDate,
+    plannedStartMinute:
+        plannedStartMinute.present
+            ? plannedStartMinute.value
+            : this.plannedStartMinute,
+    plannedDurationMinutes:
+        plannedDurationMinutes.present
+            ? plannedDurationMinutes.value
+            : this.plannedDurationMinutes,
     missedPolicy: missedPolicy ?? this.missedPolicy,
     missedConsequence: missedConsequence ?? this.missedConsequence,
     missedBufferDays: missedBufferDays ?? this.missedBufferDays,
@@ -3819,6 +4024,14 @@ class TaskDefinitionVersion extends DataClass
       startDate: data.startDate.present ? data.startDate.value : this.startDate,
       endDate: data.endDate.present ? data.endDate.value : this.endDate,
       dueDate: data.dueDate.present ? data.dueDate.value : this.dueDate,
+      plannedStartMinute:
+          data.plannedStartMinute.present
+              ? data.plannedStartMinute.value
+              : this.plannedStartMinute,
+      plannedDurationMinutes:
+          data.plannedDurationMinutes.present
+              ? data.plannedDurationMinutes.value
+              : this.plannedDurationMinutes,
       missedPolicy:
           data.missedPolicy.present
               ? data.missedPolicy.value
@@ -3889,6 +4102,8 @@ class TaskDefinitionVersion extends DataClass
           ..write('startDate: $startDate, ')
           ..write('endDate: $endDate, ')
           ..write('dueDate: $dueDate, ')
+          ..write('plannedStartMinute: $plannedStartMinute, ')
+          ..write('plannedDurationMinutes: $plannedDurationMinutes, ')
           ..write('missedPolicy: $missedPolicy, ')
           ..write('missedConsequence: $missedConsequence, ')
           ..write('missedBufferDays: $missedBufferDays, ')
@@ -3928,6 +4143,8 @@ class TaskDefinitionVersion extends DataClass
     startDate,
     endDate,
     dueDate,
+    plannedStartMinute,
+    plannedDurationMinutes,
     missedPolicy,
     missedConsequence,
     missedBufferDays,
@@ -3966,6 +4183,8 @@ class TaskDefinitionVersion extends DataClass
           other.startDate == this.startDate &&
           other.endDate == this.endDate &&
           other.dueDate == this.dueDate &&
+          other.plannedStartMinute == this.plannedStartMinute &&
+          other.plannedDurationMinutes == this.plannedDurationMinutes &&
           other.missedPolicy == this.missedPolicy &&
           other.missedConsequence == this.missedConsequence &&
           other.missedBufferDays == this.missedBufferDays &&
@@ -4003,6 +4222,8 @@ class TaskDefinitionVersionsCompanion
   final Value<DateTime> startDate;
   final Value<DateTime?> endDate;
   final Value<DateTime?> dueDate;
+  final Value<int?> plannedStartMinute;
+  final Value<int?> plannedDurationMinutes;
   final Value<String> missedPolicy;
   final Value<String> missedConsequence;
   final Value<int> missedBufferDays;
@@ -4038,6 +4259,8 @@ class TaskDefinitionVersionsCompanion
     this.startDate = const Value.absent(),
     this.endDate = const Value.absent(),
     this.dueDate = const Value.absent(),
+    this.plannedStartMinute = const Value.absent(),
+    this.plannedDurationMinutes = const Value.absent(),
     this.missedPolicy = const Value.absent(),
     this.missedConsequence = const Value.absent(),
     this.missedBufferDays = const Value.absent(),
@@ -4074,6 +4297,8 @@ class TaskDefinitionVersionsCompanion
     required DateTime startDate,
     this.endDate = const Value.absent(),
     this.dueDate = const Value.absent(),
+    this.plannedStartMinute = const Value.absent(),
+    this.plannedDurationMinutes = const Value.absent(),
     this.missedPolicy = const Value.absent(),
     this.missedConsequence = const Value.absent(),
     this.missedBufferDays = const Value.absent(),
@@ -4119,6 +4344,8 @@ class TaskDefinitionVersionsCompanion
     Expression<DateTime>? startDate,
     Expression<DateTime>? endDate,
     Expression<DateTime>? dueDate,
+    Expression<int>? plannedStartMinute,
+    Expression<int>? plannedDurationMinutes,
     Expression<String>? missedPolicy,
     Expression<String>? missedConsequence,
     Expression<int>? missedBufferDays,
@@ -4155,6 +4382,10 @@ class TaskDefinitionVersionsCompanion
       if (startDate != null) 'start_date': startDate,
       if (endDate != null) 'end_date': endDate,
       if (dueDate != null) 'due_date': dueDate,
+      if (plannedStartMinute != null)
+        'planned_start_minute': plannedStartMinute,
+      if (plannedDurationMinutes != null)
+        'planned_duration_minutes': plannedDurationMinutes,
       if (missedPolicy != null) 'missed_policy': missedPolicy,
       if (missedConsequence != null) 'missed_consequence': missedConsequence,
       if (missedBufferDays != null) 'missed_buffer_days': missedBufferDays,
@@ -4195,6 +4426,8 @@ class TaskDefinitionVersionsCompanion
     Value<DateTime>? startDate,
     Value<DateTime?>? endDate,
     Value<DateTime?>? dueDate,
+    Value<int?>? plannedStartMinute,
+    Value<int?>? plannedDurationMinutes,
     Value<String>? missedPolicy,
     Value<String>? missedConsequence,
     Value<int>? missedBufferDays,
@@ -4231,6 +4464,9 @@ class TaskDefinitionVersionsCompanion
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
       dueDate: dueDate ?? this.dueDate,
+      plannedStartMinute: plannedStartMinute ?? this.plannedStartMinute,
+      plannedDurationMinutes:
+          plannedDurationMinutes ?? this.plannedDurationMinutes,
       missedPolicy: missedPolicy ?? this.missedPolicy,
       missedConsequence: missedConsequence ?? this.missedConsequence,
       missedBufferDays: missedBufferDays ?? this.missedBufferDays,
@@ -4309,6 +4545,14 @@ class TaskDefinitionVersionsCompanion
     if (dueDate.present) {
       map['due_date'] = Variable<DateTime>(dueDate.value);
     }
+    if (plannedStartMinute.present) {
+      map['planned_start_minute'] = Variable<int>(plannedStartMinute.value);
+    }
+    if (plannedDurationMinutes.present) {
+      map['planned_duration_minutes'] = Variable<int>(
+        plannedDurationMinutes.value,
+      );
+    }
     if (missedPolicy.present) {
       map['missed_policy'] = Variable<String>(missedPolicy.value);
     }
@@ -4381,6 +4625,8 @@ class TaskDefinitionVersionsCompanion
           ..write('startDate: $startDate, ')
           ..write('endDate: $endDate, ')
           ..write('dueDate: $dueDate, ')
+          ..write('plannedStartMinute: $plannedStartMinute, ')
+          ..write('plannedDurationMinutes: $plannedDurationMinutes, ')
           ..write('missedPolicy: $missedPolicy, ')
           ..write('missedConsequence: $missedConsequence, ')
           ..write('missedBufferDays: $missedBufferDays, ')
@@ -4454,6 +4700,26 @@ class $TaskEntriesTable extends TaskEntries
         type: DriftSqlType.dateTime,
         requiredDuringInsert: true,
       );
+  static const VerificationMeta _plannedStartMinuteMeta =
+      const VerificationMeta('plannedStartMinute');
+  @override
+  late final GeneratedColumn<int> plannedStartMinute = GeneratedColumn<int>(
+    'planned_start_minute',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _plannedDurationMinutesMeta =
+      const VerificationMeta('plannedDurationMinutes');
+  @override
+  late final GeneratedColumn<int> plannedDurationMinutes = GeneratedColumn<int>(
+    'planned_duration_minutes',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _originalScheduledDateMeta =
       const VerificationMeta('originalScheduledDate');
   @override
@@ -4652,6 +4918,8 @@ class $TaskEntriesTable extends TaskEntries
     taskId,
     taskDefinitionVersionId,
     scheduledDate,
+    plannedStartMinute,
+    plannedDurationMinutes,
     originalScheduledDate,
     createdAt,
     status,
@@ -4714,6 +4982,24 @@ class $TaskEntriesTable extends TaskEntries
       );
     } else if (isInserting) {
       context.missing(_scheduledDateMeta);
+    }
+    if (data.containsKey('planned_start_minute')) {
+      context.handle(
+        _plannedStartMinuteMeta,
+        plannedStartMinute.isAcceptableOrUnknown(
+          data['planned_start_minute']!,
+          _plannedStartMinuteMeta,
+        ),
+      );
+    }
+    if (data.containsKey('planned_duration_minutes')) {
+      context.handle(
+        _plannedDurationMinutesMeta,
+        plannedDurationMinutes.isAcceptableOrUnknown(
+          data['planned_duration_minutes']!,
+          _plannedDurationMinutesMeta,
+        ),
+      );
     }
     if (data.containsKey('original_scheduled_date')) {
       context.handle(
@@ -4887,6 +5173,14 @@ class $TaskEntriesTable extends TaskEntries
             DriftSqlType.dateTime,
             data['${effectivePrefix}scheduled_date'],
           )!,
+      plannedStartMinute: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}planned_start_minute'],
+      ),
+      plannedDurationMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}planned_duration_minutes'],
+      ),
       originalScheduledDate: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}original_scheduled_date'],
@@ -4975,6 +5269,8 @@ class TaskEntry extends DataClass implements Insertable<TaskEntry> {
   final String taskId;
   final String? taskDefinitionVersionId;
   final DateTime scheduledDate;
+  final int? plannedStartMinute;
+  final int? plannedDurationMinutes;
   final DateTime? originalScheduledDate;
   final DateTime createdAt;
   final String status;
@@ -4997,6 +5293,8 @@ class TaskEntry extends DataClass implements Insertable<TaskEntry> {
     required this.taskId,
     this.taskDefinitionVersionId,
     required this.scheduledDate,
+    this.plannedStartMinute,
+    this.plannedDurationMinutes,
     this.originalScheduledDate,
     required this.createdAt,
     required this.status,
@@ -5026,6 +5324,12 @@ class TaskEntry extends DataClass implements Insertable<TaskEntry> {
       );
     }
     map['scheduled_date'] = Variable<DateTime>(scheduledDate);
+    if (!nullToAbsent || plannedStartMinute != null) {
+      map['planned_start_minute'] = Variable<int>(plannedStartMinute);
+    }
+    if (!nullToAbsent || plannedDurationMinutes != null) {
+      map['planned_duration_minutes'] = Variable<int>(plannedDurationMinutes);
+    }
     if (!nullToAbsent || originalScheduledDate != null) {
       map['original_scheduled_date'] = Variable<DateTime>(
         originalScheduledDate,
@@ -5081,6 +5385,14 @@ class TaskEntry extends DataClass implements Insertable<TaskEntry> {
               ? const Value.absent()
               : Value(taskDefinitionVersionId),
       scheduledDate: Value(scheduledDate),
+      plannedStartMinute:
+          plannedStartMinute == null && nullToAbsent
+              ? const Value.absent()
+              : Value(plannedStartMinute),
+      plannedDurationMinutes:
+          plannedDurationMinutes == null && nullToAbsent
+              ? const Value.absent()
+              : Value(plannedDurationMinutes),
       originalScheduledDate:
           originalScheduledDate == null && nullToAbsent
               ? const Value.absent()
@@ -5146,6 +5458,10 @@ class TaskEntry extends DataClass implements Insertable<TaskEntry> {
         json['taskDefinitionVersionId'],
       ),
       scheduledDate: serializer.fromJson<DateTime>(json['scheduledDate']),
+      plannedStartMinute: serializer.fromJson<int?>(json['plannedStartMinute']),
+      plannedDurationMinutes: serializer.fromJson<int?>(
+        json['plannedDurationMinutes'],
+      ),
       originalScheduledDate: serializer.fromJson<DateTime?>(
         json['originalScheduledDate'],
       ),
@@ -5183,6 +5499,8 @@ class TaskEntry extends DataClass implements Insertable<TaskEntry> {
         taskDefinitionVersionId,
       ),
       'scheduledDate': serializer.toJson<DateTime>(scheduledDate),
+      'plannedStartMinute': serializer.toJson<int?>(plannedStartMinute),
+      'plannedDurationMinutes': serializer.toJson<int?>(plannedDurationMinutes),
       'originalScheduledDate': serializer.toJson<DateTime?>(
         originalScheduledDate,
       ),
@@ -5212,6 +5530,8 @@ class TaskEntry extends DataClass implements Insertable<TaskEntry> {
     String? taskId,
     Value<String?> taskDefinitionVersionId = const Value.absent(),
     DateTime? scheduledDate,
+    Value<int?> plannedStartMinute = const Value.absent(),
+    Value<int?> plannedDurationMinutes = const Value.absent(),
     Value<DateTime?> originalScheduledDate = const Value.absent(),
     DateTime? createdAt,
     String? status,
@@ -5237,6 +5557,14 @@ class TaskEntry extends DataClass implements Insertable<TaskEntry> {
             ? taskDefinitionVersionId.value
             : this.taskDefinitionVersionId,
     scheduledDate: scheduledDate ?? this.scheduledDate,
+    plannedStartMinute:
+        plannedStartMinute.present
+            ? plannedStartMinute.value
+            : this.plannedStartMinute,
+    plannedDurationMinutes:
+        plannedDurationMinutes.present
+            ? plannedDurationMinutes.value
+            : this.plannedDurationMinutes,
     originalScheduledDate:
         originalScheduledDate.present
             ? originalScheduledDate.value
@@ -5283,6 +5611,14 @@ class TaskEntry extends DataClass implements Insertable<TaskEntry> {
           data.scheduledDate.present
               ? data.scheduledDate.value
               : this.scheduledDate,
+      plannedStartMinute:
+          data.plannedStartMinute.present
+              ? data.plannedStartMinute.value
+              : this.plannedStartMinute,
+      plannedDurationMinutes:
+          data.plannedDurationMinutes.present
+              ? data.plannedDurationMinutes.value
+              : this.plannedDurationMinutes,
       originalScheduledDate:
           data.originalScheduledDate.present
               ? data.originalScheduledDate.value
@@ -5336,6 +5672,8 @@ class TaskEntry extends DataClass implements Insertable<TaskEntry> {
           ..write('taskId: $taskId, ')
           ..write('taskDefinitionVersionId: $taskDefinitionVersionId, ')
           ..write('scheduledDate: $scheduledDate, ')
+          ..write('plannedStartMinute: $plannedStartMinute, ')
+          ..write('plannedDurationMinutes: $plannedDurationMinutes, ')
           ..write('originalScheduledDate: $originalScheduledDate, ')
           ..write('createdAt: $createdAt, ')
           ..write('status: $status, ')
@@ -5363,6 +5701,8 @@ class TaskEntry extends DataClass implements Insertable<TaskEntry> {
     taskId,
     taskDefinitionVersionId,
     scheduledDate,
+    plannedStartMinute,
+    plannedDurationMinutes,
     originalScheduledDate,
     createdAt,
     status,
@@ -5389,6 +5729,8 @@ class TaskEntry extends DataClass implements Insertable<TaskEntry> {
           other.taskId == this.taskId &&
           other.taskDefinitionVersionId == this.taskDefinitionVersionId &&
           other.scheduledDate == this.scheduledDate &&
+          other.plannedStartMinute == this.plannedStartMinute &&
+          other.plannedDurationMinutes == this.plannedDurationMinutes &&
           other.originalScheduledDate == this.originalScheduledDate &&
           other.createdAt == this.createdAt &&
           other.status == this.status &&
@@ -5413,6 +5755,8 @@ class TaskEntriesCompanion extends UpdateCompanion<TaskEntry> {
   final Value<String> taskId;
   final Value<String?> taskDefinitionVersionId;
   final Value<DateTime> scheduledDate;
+  final Value<int?> plannedStartMinute;
+  final Value<int?> plannedDurationMinutes;
   final Value<DateTime?> originalScheduledDate;
   final Value<DateTime> createdAt;
   final Value<String> status;
@@ -5436,6 +5780,8 @@ class TaskEntriesCompanion extends UpdateCompanion<TaskEntry> {
     this.taskId = const Value.absent(),
     this.taskDefinitionVersionId = const Value.absent(),
     this.scheduledDate = const Value.absent(),
+    this.plannedStartMinute = const Value.absent(),
+    this.plannedDurationMinutes = const Value.absent(),
     this.originalScheduledDate = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.status = const Value.absent(),
@@ -5460,6 +5806,8 @@ class TaskEntriesCompanion extends UpdateCompanion<TaskEntry> {
     required String taskId,
     this.taskDefinitionVersionId = const Value.absent(),
     required DateTime scheduledDate,
+    this.plannedStartMinute = const Value.absent(),
+    this.plannedDurationMinutes = const Value.absent(),
     this.originalScheduledDate = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.status = const Value.absent(),
@@ -5487,6 +5835,8 @@ class TaskEntriesCompanion extends UpdateCompanion<TaskEntry> {
     Expression<String>? taskId,
     Expression<String>? taskDefinitionVersionId,
     Expression<DateTime>? scheduledDate,
+    Expression<int>? plannedStartMinute,
+    Expression<int>? plannedDurationMinutes,
     Expression<DateTime>? originalScheduledDate,
     Expression<DateTime>? createdAt,
     Expression<String>? status,
@@ -5512,6 +5862,10 @@ class TaskEntriesCompanion extends UpdateCompanion<TaskEntry> {
       if (taskDefinitionVersionId != null)
         'task_definition_version_id': taskDefinitionVersionId,
       if (scheduledDate != null) 'scheduled_date': scheduledDate,
+      if (plannedStartMinute != null)
+        'planned_start_minute': plannedStartMinute,
+      if (plannedDurationMinutes != null)
+        'planned_duration_minutes': plannedDurationMinutes,
       if (originalScheduledDate != null)
         'original_scheduled_date': originalScheduledDate,
       if (createdAt != null) 'created_at': createdAt,
@@ -5541,6 +5895,8 @@ class TaskEntriesCompanion extends UpdateCompanion<TaskEntry> {
     Value<String>? taskId,
     Value<String?>? taskDefinitionVersionId,
     Value<DateTime>? scheduledDate,
+    Value<int?>? plannedStartMinute,
+    Value<int?>? plannedDurationMinutes,
     Value<DateTime?>? originalScheduledDate,
     Value<DateTime>? createdAt,
     Value<String>? status,
@@ -5566,6 +5922,9 @@ class TaskEntriesCompanion extends UpdateCompanion<TaskEntry> {
       taskDefinitionVersionId:
           taskDefinitionVersionId ?? this.taskDefinitionVersionId,
       scheduledDate: scheduledDate ?? this.scheduledDate,
+      plannedStartMinute: plannedStartMinute ?? this.plannedStartMinute,
+      plannedDurationMinutes:
+          plannedDurationMinutes ?? this.plannedDurationMinutes,
       originalScheduledDate:
           originalScheduledDate ?? this.originalScheduledDate,
       createdAt: createdAt ?? this.createdAt,
@@ -5605,6 +5964,14 @@ class TaskEntriesCompanion extends UpdateCompanion<TaskEntry> {
     }
     if (scheduledDate.present) {
       map['scheduled_date'] = Variable<DateTime>(scheduledDate.value);
+    }
+    if (plannedStartMinute.present) {
+      map['planned_start_minute'] = Variable<int>(plannedStartMinute.value);
+    }
+    if (plannedDurationMinutes.present) {
+      map['planned_duration_minutes'] = Variable<int>(
+        plannedDurationMinutes.value,
+      );
     }
     if (originalScheduledDate.present) {
       map['original_scheduled_date'] = Variable<DateTime>(
@@ -5676,6 +6043,8 @@ class TaskEntriesCompanion extends UpdateCompanion<TaskEntry> {
           ..write('taskId: $taskId, ')
           ..write('taskDefinitionVersionId: $taskDefinitionVersionId, ')
           ..write('scheduledDate: $scheduledDate, ')
+          ..write('plannedStartMinute: $plannedStartMinute, ')
+          ..write('plannedDurationMinutes: $plannedDurationMinutes, ')
           ..write('originalScheduledDate: $originalScheduledDate, ')
           ..write('createdAt: $createdAt, ')
           ..write('status: $status, ')
@@ -13357,6 +13726,962 @@ class CardExpansionPreferencesCompanion
   }
 }
 
+class $CalendarSettingsTable extends CalendarSettings
+    with TableInfo<$CalendarSettingsTable, CalendarSetting> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CalendarSettingsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  static const VerificationMeta _showTasksMeta = const VerificationMeta(
+    'showTasks',
+  );
+  @override
+  late final GeneratedColumn<bool> showTasks = GeneratedColumn<bool>(
+    'show_tasks',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("show_tasks" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _showHabitsMeta = const VerificationMeta(
+    'showHabits',
+  );
+  @override
+  late final GeneratedColumn<bool> showHabits = GeneratedColumn<bool>(
+    'show_habits',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("show_habits" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _showTrackersMeta = const VerificationMeta(
+    'showTrackers',
+  );
+  @override
+  late final GeneratedColumn<bool> showTrackers = GeneratedColumn<bool>(
+    'show_trackers',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("show_trackers" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _viewMeta = const VerificationMeta('view');
+  @override
+  late final GeneratedColumn<String> view = GeneratedColumn<String>(
+    'view',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('week'),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    showTasks,
+    showHabits,
+    showTrackers,
+    view,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'calendar_settings';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CalendarSetting> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('show_tasks')) {
+      context.handle(
+        _showTasksMeta,
+        showTasks.isAcceptableOrUnknown(data['show_tasks']!, _showTasksMeta),
+      );
+    }
+    if (data.containsKey('show_habits')) {
+      context.handle(
+        _showHabitsMeta,
+        showHabits.isAcceptableOrUnknown(data['show_habits']!, _showHabitsMeta),
+      );
+    }
+    if (data.containsKey('show_trackers')) {
+      context.handle(
+        _showTrackersMeta,
+        showTrackers.isAcceptableOrUnknown(
+          data['show_trackers']!,
+          _showTrackersMeta,
+        ),
+      );
+    }
+    if (data.containsKey('view')) {
+      context.handle(
+        _viewMeta,
+        view.isAcceptableOrUnknown(data['view']!, _viewMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CalendarSetting map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CalendarSetting(
+      id:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}id'],
+          )!,
+      showTasks:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.bool,
+            data['${effectivePrefix}show_tasks'],
+          )!,
+      showHabits:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.bool,
+            data['${effectivePrefix}show_habits'],
+          )!,
+      showTrackers:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.bool,
+            data['${effectivePrefix}show_trackers'],
+          )!,
+      view:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}view'],
+          )!,
+    );
+  }
+
+  @override
+  $CalendarSettingsTable createAlias(String alias) {
+    return $CalendarSettingsTable(attachedDatabase, alias);
+  }
+}
+
+class CalendarSetting extends DataClass implements Insertable<CalendarSetting> {
+  final int id;
+  final bool showTasks;
+  final bool showHabits;
+  final bool showTrackers;
+  final String view;
+  const CalendarSetting({
+    required this.id,
+    required this.showTasks,
+    required this.showHabits,
+    required this.showTrackers,
+    required this.view,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['show_tasks'] = Variable<bool>(showTasks);
+    map['show_habits'] = Variable<bool>(showHabits);
+    map['show_trackers'] = Variable<bool>(showTrackers);
+    map['view'] = Variable<String>(view);
+    return map;
+  }
+
+  CalendarSettingsCompanion toCompanion(bool nullToAbsent) {
+    return CalendarSettingsCompanion(
+      id: Value(id),
+      showTasks: Value(showTasks),
+      showHabits: Value(showHabits),
+      showTrackers: Value(showTrackers),
+      view: Value(view),
+    );
+  }
+
+  factory CalendarSetting.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CalendarSetting(
+      id: serializer.fromJson<int>(json['id']),
+      showTasks: serializer.fromJson<bool>(json['showTasks']),
+      showHabits: serializer.fromJson<bool>(json['showHabits']),
+      showTrackers: serializer.fromJson<bool>(json['showTrackers']),
+      view: serializer.fromJson<String>(json['view']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'showTasks': serializer.toJson<bool>(showTasks),
+      'showHabits': serializer.toJson<bool>(showHabits),
+      'showTrackers': serializer.toJson<bool>(showTrackers),
+      'view': serializer.toJson<String>(view),
+    };
+  }
+
+  CalendarSetting copyWith({
+    int? id,
+    bool? showTasks,
+    bool? showHabits,
+    bool? showTrackers,
+    String? view,
+  }) => CalendarSetting(
+    id: id ?? this.id,
+    showTasks: showTasks ?? this.showTasks,
+    showHabits: showHabits ?? this.showHabits,
+    showTrackers: showTrackers ?? this.showTrackers,
+    view: view ?? this.view,
+  );
+  CalendarSetting copyWithCompanion(CalendarSettingsCompanion data) {
+    return CalendarSetting(
+      id: data.id.present ? data.id.value : this.id,
+      showTasks: data.showTasks.present ? data.showTasks.value : this.showTasks,
+      showHabits:
+          data.showHabits.present ? data.showHabits.value : this.showHabits,
+      showTrackers:
+          data.showTrackers.present
+              ? data.showTrackers.value
+              : this.showTrackers,
+      view: data.view.present ? data.view.value : this.view,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CalendarSetting(')
+          ..write('id: $id, ')
+          ..write('showTasks: $showTasks, ')
+          ..write('showHabits: $showHabits, ')
+          ..write('showTrackers: $showTrackers, ')
+          ..write('view: $view')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, showTasks, showHabits, showTrackers, view);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CalendarSetting &&
+          other.id == this.id &&
+          other.showTasks == this.showTasks &&
+          other.showHabits == this.showHabits &&
+          other.showTrackers == this.showTrackers &&
+          other.view == this.view);
+}
+
+class CalendarSettingsCompanion extends UpdateCompanion<CalendarSetting> {
+  final Value<int> id;
+  final Value<bool> showTasks;
+  final Value<bool> showHabits;
+  final Value<bool> showTrackers;
+  final Value<String> view;
+  const CalendarSettingsCompanion({
+    this.id = const Value.absent(),
+    this.showTasks = const Value.absent(),
+    this.showHabits = const Value.absent(),
+    this.showTrackers = const Value.absent(),
+    this.view = const Value.absent(),
+  });
+  CalendarSettingsCompanion.insert({
+    this.id = const Value.absent(),
+    this.showTasks = const Value.absent(),
+    this.showHabits = const Value.absent(),
+    this.showTrackers = const Value.absent(),
+    this.view = const Value.absent(),
+  });
+  static Insertable<CalendarSetting> custom({
+    Expression<int>? id,
+    Expression<bool>? showTasks,
+    Expression<bool>? showHabits,
+    Expression<bool>? showTrackers,
+    Expression<String>? view,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (showTasks != null) 'show_tasks': showTasks,
+      if (showHabits != null) 'show_habits': showHabits,
+      if (showTrackers != null) 'show_trackers': showTrackers,
+      if (view != null) 'view': view,
+    });
+  }
+
+  CalendarSettingsCompanion copyWith({
+    Value<int>? id,
+    Value<bool>? showTasks,
+    Value<bool>? showHabits,
+    Value<bool>? showTrackers,
+    Value<String>? view,
+  }) {
+    return CalendarSettingsCompanion(
+      id: id ?? this.id,
+      showTasks: showTasks ?? this.showTasks,
+      showHabits: showHabits ?? this.showHabits,
+      showTrackers: showTrackers ?? this.showTrackers,
+      view: view ?? this.view,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (showTasks.present) {
+      map['show_tasks'] = Variable<bool>(showTasks.value);
+    }
+    if (showHabits.present) {
+      map['show_habits'] = Variable<bool>(showHabits.value);
+    }
+    if (showTrackers.present) {
+      map['show_trackers'] = Variable<bool>(showTrackers.value);
+    }
+    if (view.present) {
+      map['view'] = Variable<String>(view.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CalendarSettingsCompanion(')
+          ..write('id: $id, ')
+          ..write('showTasks: $showTasks, ')
+          ..write('showHabits: $showHabits, ')
+          ..write('showTrackers: $showTrackers, ')
+          ..write('view: $view')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TaskTypeChangesTable extends TaskTypeChanges
+    with TableInfo<$TaskTypeChangesTable, TaskTypeChange> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TaskTypeChangesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _taskIdMeta = const VerificationMeta('taskId');
+  @override
+  late final GeneratedColumn<String> taskId = GeneratedColumn<String>(
+    'task_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES aufgaben (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _sequenceMeta = const VerificationMeta(
+    'sequence',
+  );
+  @override
+  late final GeneratedColumn<int> sequence = GeneratedColumn<int>(
+    'sequence',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _changedAtMeta = const VerificationMeta(
+    'changedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> changedAt = GeneratedColumn<DateTime>(
+    'changed_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _previousTypeMeta = const VerificationMeta(
+    'previousType',
+  );
+  @override
+  late final GeneratedColumn<String> previousType = GeneratedColumn<String>(
+    'previous_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _targetTypeMeta = const VerificationMeta(
+    'targetType',
+  );
+  @override
+  late final GeneratedColumn<String> targetType = GeneratedColumn<String>(
+    'target_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _scopeMeta = const VerificationMeta('scope');
+  @override
+  late final GeneratedColumn<String> scope = GeneratedColumn<String>(
+    'scope',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _definitionVersionIdMeta =
+      const VerificationMeta('definitionVersionId');
+  @override
+  late final GeneratedColumn<String> definitionVersionId =
+      GeneratedColumn<String>(
+        'definition_version_id',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES task_definition_versions (id)',
+        ),
+      );
+  static const VerificationMeta _previousTypesJsonMeta = const VerificationMeta(
+    'previousTypesJson',
+  );
+  @override
+  late final GeneratedColumn<String> previousTypesJson =
+      GeneratedColumn<String>(
+        'previous_types_json',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('[]'),
+      );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    taskId,
+    sequence,
+    changedAt,
+    previousType,
+    targetType,
+    scope,
+    definitionVersionId,
+    previousTypesJson,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'task_type_changes';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TaskTypeChange> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('task_id')) {
+      context.handle(
+        _taskIdMeta,
+        taskId.isAcceptableOrUnknown(data['task_id']!, _taskIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_taskIdMeta);
+    }
+    if (data.containsKey('sequence')) {
+      context.handle(
+        _sequenceMeta,
+        sequence.isAcceptableOrUnknown(data['sequence']!, _sequenceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sequenceMeta);
+    }
+    if (data.containsKey('changed_at')) {
+      context.handle(
+        _changedAtMeta,
+        changedAt.isAcceptableOrUnknown(data['changed_at']!, _changedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_changedAtMeta);
+    }
+    if (data.containsKey('previous_type')) {
+      context.handle(
+        _previousTypeMeta,
+        previousType.isAcceptableOrUnknown(
+          data['previous_type']!,
+          _previousTypeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_previousTypeMeta);
+    }
+    if (data.containsKey('target_type')) {
+      context.handle(
+        _targetTypeMeta,
+        targetType.isAcceptableOrUnknown(data['target_type']!, _targetTypeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_targetTypeMeta);
+    }
+    if (data.containsKey('scope')) {
+      context.handle(
+        _scopeMeta,
+        scope.isAcceptableOrUnknown(data['scope']!, _scopeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_scopeMeta);
+    }
+    if (data.containsKey('definition_version_id')) {
+      context.handle(
+        _definitionVersionIdMeta,
+        definitionVersionId.isAcceptableOrUnknown(
+          data['definition_version_id']!,
+          _definitionVersionIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_definitionVersionIdMeta);
+    }
+    if (data.containsKey('previous_types_json')) {
+      context.handle(
+        _previousTypesJsonMeta,
+        previousTypesJson.isAcceptableOrUnknown(
+          data['previous_types_json']!,
+          _previousTypesJsonMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TaskTypeChange map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TaskTypeChange(
+      id:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}id'],
+          )!,
+      taskId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}task_id'],
+          )!,
+      sequence:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}sequence'],
+          )!,
+      changedAt:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.dateTime,
+            data['${effectivePrefix}changed_at'],
+          )!,
+      previousType:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}previous_type'],
+          )!,
+      targetType:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}target_type'],
+          )!,
+      scope:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}scope'],
+          )!,
+      definitionVersionId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}definition_version_id'],
+          )!,
+      previousTypesJson:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}previous_types_json'],
+          )!,
+    );
+  }
+
+  @override
+  $TaskTypeChangesTable createAlias(String alias) {
+    return $TaskTypeChangesTable(attachedDatabase, alias);
+  }
+}
+
+class TaskTypeChange extends DataClass implements Insertable<TaskTypeChange> {
+  final String id;
+  final String taskId;
+  final int sequence;
+  final DateTime changedAt;
+  final String previousType;
+  final String targetType;
+  final String scope;
+  final String definitionVersionId;
+  final String previousTypesJson;
+  const TaskTypeChange({
+    required this.id,
+    required this.taskId,
+    required this.sequence,
+    required this.changedAt,
+    required this.previousType,
+    required this.targetType,
+    required this.scope,
+    required this.definitionVersionId,
+    required this.previousTypesJson,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['task_id'] = Variable<String>(taskId);
+    map['sequence'] = Variable<int>(sequence);
+    map['changed_at'] = Variable<DateTime>(changedAt);
+    map['previous_type'] = Variable<String>(previousType);
+    map['target_type'] = Variable<String>(targetType);
+    map['scope'] = Variable<String>(scope);
+    map['definition_version_id'] = Variable<String>(definitionVersionId);
+    map['previous_types_json'] = Variable<String>(previousTypesJson);
+    return map;
+  }
+
+  TaskTypeChangesCompanion toCompanion(bool nullToAbsent) {
+    return TaskTypeChangesCompanion(
+      id: Value(id),
+      taskId: Value(taskId),
+      sequence: Value(sequence),
+      changedAt: Value(changedAt),
+      previousType: Value(previousType),
+      targetType: Value(targetType),
+      scope: Value(scope),
+      definitionVersionId: Value(definitionVersionId),
+      previousTypesJson: Value(previousTypesJson),
+    );
+  }
+
+  factory TaskTypeChange.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TaskTypeChange(
+      id: serializer.fromJson<String>(json['id']),
+      taskId: serializer.fromJson<String>(json['taskId']),
+      sequence: serializer.fromJson<int>(json['sequence']),
+      changedAt: serializer.fromJson<DateTime>(json['changedAt']),
+      previousType: serializer.fromJson<String>(json['previousType']),
+      targetType: serializer.fromJson<String>(json['targetType']),
+      scope: serializer.fromJson<String>(json['scope']),
+      definitionVersionId: serializer.fromJson<String>(
+        json['definitionVersionId'],
+      ),
+      previousTypesJson: serializer.fromJson<String>(json['previousTypesJson']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'taskId': serializer.toJson<String>(taskId),
+      'sequence': serializer.toJson<int>(sequence),
+      'changedAt': serializer.toJson<DateTime>(changedAt),
+      'previousType': serializer.toJson<String>(previousType),
+      'targetType': serializer.toJson<String>(targetType),
+      'scope': serializer.toJson<String>(scope),
+      'definitionVersionId': serializer.toJson<String>(definitionVersionId),
+      'previousTypesJson': serializer.toJson<String>(previousTypesJson),
+    };
+  }
+
+  TaskTypeChange copyWith({
+    String? id,
+    String? taskId,
+    int? sequence,
+    DateTime? changedAt,
+    String? previousType,
+    String? targetType,
+    String? scope,
+    String? definitionVersionId,
+    String? previousTypesJson,
+  }) => TaskTypeChange(
+    id: id ?? this.id,
+    taskId: taskId ?? this.taskId,
+    sequence: sequence ?? this.sequence,
+    changedAt: changedAt ?? this.changedAt,
+    previousType: previousType ?? this.previousType,
+    targetType: targetType ?? this.targetType,
+    scope: scope ?? this.scope,
+    definitionVersionId: definitionVersionId ?? this.definitionVersionId,
+    previousTypesJson: previousTypesJson ?? this.previousTypesJson,
+  );
+  TaskTypeChange copyWithCompanion(TaskTypeChangesCompanion data) {
+    return TaskTypeChange(
+      id: data.id.present ? data.id.value : this.id,
+      taskId: data.taskId.present ? data.taskId.value : this.taskId,
+      sequence: data.sequence.present ? data.sequence.value : this.sequence,
+      changedAt: data.changedAt.present ? data.changedAt.value : this.changedAt,
+      previousType:
+          data.previousType.present
+              ? data.previousType.value
+              : this.previousType,
+      targetType:
+          data.targetType.present ? data.targetType.value : this.targetType,
+      scope: data.scope.present ? data.scope.value : this.scope,
+      definitionVersionId:
+          data.definitionVersionId.present
+              ? data.definitionVersionId.value
+              : this.definitionVersionId,
+      previousTypesJson:
+          data.previousTypesJson.present
+              ? data.previousTypesJson.value
+              : this.previousTypesJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TaskTypeChange(')
+          ..write('id: $id, ')
+          ..write('taskId: $taskId, ')
+          ..write('sequence: $sequence, ')
+          ..write('changedAt: $changedAt, ')
+          ..write('previousType: $previousType, ')
+          ..write('targetType: $targetType, ')
+          ..write('scope: $scope, ')
+          ..write('definitionVersionId: $definitionVersionId, ')
+          ..write('previousTypesJson: $previousTypesJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    taskId,
+    sequence,
+    changedAt,
+    previousType,
+    targetType,
+    scope,
+    definitionVersionId,
+    previousTypesJson,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TaskTypeChange &&
+          other.id == this.id &&
+          other.taskId == this.taskId &&
+          other.sequence == this.sequence &&
+          other.changedAt == this.changedAt &&
+          other.previousType == this.previousType &&
+          other.targetType == this.targetType &&
+          other.scope == this.scope &&
+          other.definitionVersionId == this.definitionVersionId &&
+          other.previousTypesJson == this.previousTypesJson);
+}
+
+class TaskTypeChangesCompanion extends UpdateCompanion<TaskTypeChange> {
+  final Value<String> id;
+  final Value<String> taskId;
+  final Value<int> sequence;
+  final Value<DateTime> changedAt;
+  final Value<String> previousType;
+  final Value<String> targetType;
+  final Value<String> scope;
+  final Value<String> definitionVersionId;
+  final Value<String> previousTypesJson;
+  final Value<int> rowid;
+  const TaskTypeChangesCompanion({
+    this.id = const Value.absent(),
+    this.taskId = const Value.absent(),
+    this.sequence = const Value.absent(),
+    this.changedAt = const Value.absent(),
+    this.previousType = const Value.absent(),
+    this.targetType = const Value.absent(),
+    this.scope = const Value.absent(),
+    this.definitionVersionId = const Value.absent(),
+    this.previousTypesJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TaskTypeChangesCompanion.insert({
+    required String id,
+    required String taskId,
+    required int sequence,
+    required DateTime changedAt,
+    required String previousType,
+    required String targetType,
+    required String scope,
+    required String definitionVersionId,
+    this.previousTypesJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       taskId = Value(taskId),
+       sequence = Value(sequence),
+       changedAt = Value(changedAt),
+       previousType = Value(previousType),
+       targetType = Value(targetType),
+       scope = Value(scope),
+       definitionVersionId = Value(definitionVersionId);
+  static Insertable<TaskTypeChange> custom({
+    Expression<String>? id,
+    Expression<String>? taskId,
+    Expression<int>? sequence,
+    Expression<DateTime>? changedAt,
+    Expression<String>? previousType,
+    Expression<String>? targetType,
+    Expression<String>? scope,
+    Expression<String>? definitionVersionId,
+    Expression<String>? previousTypesJson,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (taskId != null) 'task_id': taskId,
+      if (sequence != null) 'sequence': sequence,
+      if (changedAt != null) 'changed_at': changedAt,
+      if (previousType != null) 'previous_type': previousType,
+      if (targetType != null) 'target_type': targetType,
+      if (scope != null) 'scope': scope,
+      if (definitionVersionId != null)
+        'definition_version_id': definitionVersionId,
+      if (previousTypesJson != null) 'previous_types_json': previousTypesJson,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TaskTypeChangesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? taskId,
+    Value<int>? sequence,
+    Value<DateTime>? changedAt,
+    Value<String>? previousType,
+    Value<String>? targetType,
+    Value<String>? scope,
+    Value<String>? definitionVersionId,
+    Value<String>? previousTypesJson,
+    Value<int>? rowid,
+  }) {
+    return TaskTypeChangesCompanion(
+      id: id ?? this.id,
+      taskId: taskId ?? this.taskId,
+      sequence: sequence ?? this.sequence,
+      changedAt: changedAt ?? this.changedAt,
+      previousType: previousType ?? this.previousType,
+      targetType: targetType ?? this.targetType,
+      scope: scope ?? this.scope,
+      definitionVersionId: definitionVersionId ?? this.definitionVersionId,
+      previousTypesJson: previousTypesJson ?? this.previousTypesJson,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (taskId.present) {
+      map['task_id'] = Variable<String>(taskId.value);
+    }
+    if (sequence.present) {
+      map['sequence'] = Variable<int>(sequence.value);
+    }
+    if (changedAt.present) {
+      map['changed_at'] = Variable<DateTime>(changedAt.value);
+    }
+    if (previousType.present) {
+      map['previous_type'] = Variable<String>(previousType.value);
+    }
+    if (targetType.present) {
+      map['target_type'] = Variable<String>(targetType.value);
+    }
+    if (scope.present) {
+      map['scope'] = Variable<String>(scope.value);
+    }
+    if (definitionVersionId.present) {
+      map['definition_version_id'] = Variable<String>(
+        definitionVersionId.value,
+      );
+    }
+    if (previousTypesJson.present) {
+      map['previous_types_json'] = Variable<String>(previousTypesJson.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TaskTypeChangesCompanion(')
+          ..write('id: $id, ')
+          ..write('taskId: $taskId, ')
+          ..write('sequence: $sequence, ')
+          ..write('changedAt: $changedAt, ')
+          ..write('previousType: $previousType, ')
+          ..write('targetType: $targetType, ')
+          ..write('scope: $scope, ')
+          ..write('definitionVersionId: $definitionVersionId, ')
+          ..write('previousTypesJson: $previousTypesJson, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -13395,6 +14720,12 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $CardDisplaySettingsTable(this);
   late final $CardExpansionPreferencesTable cardExpansionPreferences =
       $CardExpansionPreferencesTable(this);
+  late final $CalendarSettingsTable calendarSettings = $CalendarSettingsTable(
+    this,
+  );
+  late final $TaskTypeChangesTable taskTypeChanges = $TaskTypeChangesTable(
+    this,
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -13418,6 +14749,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     projectDeletionBatchItems,
     cardDisplaySettings,
     cardExpansionPreferences,
+    calendarSettings,
+    taskTypeChanges,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -13595,6 +14928,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       result: [
         TableUpdate('card_expansion_preferences', kind: UpdateKind.delete),
       ],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'aufgaben',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('task_type_changes', kind: UpdateKind.delete)],
     ),
   ]);
 }
@@ -14480,6 +15820,8 @@ typedef $$AufgabenTableCreateCompanionBuilder =
       Value<DateTime?> updatedAt,
       Value<DateTime?> endDate,
       Value<DateTime?> dueDate,
+      Value<int?> plannedStartMinute,
+      Value<int?> plannedDurationMinutes,
       Value<bool> isActive,
       Value<DateTime?> trashedAt,
       Value<DateTime?> purgeAt,
@@ -14518,6 +15860,8 @@ typedef $$AufgabenTableUpdateCompanionBuilder =
       Value<DateTime?> updatedAt,
       Value<DateTime?> endDate,
       Value<DateTime?> dueDate,
+      Value<int?> plannedStartMinute,
+      Value<int?> plannedDurationMinutes,
       Value<bool> isActive,
       Value<DateTime?> trashedAt,
       Value<DateTime?> purgeAt,
@@ -14774,6 +16118,26 @@ final class $$AufgabenTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<$TaskTypeChangesTable, List<TaskTypeChange>>
+  _taskTypeChangesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.taskTypeChanges,
+    aliasName: $_aliasNameGenerator(db.aufgaben.id, db.taskTypeChanges.taskId),
+  );
+
+  $$TaskTypeChangesTableProcessedTableManager get taskTypeChangesRefs {
+    final manager = $$TaskTypeChangesTableTableManager(
+      $_db,
+      $_db.taskTypeChanges,
+    ).filter((f) => f.taskId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _taskTypeChangesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$AufgabenTableFilterComposer
@@ -14852,6 +16216,16 @@ class $$AufgabenTableFilterComposer
 
   ColumnFilters<DateTime> get dueDate => $composableBuilder(
     column: $table.dueDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get plannedStartMinute => $composableBuilder(
+    column: $table.plannedStartMinute,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get plannedDurationMinutes => $composableBuilder(
+    column: $table.plannedDurationMinutes,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -15189,6 +16563,31 @@ class $$AufgabenTableFilterComposer
         );
     return f(composer);
   }
+
+  Expression<bool> taskTypeChangesRefs(
+    Expression<bool> Function($$TaskTypeChangesTableFilterComposer f) f,
+  ) {
+    final $$TaskTypeChangesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.taskTypeChanges,
+      getReferencedColumn: (t) => t.taskId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TaskTypeChangesTableFilterComposer(
+            $db: $db,
+            $table: $db.taskTypeChanges,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$AufgabenTableOrderingComposer
@@ -15267,6 +16666,16 @@ class $$AufgabenTableOrderingComposer
 
   ColumnOrderings<DateTime> get dueDate => $composableBuilder(
     column: $table.dueDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get plannedStartMinute => $composableBuilder(
+    column: $table.plannedStartMinute,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get plannedDurationMinutes => $composableBuilder(
+    column: $table.plannedDurationMinutes,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -15451,6 +16860,16 @@ class $$AufgabenTableAnnotationComposer
 
   GeneratedColumn<DateTime> get dueDate =>
       $composableBuilder(column: $table.dueDate, builder: (column) => column);
+
+  GeneratedColumn<int> get plannedStartMinute => $composableBuilder(
+    column: $table.plannedStartMinute,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get plannedDurationMinutes => $composableBuilder(
+    column: $table.plannedDurationMinutes,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<bool> get isActive =>
       $composableBuilder(column: $table.isActive, builder: (column) => column);
@@ -15774,6 +17193,31 @@ class $$AufgabenTableAnnotationComposer
         );
     return f(composer);
   }
+
+  Expression<T> taskTypeChangesRefs<T extends Object>(
+    Expression<T> Function($$TaskTypeChangesTableAnnotationComposer a) f,
+  ) {
+    final $$TaskTypeChangesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.taskTypeChanges,
+      getReferencedColumn: (t) => t.taskId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TaskTypeChangesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.taskTypeChanges,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$AufgabenTableTableManager
@@ -15799,6 +17243,7 @@ class $$AufgabenTableTableManager
             bool taskCorrectionOperationsRefs,
             bool taskPlanningInterruptionsRefs,
             bool cardExpansionPreferencesRefs,
+            bool taskTypeChangesRefs,
           })
         > {
   $$AufgabenTableTableManager(_$AppDatabase db, $AufgabenTable table)
@@ -15829,6 +17274,8 @@ class $$AufgabenTableTableManager
                 Value<DateTime?> updatedAt = const Value.absent(),
                 Value<DateTime?> endDate = const Value.absent(),
                 Value<DateTime?> dueDate = const Value.absent(),
+                Value<int?> plannedStartMinute = const Value.absent(),
+                Value<int?> plannedDurationMinutes = const Value.absent(),
                 Value<bool> isActive = const Value.absent(),
                 Value<DateTime?> trashedAt = const Value.absent(),
                 Value<DateTime?> purgeAt = const Value.absent(),
@@ -15865,6 +17312,8 @@ class $$AufgabenTableTableManager
                 updatedAt: updatedAt,
                 endDate: endDate,
                 dueDate: dueDate,
+                plannedStartMinute: plannedStartMinute,
+                plannedDurationMinutes: plannedDurationMinutes,
                 isActive: isActive,
                 trashedAt: trashedAt,
                 purgeAt: purgeAt,
@@ -15903,6 +17352,8 @@ class $$AufgabenTableTableManager
                 Value<DateTime?> updatedAt = const Value.absent(),
                 Value<DateTime?> endDate = const Value.absent(),
                 Value<DateTime?> dueDate = const Value.absent(),
+                Value<int?> plannedStartMinute = const Value.absent(),
+                Value<int?> plannedDurationMinutes = const Value.absent(),
                 Value<bool> isActive = const Value.absent(),
                 Value<DateTime?> trashedAt = const Value.absent(),
                 Value<DateTime?> purgeAt = const Value.absent(),
@@ -15939,6 +17390,8 @@ class $$AufgabenTableTableManager
                 updatedAt: updatedAt,
                 endDate: endDate,
                 dueDate: dueDate,
+                plannedStartMinute: plannedStartMinute,
+                plannedDurationMinutes: plannedDurationMinutes,
                 isActive: isActive,
                 trashedAt: trashedAt,
                 purgeAt: purgeAt,
@@ -15980,6 +17433,7 @@ class $$AufgabenTableTableManager
             taskCorrectionOperationsRefs = false,
             taskPlanningInterruptionsRefs = false,
             cardExpansionPreferencesRefs = false,
+            taskTypeChangesRefs = false,
           }) {
             return PrefetchHooks(
               db: db,
@@ -15994,6 +17448,7 @@ class $$AufgabenTableTableManager
                 if (taskCorrectionOperationsRefs) db.taskCorrectionOperations,
                 if (taskPlanningInterruptionsRefs) db.taskPlanningInterruptions,
                 if (cardExpansionPreferencesRefs) db.cardExpansionPreferences,
+                if (taskTypeChangesRefs) db.taskTypeChanges,
               ],
               addJoins: <
                 T extends TableManagerState<
@@ -16197,6 +17652,27 @@ class $$AufgabenTableTableManager
                               referencedItems.where((e) => e.taskId == item.id),
                       typedResults: items,
                     ),
+                  if (taskTypeChangesRefs)
+                    await $_getPrefetchedData<
+                      Aufgabe,
+                      $AufgabenTable,
+                      TaskTypeChange
+                    >(
+                      currentTable: table,
+                      referencedTable: $$AufgabenTableReferences
+                          ._taskTypeChangesRefsTable(db),
+                      managerFromTypedResult:
+                          (p0) =>
+                              $$AufgabenTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).taskTypeChangesRefs,
+                      referencedItemsForCurrentItem:
+                          (item, referencedItems) =>
+                              referencedItems.where((e) => e.taskId == item.id),
+                      typedResults: items,
+                    ),
                 ];
               },
             );
@@ -16227,6 +17703,7 @@ typedef $$AufgabenTableProcessedTableManager =
         bool taskCorrectionOperationsRefs,
         bool taskPlanningInterruptionsRefs,
         bool cardExpansionPreferencesRefs,
+        bool taskTypeChangesRefs,
       })
     >;
 typedef $$TaskDefinitionVersionsTableCreateCompanionBuilder =
@@ -16250,6 +17727,8 @@ typedef $$TaskDefinitionVersionsTableCreateCompanionBuilder =
       required DateTime startDate,
       Value<DateTime?> endDate,
       Value<DateTime?> dueDate,
+      Value<int?> plannedStartMinute,
+      Value<int?> plannedDurationMinutes,
       Value<String> missedPolicy,
       Value<String> missedConsequence,
       Value<int> missedBufferDays,
@@ -16287,6 +17766,8 @@ typedef $$TaskDefinitionVersionsTableUpdateCompanionBuilder =
       Value<DateTime> startDate,
       Value<DateTime?> endDate,
       Value<DateTime?> dueDate,
+      Value<int?> plannedStartMinute,
+      Value<int?> plannedDurationMinutes,
       Value<String> missedPolicy,
       Value<String> missedConsequence,
       Value<int> missedBufferDays,
@@ -16355,6 +17836,31 @@ final class $$TaskDefinitionVersionsTableReferences
     );
 
     final cache = $_typedResult.readTableOrNull(_taskEntriesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$TaskTypeChangesTable, List<TaskTypeChange>>
+  _taskTypeChangesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.taskTypeChanges,
+    aliasName: $_aliasNameGenerator(
+      db.taskDefinitionVersions.id,
+      db.taskTypeChanges.definitionVersionId,
+    ),
+  );
+
+  $$TaskTypeChangesTableProcessedTableManager get taskTypeChangesRefs {
+    final manager = $$TaskTypeChangesTableTableManager(
+      $_db,
+      $_db.taskTypeChanges,
+    ).filter(
+      (f) => f.definitionVersionId.id.sqlEquals($_itemColumn<String>('id')!),
+    );
+
+    final cache = $_typedResult.readTableOrNull(
+      _taskTypeChangesRefsTable($_db),
+    );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -16457,6 +17963,16 @@ class $$TaskDefinitionVersionsTableFilterComposer
 
   ColumnFilters<DateTime> get dueDate => $composableBuilder(
     column: $table.dueDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get plannedStartMinute => $composableBuilder(
+    column: $table.plannedStartMinute,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get plannedDurationMinutes => $composableBuilder(
+    column: $table.plannedDurationMinutes,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -16577,6 +18093,31 @@ class $$TaskDefinitionVersionsTableFilterComposer
     );
     return f(composer);
   }
+
+  Expression<bool> taskTypeChangesRefs(
+    Expression<bool> Function($$TaskTypeChangesTableFilterComposer f) f,
+  ) {
+    final $$TaskTypeChangesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.taskTypeChanges,
+      getReferencedColumn: (t) => t.definitionVersionId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TaskTypeChangesTableFilterComposer(
+            $db: $db,
+            $table: $db.taskTypeChanges,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$TaskDefinitionVersionsTableOrderingComposer
@@ -16675,6 +18216,16 @@ class $$TaskDefinitionVersionsTableOrderingComposer
 
   ColumnOrderings<DateTime> get dueDate => $composableBuilder(
     column: $table.dueDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get plannedStartMinute => $composableBuilder(
+    column: $table.plannedStartMinute,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get plannedDurationMinutes => $composableBuilder(
+    column: $table.plannedDurationMinutes,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -16853,6 +18404,16 @@ class $$TaskDefinitionVersionsTableAnnotationComposer
   GeneratedColumn<DateTime> get dueDate =>
       $composableBuilder(column: $table.dueDate, builder: (column) => column);
 
+  GeneratedColumn<int> get plannedStartMinute => $composableBuilder(
+    column: $table.plannedStartMinute,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get plannedDurationMinutes => $composableBuilder(
+    column: $table.plannedDurationMinutes,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get missedPolicy => $composableBuilder(
     column: $table.missedPolicy,
     builder: (column) => column,
@@ -16964,6 +18525,31 @@ class $$TaskDefinitionVersionsTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> taskTypeChangesRefs<T extends Object>(
+    Expression<T> Function($$TaskTypeChangesTableAnnotationComposer a) f,
+  ) {
+    final $$TaskTypeChangesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.taskTypeChanges,
+      getReferencedColumn: (t) => t.definitionVersionId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TaskTypeChangesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.taskTypeChanges,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$TaskDefinitionVersionsTableTableManager
@@ -16979,7 +18565,11 @@ class $$TaskDefinitionVersionsTableTableManager
           $$TaskDefinitionVersionsTableUpdateCompanionBuilder,
           (TaskDefinitionVersion, $$TaskDefinitionVersionsTableReferences),
           TaskDefinitionVersion,
-          PrefetchHooks Function({bool taskId, bool taskEntriesRefs})
+          PrefetchHooks Function({
+            bool taskId,
+            bool taskEntriesRefs,
+            bool taskTypeChangesRefs,
+          })
         > {
   $$TaskDefinitionVersionsTableTableManager(
     _$AppDatabase db,
@@ -17024,6 +18614,8 @@ class $$TaskDefinitionVersionsTableTableManager
                 Value<DateTime> startDate = const Value.absent(),
                 Value<DateTime?> endDate = const Value.absent(),
                 Value<DateTime?> dueDate = const Value.absent(),
+                Value<int?> plannedStartMinute = const Value.absent(),
+                Value<int?> plannedDurationMinutes = const Value.absent(),
                 Value<String> missedPolicy = const Value.absent(),
                 Value<String> missedConsequence = const Value.absent(),
                 Value<int> missedBufferDays = const Value.absent(),
@@ -17059,6 +18651,8 @@ class $$TaskDefinitionVersionsTableTableManager
                 startDate: startDate,
                 endDate: endDate,
                 dueDate: dueDate,
+                plannedStartMinute: plannedStartMinute,
+                plannedDurationMinutes: plannedDurationMinutes,
                 missedPolicy: missedPolicy,
                 missedConsequence: missedConsequence,
                 missedBufferDays: missedBufferDays,
@@ -17096,6 +18690,8 @@ class $$TaskDefinitionVersionsTableTableManager
                 required DateTime startDate,
                 Value<DateTime?> endDate = const Value.absent(),
                 Value<DateTime?> dueDate = const Value.absent(),
+                Value<int?> plannedStartMinute = const Value.absent(),
+                Value<int?> plannedDurationMinutes = const Value.absent(),
                 Value<String> missedPolicy = const Value.absent(),
                 Value<String> missedConsequence = const Value.absent(),
                 Value<int> missedBufferDays = const Value.absent(),
@@ -17131,6 +18727,8 @@ class $$TaskDefinitionVersionsTableTableManager
                 startDate: startDate,
                 endDate: endDate,
                 dueDate: dueDate,
+                plannedStartMinute: plannedStartMinute,
+                plannedDurationMinutes: plannedDurationMinutes,
                 missedPolicy: missedPolicy,
                 missedConsequence: missedConsequence,
                 missedBufferDays: missedBufferDays,
@@ -17157,10 +18755,17 @@ class $$TaskDefinitionVersionsTableTableManager
                         ),
                       )
                       .toList(),
-          prefetchHooksCallback: ({taskId = false, taskEntriesRefs = false}) {
+          prefetchHooksCallback: ({
+            taskId = false,
+            taskEntriesRefs = false,
+            taskTypeChangesRefs = false,
+          }) {
             return PrefetchHooks(
               db: db,
-              explicitlyWatchedTables: [if (taskEntriesRefs) db.taskEntries],
+              explicitlyWatchedTables: [
+                if (taskEntriesRefs) db.taskEntries,
+                if (taskTypeChangesRefs) db.taskTypeChanges,
+              ],
               addJoins: <
                 T extends TableManagerState<
                   dynamic,
@@ -17218,6 +18823,28 @@ class $$TaskDefinitionVersionsTableTableManager
                           ),
                       typedResults: items,
                     ),
+                  if (taskTypeChangesRefs)
+                    await $_getPrefetchedData<
+                      TaskDefinitionVersion,
+                      $TaskDefinitionVersionsTable,
+                      TaskTypeChange
+                    >(
+                      currentTable: table,
+                      referencedTable: $$TaskDefinitionVersionsTableReferences
+                          ._taskTypeChangesRefsTable(db),
+                      managerFromTypedResult:
+                          (p0) =>
+                              $$TaskDefinitionVersionsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).taskTypeChangesRefs,
+                      referencedItemsForCurrentItem:
+                          (item, referencedItems) => referencedItems.where(
+                            (e) => e.definitionVersionId == item.id,
+                          ),
+                      typedResults: items,
+                    ),
                 ];
               },
             );
@@ -17238,7 +18865,11 @@ typedef $$TaskDefinitionVersionsTableProcessedTableManager =
       $$TaskDefinitionVersionsTableUpdateCompanionBuilder,
       (TaskDefinitionVersion, $$TaskDefinitionVersionsTableReferences),
       TaskDefinitionVersion,
-      PrefetchHooks Function({bool taskId, bool taskEntriesRefs})
+      PrefetchHooks Function({
+        bool taskId,
+        bool taskEntriesRefs,
+        bool taskTypeChangesRefs,
+      })
     >;
 typedef $$TaskEntriesTableCreateCompanionBuilder =
     TaskEntriesCompanion Function({
@@ -17246,6 +18877,8 @@ typedef $$TaskEntriesTableCreateCompanionBuilder =
       required String taskId,
       Value<String?> taskDefinitionVersionId,
       required DateTime scheduledDate,
+      Value<int?> plannedStartMinute,
+      Value<int?> plannedDurationMinutes,
       Value<DateTime?> originalScheduledDate,
       Value<DateTime> createdAt,
       Value<String> status,
@@ -17271,6 +18904,8 @@ typedef $$TaskEntriesTableUpdateCompanionBuilder =
       Value<String> taskId,
       Value<String?> taskDefinitionVersionId,
       Value<DateTime> scheduledDate,
+      Value<int?> plannedStartMinute,
+      Value<int?> plannedDurationMinutes,
       Value<DateTime?> originalScheduledDate,
       Value<DateTime> createdAt,
       Value<String> status,
@@ -17405,6 +19040,16 @@ class $$TaskEntriesTableFilterComposer
 
   ColumnFilters<DateTime> get scheduledDate => $composableBuilder(
     column: $table.scheduledDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get plannedStartMinute => $composableBuilder(
+    column: $table.plannedStartMinute,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get plannedDurationMinutes => $composableBuilder(
+    column: $table.plannedDurationMinutes,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -17610,6 +19255,16 @@ class $$TaskEntriesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get plannedStartMinute => $composableBuilder(
+    column: $table.plannedStartMinute,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get plannedDurationMinutes => $composableBuilder(
+    column: $table.plannedDurationMinutes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get originalScheduledDate => $composableBuilder(
     column: $table.originalScheduledDate,
     builder: (column) => ColumnOrderings(column),
@@ -17757,6 +19412,16 @@ class $$TaskEntriesTableAnnotationComposer
 
   GeneratedColumn<DateTime> get scheduledDate => $composableBuilder(
     column: $table.scheduledDate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get plannedStartMinute => $composableBuilder(
+    column: $table.plannedStartMinute,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get plannedDurationMinutes => $composableBuilder(
+    column: $table.plannedDurationMinutes,
     builder: (column) => column,
   );
 
@@ -17972,6 +19637,8 @@ class $$TaskEntriesTableTableManager
                 Value<String> taskId = const Value.absent(),
                 Value<String?> taskDefinitionVersionId = const Value.absent(),
                 Value<DateTime> scheduledDate = const Value.absent(),
+                Value<int?> plannedStartMinute = const Value.absent(),
+                Value<int?> plannedDurationMinutes = const Value.absent(),
                 Value<DateTime?> originalScheduledDate = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<String> status = const Value.absent(),
@@ -17995,6 +19662,8 @@ class $$TaskEntriesTableTableManager
                 taskId: taskId,
                 taskDefinitionVersionId: taskDefinitionVersionId,
                 scheduledDate: scheduledDate,
+                plannedStartMinute: plannedStartMinute,
+                plannedDurationMinutes: plannedDurationMinutes,
                 originalScheduledDate: originalScheduledDate,
                 createdAt: createdAt,
                 status: status,
@@ -18020,6 +19689,8 @@ class $$TaskEntriesTableTableManager
                 required String taskId,
                 Value<String?> taskDefinitionVersionId = const Value.absent(),
                 required DateTime scheduledDate,
+                Value<int?> plannedStartMinute = const Value.absent(),
+                Value<int?> plannedDurationMinutes = const Value.absent(),
                 Value<DateTime?> originalScheduledDate = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<String> status = const Value.absent(),
@@ -18043,6 +19714,8 @@ class $$TaskEntriesTableTableManager
                 taskId: taskId,
                 taskDefinitionVersionId: taskDefinitionVersionId,
                 scheduledDate: scheduledDate,
+                plannedStartMinute: plannedStartMinute,
+                plannedDurationMinutes: plannedDurationMinutes,
                 originalScheduledDate: originalScheduledDate,
                 createdAt: createdAt,
                 status: status,
@@ -24989,6 +26662,740 @@ typedef $$CardExpansionPreferencesTableProcessedTableManager =
       CardExpansionPreference,
       PrefetchHooks Function({bool taskId, bool bundleId})
     >;
+typedef $$CalendarSettingsTableCreateCompanionBuilder =
+    CalendarSettingsCompanion Function({
+      Value<int> id,
+      Value<bool> showTasks,
+      Value<bool> showHabits,
+      Value<bool> showTrackers,
+      Value<String> view,
+    });
+typedef $$CalendarSettingsTableUpdateCompanionBuilder =
+    CalendarSettingsCompanion Function({
+      Value<int> id,
+      Value<bool> showTasks,
+      Value<bool> showHabits,
+      Value<bool> showTrackers,
+      Value<String> view,
+    });
+
+class $$CalendarSettingsTableFilterComposer
+    extends Composer<_$AppDatabase, $CalendarSettingsTable> {
+  $$CalendarSettingsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get showTasks => $composableBuilder(
+    column: $table.showTasks,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get showHabits => $composableBuilder(
+    column: $table.showHabits,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get showTrackers => $composableBuilder(
+    column: $table.showTrackers,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get view => $composableBuilder(
+    column: $table.view,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CalendarSettingsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CalendarSettingsTable> {
+  $$CalendarSettingsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get showTasks => $composableBuilder(
+    column: $table.showTasks,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get showHabits => $composableBuilder(
+    column: $table.showHabits,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get showTrackers => $composableBuilder(
+    column: $table.showTrackers,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get view => $composableBuilder(
+    column: $table.view,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CalendarSettingsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CalendarSettingsTable> {
+  $$CalendarSettingsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<bool> get showTasks =>
+      $composableBuilder(column: $table.showTasks, builder: (column) => column);
+
+  GeneratedColumn<bool> get showHabits => $composableBuilder(
+    column: $table.showHabits,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get showTrackers => $composableBuilder(
+    column: $table.showTrackers,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get view =>
+      $composableBuilder(column: $table.view, builder: (column) => column);
+}
+
+class $$CalendarSettingsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CalendarSettingsTable,
+          CalendarSetting,
+          $$CalendarSettingsTableFilterComposer,
+          $$CalendarSettingsTableOrderingComposer,
+          $$CalendarSettingsTableAnnotationComposer,
+          $$CalendarSettingsTableCreateCompanionBuilder,
+          $$CalendarSettingsTableUpdateCompanionBuilder,
+          (
+            CalendarSetting,
+            BaseReferences<
+              _$AppDatabase,
+              $CalendarSettingsTable,
+              CalendarSetting
+            >,
+          ),
+          CalendarSetting,
+          PrefetchHooks Function()
+        > {
+  $$CalendarSettingsTableTableManager(
+    _$AppDatabase db,
+    $CalendarSettingsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer:
+              () =>
+                  $$CalendarSettingsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer:
+              () => $$CalendarSettingsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer:
+              () => $$CalendarSettingsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<bool> showTasks = const Value.absent(),
+                Value<bool> showHabits = const Value.absent(),
+                Value<bool> showTrackers = const Value.absent(),
+                Value<String> view = const Value.absent(),
+              }) => CalendarSettingsCompanion(
+                id: id,
+                showTasks: showTasks,
+                showHabits: showHabits,
+                showTrackers: showTrackers,
+                view: view,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<bool> showTasks = const Value.absent(),
+                Value<bool> showHabits = const Value.absent(),
+                Value<bool> showTrackers = const Value.absent(),
+                Value<String> view = const Value.absent(),
+              }) => CalendarSettingsCompanion.insert(
+                id: id,
+                showTasks: showTasks,
+                showHabits: showHabits,
+                showTrackers: showTrackers,
+                view: view,
+              ),
+          withReferenceMapper:
+              (p0) =>
+                  p0
+                      .map(
+                        (e) => (
+                          e.readTable(table),
+                          BaseReferences(db, table, e),
+                        ),
+                      )
+                      .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CalendarSettingsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CalendarSettingsTable,
+      CalendarSetting,
+      $$CalendarSettingsTableFilterComposer,
+      $$CalendarSettingsTableOrderingComposer,
+      $$CalendarSettingsTableAnnotationComposer,
+      $$CalendarSettingsTableCreateCompanionBuilder,
+      $$CalendarSettingsTableUpdateCompanionBuilder,
+      (
+        CalendarSetting,
+        BaseReferences<_$AppDatabase, $CalendarSettingsTable, CalendarSetting>,
+      ),
+      CalendarSetting,
+      PrefetchHooks Function()
+    >;
+typedef $$TaskTypeChangesTableCreateCompanionBuilder =
+    TaskTypeChangesCompanion Function({
+      required String id,
+      required String taskId,
+      required int sequence,
+      required DateTime changedAt,
+      required String previousType,
+      required String targetType,
+      required String scope,
+      required String definitionVersionId,
+      Value<String> previousTypesJson,
+      Value<int> rowid,
+    });
+typedef $$TaskTypeChangesTableUpdateCompanionBuilder =
+    TaskTypeChangesCompanion Function({
+      Value<String> id,
+      Value<String> taskId,
+      Value<int> sequence,
+      Value<DateTime> changedAt,
+      Value<String> previousType,
+      Value<String> targetType,
+      Value<String> scope,
+      Value<String> definitionVersionId,
+      Value<String> previousTypesJson,
+      Value<int> rowid,
+    });
+
+final class $$TaskTypeChangesTableReferences
+    extends
+        BaseReferences<_$AppDatabase, $TaskTypeChangesTable, TaskTypeChange> {
+  $$TaskTypeChangesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $AufgabenTable _taskIdTable(_$AppDatabase db) =>
+      db.aufgaben.createAlias(
+        $_aliasNameGenerator(db.taskTypeChanges.taskId, db.aufgaben.id),
+      );
+
+  $$AufgabenTableProcessedTableManager get taskId {
+    final $_column = $_itemColumn<String>('task_id')!;
+
+    final manager = $$AufgabenTableTableManager(
+      $_db,
+      $_db.aufgaben,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_taskIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $TaskDefinitionVersionsTable _definitionVersionIdTable(
+    _$AppDatabase db,
+  ) => db.taskDefinitionVersions.createAlias(
+    $_aliasNameGenerator(
+      db.taskTypeChanges.definitionVersionId,
+      db.taskDefinitionVersions.id,
+    ),
+  );
+
+  $$TaskDefinitionVersionsTableProcessedTableManager get definitionVersionId {
+    final $_column = $_itemColumn<String>('definition_version_id')!;
+
+    final manager = $$TaskDefinitionVersionsTableTableManager(
+      $_db,
+      $_db.taskDefinitionVersions,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_definitionVersionIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$TaskTypeChangesTableFilterComposer
+    extends Composer<_$AppDatabase, $TaskTypeChangesTable> {
+  $$TaskTypeChangesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sequence => $composableBuilder(
+    column: $table.sequence,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get changedAt => $composableBuilder(
+    column: $table.changedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get previousType => $composableBuilder(
+    column: $table.previousType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get targetType => $composableBuilder(
+    column: $table.targetType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get scope => $composableBuilder(
+    column: $table.scope,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get previousTypesJson => $composableBuilder(
+    column: $table.previousTypesJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$AufgabenTableFilterComposer get taskId {
+    final $$AufgabenTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.taskId,
+      referencedTable: $db.aufgaben,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AufgabenTableFilterComposer(
+            $db: $db,
+            $table: $db.aufgaben,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$TaskDefinitionVersionsTableFilterComposer get definitionVersionId {
+    final $$TaskDefinitionVersionsTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.definitionVersionId,
+          referencedTable: $db.taskDefinitionVersions,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$TaskDefinitionVersionsTableFilterComposer(
+                $db: $db,
+                $table: $db.taskDefinitionVersions,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+}
+
+class $$TaskTypeChangesTableOrderingComposer
+    extends Composer<_$AppDatabase, $TaskTypeChangesTable> {
+  $$TaskTypeChangesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sequence => $composableBuilder(
+    column: $table.sequence,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get changedAt => $composableBuilder(
+    column: $table.changedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get previousType => $composableBuilder(
+    column: $table.previousType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get targetType => $composableBuilder(
+    column: $table.targetType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get scope => $composableBuilder(
+    column: $table.scope,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get previousTypesJson => $composableBuilder(
+    column: $table.previousTypesJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$AufgabenTableOrderingComposer get taskId {
+    final $$AufgabenTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.taskId,
+      referencedTable: $db.aufgaben,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AufgabenTableOrderingComposer(
+            $db: $db,
+            $table: $db.aufgaben,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$TaskDefinitionVersionsTableOrderingComposer get definitionVersionId {
+    final $$TaskDefinitionVersionsTableOrderingComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.definitionVersionId,
+          referencedTable: $db.taskDefinitionVersions,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$TaskDefinitionVersionsTableOrderingComposer(
+                $db: $db,
+                $table: $db.taskDefinitionVersions,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+}
+
+class $$TaskTypeChangesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TaskTypeChangesTable> {
+  $$TaskTypeChangesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get sequence =>
+      $composableBuilder(column: $table.sequence, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get changedAt =>
+      $composableBuilder(column: $table.changedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get previousType => $composableBuilder(
+    column: $table.previousType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get targetType => $composableBuilder(
+    column: $table.targetType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get scope =>
+      $composableBuilder(column: $table.scope, builder: (column) => column);
+
+  GeneratedColumn<String> get previousTypesJson => $composableBuilder(
+    column: $table.previousTypesJson,
+    builder: (column) => column,
+  );
+
+  $$AufgabenTableAnnotationComposer get taskId {
+    final $$AufgabenTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.taskId,
+      referencedTable: $db.aufgaben,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AufgabenTableAnnotationComposer(
+            $db: $db,
+            $table: $db.aufgaben,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$TaskDefinitionVersionsTableAnnotationComposer get definitionVersionId {
+    final $$TaskDefinitionVersionsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.definitionVersionId,
+          referencedTable: $db.taskDefinitionVersions,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$TaskDefinitionVersionsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.taskDefinitionVersions,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+}
+
+class $$TaskTypeChangesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $TaskTypeChangesTable,
+          TaskTypeChange,
+          $$TaskTypeChangesTableFilterComposer,
+          $$TaskTypeChangesTableOrderingComposer,
+          $$TaskTypeChangesTableAnnotationComposer,
+          $$TaskTypeChangesTableCreateCompanionBuilder,
+          $$TaskTypeChangesTableUpdateCompanionBuilder,
+          (TaskTypeChange, $$TaskTypeChangesTableReferences),
+          TaskTypeChange,
+          PrefetchHooks Function({bool taskId, bool definitionVersionId})
+        > {
+  $$TaskTypeChangesTableTableManager(
+    _$AppDatabase db,
+    $TaskTypeChangesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer:
+              () =>
+                  $$TaskTypeChangesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer:
+              () => $$TaskTypeChangesTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer:
+              () => $$TaskTypeChangesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> taskId = const Value.absent(),
+                Value<int> sequence = const Value.absent(),
+                Value<DateTime> changedAt = const Value.absent(),
+                Value<String> previousType = const Value.absent(),
+                Value<String> targetType = const Value.absent(),
+                Value<String> scope = const Value.absent(),
+                Value<String> definitionVersionId = const Value.absent(),
+                Value<String> previousTypesJson = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TaskTypeChangesCompanion(
+                id: id,
+                taskId: taskId,
+                sequence: sequence,
+                changedAt: changedAt,
+                previousType: previousType,
+                targetType: targetType,
+                scope: scope,
+                definitionVersionId: definitionVersionId,
+                previousTypesJson: previousTypesJson,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String taskId,
+                required int sequence,
+                required DateTime changedAt,
+                required String previousType,
+                required String targetType,
+                required String scope,
+                required String definitionVersionId,
+                Value<String> previousTypesJson = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TaskTypeChangesCompanion.insert(
+                id: id,
+                taskId: taskId,
+                sequence: sequence,
+                changedAt: changedAt,
+                previousType: previousType,
+                targetType: targetType,
+                scope: scope,
+                definitionVersionId: definitionVersionId,
+                previousTypesJson: previousTypesJson,
+                rowid: rowid,
+              ),
+          withReferenceMapper:
+              (p0) =>
+                  p0
+                      .map(
+                        (e) => (
+                          e.readTable(table),
+                          $$TaskTypeChangesTableReferences(db, table, e),
+                        ),
+                      )
+                      .toList(),
+          prefetchHooksCallback: ({
+            taskId = false,
+            definitionVersionId = false,
+          }) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                T extends TableManagerState<
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic
+                >
+              >(state) {
+                if (taskId) {
+                  state =
+                      state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.taskId,
+                            referencedTable: $$TaskTypeChangesTableReferences
+                                ._taskIdTable(db),
+                            referencedColumn:
+                                $$TaskTypeChangesTableReferences
+                                    ._taskIdTable(db)
+                                    .id,
+                          )
+                          as T;
+                }
+                if (definitionVersionId) {
+                  state =
+                      state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.definitionVersionId,
+                            referencedTable: $$TaskTypeChangesTableReferences
+                                ._definitionVersionIdTable(db),
+                            referencedColumn:
+                                $$TaskTypeChangesTableReferences
+                                    ._definitionVersionIdTable(db)
+                                    .id,
+                          )
+                          as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$TaskTypeChangesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $TaskTypeChangesTable,
+      TaskTypeChange,
+      $$TaskTypeChangesTableFilterComposer,
+      $$TaskTypeChangesTableOrderingComposer,
+      $$TaskTypeChangesTableAnnotationComposer,
+      $$TaskTypeChangesTableCreateCompanionBuilder,
+      $$TaskTypeChangesTableUpdateCompanionBuilder,
+      (TaskTypeChange, $$TaskTypeChangesTableReferences),
+      TaskTypeChange,
+      PrefetchHooks Function({bool taskId, bool definitionVersionId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -25061,4 +27468,8 @@ class $AppDatabaseManager {
         _db,
         _db.cardExpansionPreferences,
       );
+  $$CalendarSettingsTableTableManager get calendarSettings =>
+      $$CalendarSettingsTableTableManager(_db, _db.calendarSettings);
+  $$TaskTypeChangesTableTableManager get taskTypeChanges =>
+      $$TaskTypeChangesTableTableManager(_db, _db.taskTypeChanges);
 }

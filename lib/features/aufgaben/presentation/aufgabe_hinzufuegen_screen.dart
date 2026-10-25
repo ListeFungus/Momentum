@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:momentum/features/calendar/data/calendar_planning.dart';
+import 'package:momentum/features/calendar/presentation/calendar_planning_field.dart';
 import 'package:momentum/core/database/app_database.dart';
 import 'package:momentum/features/aufgaben/data/aufgaben_repository.dart';
 import 'package:momentum/features/aufgaben/data/habit_recurrence.dart';
@@ -63,6 +65,8 @@ class _AufgabeHinzufuegenScreenState extends State<AufgabeHinzufuegenScreen> {
   Set<int> _selectedDays = {..._dailyWeekdays};
   final bool _successValue = true;
   DateTime? _dueDate;
+  int? _plannedStartMinute;
+  int? _plannedDurationMinutes;
   late DateTime _startDate;
   String _selectedMissedPolicy = MissedPolicy.none;
   String _selectedMissedConsequence = MissedConsequence.markAsNotDone;
@@ -144,6 +148,8 @@ class _AufgabeHinzufuegenScreenState extends State<AufgabeHinzufuegenScreen> {
     super.initState();
     final template = widget.template;
     if (template != null) {
+      _plannedStartMinute = template.plannedStartMinute;
+      _plannedDurationMinutes = template.plannedDurationMinutes;
       _nameController.text = '${template.name} – Kopie';
       _descriptionController.text = template.beschreibung;
       _questionController.text = template.questionText;
@@ -234,6 +240,8 @@ class _AufgabeHinzufuegenScreenState extends State<AufgabeHinzufuegenScreen> {
         taskType: _selectedTaskType,
         startDate: _startDate,
         dueDate: configurationValidation.configuration.dueDate,
+        plannedStartMinute: _plannedStartMinute,
+        plannedDurationMinutes: _plannedDurationMinutes,
         questionText: _showHabitFields ? _questionController.text : '',
         successValue: _successValue,
         activeWeekdays: _usesSelectedDays ? _selectedDays : _dailyWeekdays,
@@ -502,6 +510,18 @@ class _AufgabeHinzufuegenScreenState extends State<AufgabeHinzufuegenScreen> {
                         },
                       ),
                     ],
+                    CalendarPlanningField(
+                      value: CalendarPlanning(
+                        startMinute: _plannedStartMinute,
+                        durationMinutes: _plannedDurationMinutes,
+                      ),
+                      enabled: !_isSaving,
+                      onChanged:
+                          (value) => setState(() {
+                            _plannedStartMinute = value.startMinute;
+                            _plannedDurationMinutes = value.durationMinutes;
+                          }),
+                    ),
                     if (_showStartDateField) ...[
                       const SizedBox(height: 20),
                       StartDateField(

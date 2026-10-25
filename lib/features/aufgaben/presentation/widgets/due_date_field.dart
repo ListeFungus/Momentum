@@ -37,10 +37,12 @@ class StartDateField extends StatelessWidget {
     required this.startDate,
     required this.onChanged,
     this.enabled = true,
+    this.helperText = 'Ab diesem Datum wird es angezeigt.',
     super.key,
   });
 
   final DateTime startDate;
+  final String helperText;
   final ValueChanged<DateTime> onChanged;
   final bool enabled;
 
@@ -52,7 +54,7 @@ class StartDateField extends StatelessWidget {
 
     return DateSelectionField(
       labelText: 'Startdatum',
-      helperText: 'Ab diesem Datum wird es angezeigt.',
+      helperText: helperText,
       selectedDate: selectedDate,
       emptyText: 'Heute',
       clearTooltip: 'Auf Heute zurücksetzen',

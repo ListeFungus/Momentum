@@ -1,8 +1,35 @@
 # Momentum – Phasenprotokoll der Aufgabenstruktur
 
-Stand: 16. Oktober 2026
+Stand: 22. Oktober 2026
 
 Status: Aufgaben-Konzept, Regeln und Umsetzungshistorie
+
+## 22. Oktober 2026 – Phase 21: ausschließlich #013
+
+Artenwechsel wiederkehrender Aufgaben/Habits mit beiden ausdrücklich gewählten
+Historienumfängen, Sperrmatrix und Schema-25-Protokoll umgesetzt. Historische
+Zuordnung in Listen und Scheduler erhalten; Kalender und #002 regressionsgeprüft.
+212 Tests und gezielte Analyse grün. Kein APK-Build; Gerätenachtest offen.
+[Umsetzung und Prüfnachweis](phase_21_test_improvements/task_type_change_implementation_plan.md).
+
+## 22. Oktober 2026 – Phase 21: ausschließlich #002
+
+Startdatum sicherer reiner Tracker früher/später editierbar. Vorhandene Messwerte
+bleiben mit Datum/Einheit/Definition erhalten; Kalender, Auswertungen, Korrekturen
+und Bündel berücksichtigen die neue Erwartungsgrenze. Terminserien bleiben
+gesperrt. Schema unverändert, kein APK-Build. Prüfnachweis und Gerätecheck im
+[Änderungsdokument](phase_21_test_improvements/implemented_changes.md#paket-002--startdatum-nach-erstellung-bearbeiten).
+
+## 21. Oktober 2026 – Phase 21: Kalender
+
+Kalender K0–K7 umgesetzt: optionale Planungszeiten getrennt von Messwerten,
+Schema 24 mit Historien-/Backup-Kompatibilität, schreibfreie Vorschau statt
+zukünftigem Schedulerlauf, vier Ansichten und persistente Filter. Unabhängige
+offene Einzeltermine sind direkt änderbar; Serien und abhängige/abgeschlossene
+Termine bleiben geschützt. 174 Tests und Analyse grün; APK `1.0.0+4` gebaut
+und Signatur/Version geprüft. Gerätenachtest bleibt offen. Einzelheiten:
+[Kalenderplan](phase_21_test_improvements/calendar_implementation_plan.md),
+[Nachtest](phase_21_test_improvements/calendar_retest.md).
 
 ## Zweck
 

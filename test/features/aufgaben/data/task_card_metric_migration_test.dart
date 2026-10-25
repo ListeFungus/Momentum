@@ -32,6 +32,7 @@ void main() {
 
       final sqlite = sqlite3.open(file.path);
       sqlite.execute('DROP TABLE task_card_metric_preferences');
+      sqlite.execute('DROP TABLE task_type_changes');
       sqlite.execute('PRAGMA user_version = 17');
       sqlite.dispose();
 

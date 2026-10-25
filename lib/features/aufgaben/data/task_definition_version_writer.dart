@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:momentum/core/database/app_database.dart';
 import 'package:uuid/uuid.dart';
+import 'tracking_start_policy.dart';
 
 class TaskDefinitionVersionWriter {
   TaskDefinitionVersionWriter(this._database);
@@ -37,8 +38,8 @@ class TaskDefinitionVersionWriter {
     final nextScheduledDay = DateTime(
       scheduledDate.year,
       scheduledDate.month,
-      scheduledDate.day,
-    ).add(const Duration(days: 1));
+      scheduledDate.day + 1,
+    );
     final version =
         await (_database.select(_database.taskDefinitionVersions)
               ..where(
@@ -58,6 +59,23 @@ class TaskDefinitionVersionWriter {
       return version.id;
     }
 
+    final task =
+        await (_database.select(_database.aufgaben)
+          ..where((t) => t.id.equals(taskId))).getSingle();
+    if (TrackingStartPolicy.isPure(task)) {
+      final first =
+          await (_database.select(_database.taskDefinitionVersions)
+                ..where(
+                  (v) => v.taskId.equals(taskId) & v.supersededAt.isNull(),
+                )
+                ..orderBy([
+                  (v) => OrderingTerm.asc(v.validFrom),
+                  (v) => OrderingTerm.asc(v.versionNumber),
+                ])
+                ..limit(1))
+              .getSingleOrNull();
+      if (first != null) return first.id;
+    }
     return currentVersionId(taskId);
   }
 
@@ -92,6 +110,8 @@ class TaskDefinitionVersionWriter {
             startDate: task.startDate,
             endDate: Value(task.endDate),
             dueDate: Value(task.dueDate),
+            plannedStartMinute: Value(task.plannedStartMinute),
+            plannedDurationMinutes: Value(task.plannedDurationMinutes),
             missedPolicy: Value(task.missedPolicy),
             missedConsequence: Value(task.missedConsequence),
             missedBufferDays: Value(task.missedBufferDays),
@@ -156,6 +176,8 @@ class TaskDefinitionVersionWriter {
         first.startDate == second.startDate &&
         first.endDate == second.endDate &&
         first.dueDate == second.dueDate &&
+        first.plannedStartMinute == second.plannedStartMinute &&
+        first.plannedDurationMinutes == second.plannedDurationMinutes &&
         first.missedPolicy == second.missedPolicy &&
         first.missedConsequence == second.missedConsequence &&
         first.missedBufferDays == second.missedBufferDays &&

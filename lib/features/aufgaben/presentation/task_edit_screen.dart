@@ -1,4 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import '../data/task_type_change_service.dart';
+import 'widgets/task_type_change_dialog.dart';
+import 'package:momentum/features/calendar/data/calendar_planning.dart';
+import 'package:momentum/features/calendar/presentation/calendar_planning_field.dart';
 import 'package:momentum/core/database/app_database.dart';
 import 'package:momentum/features/aufgaben/data/aufgaben_repository.dart';
 import 'package:momentum/features/aufgaben/data/habit_recurrence.dart';
@@ -37,10 +42,53 @@ class TaskEditScreen extends StatefulWidget {
   final ProjectRepository projectRepository;
 
   @override
-  State<TaskEditScreen> createState() => _TaskEditScreenState();
+  State<TaskEditScreen> createState() => _TaskEditLoaderState();
 }
 
-class _TaskEditScreenState extends State<TaskEditScreen> {
+class _TaskEditLoaderState extends State<TaskEditScreen> {
+  late final Future<Aufgabe> current = widget.repository.currentTask(
+    widget.task.id,
+  );
+  @override
+  Widget build(BuildContext context) => FutureBuilder<Aufgabe>(
+    future: current,
+    builder: (context, snapshot) {
+      if (snapshot.hasError) {
+        return Scaffold(
+          appBar: AppBar(),
+          body: const Center(
+            child: Text(
+              'Aufgabe konnte nicht geladen werden. Bitte erneut öffnen.',
+            ),
+          ),
+        );
+      }
+      if (!snapshot.hasData) {
+        return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      }
+      return _TaskEditForm(
+        task: snapshot.data!,
+        repository: widget.repository,
+        projectRepository: widget.projectRepository,
+      );
+    },
+  );
+}
+
+class _TaskEditForm extends StatefulWidget {
+  const _TaskEditForm({
+    required this.task,
+    required this.repository,
+    required this.projectRepository,
+  });
+  final Aufgabe task;
+  final AufgabenRepository repository;
+  final ProjectRepository projectRepository;
+  @override
+  State<_TaskEditForm> createState() => _TaskEditScreenState();
+}
+
+class _TaskEditScreenState extends State<_TaskEditForm> {
   static const _captureModeLabels = {
     TaskCaptureMode.checkbox: 'Erledigt / Offen',
     TaskCaptureMode.threeState: 'Ja / Nein',
@@ -59,6 +107,8 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
   late Set<int> _selectedDays;
   late DateTime _startDate;
   DateTime? _dueDate;
+  late CalendarPlanning _calendarPlanning;
+  bool _calendarEdited = false;
   late String _selectedMissedPolicy;
   late String _selectedMissedConsequence;
   late int _missedBufferDays;
@@ -140,6 +190,10 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
             .toSet();
     _startDate = widget.task.startDate;
     _dueDate = widget.task.dueDate;
+    _calendarPlanning = CalendarPlanning(
+      startMinute: widget.task.plannedStartMinute,
+      durationMinutes: widget.task.plannedDurationMinutes,
+    );
     _selectedMissedPolicy = widget.task.missedPolicy;
     _selectedMissedConsequence = widget.task.missedConsequence;
     _missedBufferDays = widget.task.missedBufferDays;
@@ -164,7 +218,28 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
             : widget.task.valueUnitKey;
     _selectedValueUnitLabel = widget.task.valueUnitLabel;
     _sanitizeSelections();
+    _initialTypeChangeForm = _typeChangeFormSignature;
+    widget.repository.startDateBlockedReason(widget.task.id).then((reason) {
+      if (mounted) setState(() => _startDateBlockedReason = reason);
+    });
+    widget.repository.watchPendingDefinitionChanges(widget.task.id).first.then((
+      changes,
+    ) {
+      final change =
+          changes
+              .where(
+                (c) => c.groupKey == TaskPendingDefinitionChangeGroup.calendar,
+              )
+              .firstOrNull;
+      if (mounted && !_calendarEdited && change != null) {
+        setState(
+          () => _calendarPlanning = CalendarPlanning.decode(change.payloadJson),
+        );
+      }
+    });
   }
+
+  String? _startDateBlockedReason = 'Startfreigabe wird geprüft …';
 
   @override
   void dispose() {
@@ -228,7 +303,8 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
           taskType: _selectedTaskType,
           startDate: _startDate,
           dueDate: validation.configuration.dueDate,
-          questionText: _isHabit ? _questionController.text : '',
+          calendarPlanning: _calendarEdited ? _calendarPlanning : null,
+          questionText: _questionController.text,
           successValue: true,
           activeWeekdays: _usesSelectedDays ? _selectedDays : _dailyWeekdays,
           recurrence: _selectedRecurrence,
@@ -287,6 +363,95 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
         setState(() {
           _isSaving = false;
         });
+      }
+    }
+  }
+
+  late final String _initialTypeChangeForm;
+  String get _typeChangeFormSignature => jsonEncode([
+    _nameController.text,
+    _descriptionController.text,
+    _questionController.text,
+    _selectedProjectId,
+    _selectedTaskType,
+    _startDate.toIso8601String(),
+    _dueDate?.toIso8601String(),
+    _selectedRecurrence,
+    (_selectedDays.toList()..sort()),
+    _selectedMissedPolicy,
+    _selectedMissedConsequence,
+    _missedBufferDays,
+    _selectedPostBufferBehavior,
+    _maxCarryoverCount,
+    _selectedGoalType,
+    _goalValue,
+    _goalWindowDays,
+    _selectedGoalPeriod,
+    _selectedGoalPeriodAlignment,
+    _selectedValueType,
+    _selectedValueCommitment,
+    _selectedValueUnitKey,
+    _selectedValueUnitLabel,
+    _calendarEdited,
+  ]);
+
+  Future<void> _changeType() async {
+    if (_typeChangeFormSignature != _initialTypeChangeForm) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Bitte die ungespeicherten Formularänderungen zuerst speichern oder durch Schließen verwerfen.',
+          ),
+        ),
+      );
+      return;
+    }
+    try {
+      final preview = await widget.repository.taskTypeChanges.preview(
+        widget.task.id,
+      );
+      if (!mounted) return;
+      // The editor itself may already have become stale before opening the dialog.
+      if (preview.task.toJson().toString() != widget.task.toJson().toString()) {
+        throw StateError(
+          'Die Aufgabe wurde inzwischen geändert. Bitte Bearbeiten neu öffnen.',
+        );
+      }
+      final scope = await showDialog<TaskTypeChangeScope>(
+        context: context,
+        builder: (_) => TaskTypeChangeDialog(preview: preview),
+      );
+      if (scope == null || !mounted) return;
+      setState(() => _isSaving = true);
+      await widget.repository.taskTypeChanges.change(
+        taskId: widget.task.id,
+        targetType: preview.targetType,
+        scope: scope,
+        expectedRevision: preview.token,
+      );
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(
+          builder:
+              (_) => TaskEditScreen(
+                task: widget.task,
+                repository: widget.repository,
+                projectRepository: widget.projectRepository,
+              ),
+        ),
+      );
+    } catch (error) {
+      if (mounted) {
+        setState(() => _isSaving = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              error is StateError
+                  ? error.message.toString()
+                  : 'Art konnte nicht geändert werden. Bitte neu laden.',
+            ),
+          ),
+        );
       }
     }
   }
@@ -507,14 +672,14 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
     final projectId = _selectedProjectId.isEmpty ? null : _selectedProjectId;
     final activeDays = _usesSelectedDays ? _selectedDays : _dailyWeekdays;
 
-    return widget.task.name == _nameController.text.trim() &&
+    return !_calendarEdited &&
+        widget.task.name == _nameController.text.trim() &&
         widget.task.beschreibung == _descriptionController.text.trim() &&
         widget.task.projectId == projectId &&
         widget.task.taskType == _selectedTaskType &&
         _dateOnly(widget.task.startDate) == _dateOnly(_startDate) &&
         widget.task.dueDate == configuration.dueDate &&
-        widget.task.questionText ==
-            (_isHabit ? _questionController.text : '') &&
+        widget.task.questionText == _questionController.text &&
         widget.task.activeWeekdays == _encodeWeekdays(activeDays) &&
         widget.task.recurrence == _selectedRecurrence &&
         widget.task.missedPolicy == _selectedMissedPolicy &&
@@ -699,6 +864,11 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
                       enabled: false,
                       onChanged: (_) {},
                     ),
+                    TextButton.icon(
+                      onPressed: _isSaving ? null : _changeType,
+                      icon: const Icon(Icons.swap_horiz),
+                      label: const Text('Art ändern'),
+                    ),
                     if (_isHabit) ...[
                       const SizedBox(height: 20),
                       TextFormField(
@@ -724,13 +894,31 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
                     const SizedBox(height: 20),
                     StartDateField(
                       startDate: _startDate,
-                      enabled: false,
-                      onChanged: (_) {},
+                      helperText:
+                          _startDateBlockedReason == null
+                              ? 'Beginn der erwarteten Messungen.'
+                              : 'Startdatum bleibt unverändert.',
+                      enabled: !_isSaving && _startDateBlockedReason == null,
+                      onChanged: (value) => setState(() => _startDate = value),
+                    ),
+                    Text(
+                      _startDateBlockedReason ??
+                          'Vorhandene Messwerte bleiben erhalten. Das Startdatum bestimmt, ab wann Messungen erwartet werden.',
+                    ),
+                    CalendarPlanningField(
+                      value: _calendarPlanning,
+                      enabled: !_isSaving,
+                      recurring: _selectedRecurrence != HabitRecurrence.none,
+                      onChanged:
+                          (value) => setState(() {
+                            _calendarPlanning = value;
+                            _calendarEdited = true;
+                          }),
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'Startdatum und Aufgabenart sind nach der Erstellung '
-                      'gesperrt. Eine eigenständige Kopie beginnt standardmäßig heute.',
+                      'Die Aufgabenart wird separat über „Art ändern“ gewechselt. '
+                      'Eine eigenständige Kopie beginnt standardmäßig heute.',
                     ),
                     const SizedBox(height: 20),
                     HabitRhythmField(

@@ -1,9 +1,12 @@
 import 'package:drift/drift.dart';
+import 'package:momentum/features/calendar/data/calendar_planning.dart';
+import 'package:momentum/features/aufgaben/data/task_entry_status.dart';
 import 'package:momentum/core/database/app_database.dart';
 import 'package:momentum/features/aufgaben/data/task_definition_change.dart';
 import 'package:momentum/features/aufgaben/data/task_definition_version_writer.dart';
 import 'package:momentum/features/aufgaben/data/task_pending_definition_changes_table.dart';
 import 'package:uuid/uuid.dart';
+import 'tracking_start_policy.dart';
 
 class TaskDefinitionResolver {
   TaskDefinitionResolver(this._database, {DateTime Function()? now})
@@ -33,7 +36,20 @@ class TaskDefinitionResolver {
   }
 
   Future<Aufgabe> taskForDate(Aufgabe current, DateTime date) async {
-    final version = await versionForDate(current.id, date);
+    var version = await versionForDate(current.id, date);
+    if (version == null && TrackingStartPolicy.isPure(current)) {
+      version =
+          await (_database.select(_database.taskDefinitionVersions)
+                ..where(
+                  (v) => v.taskId.equals(current.id) & v.supersededAt.isNull(),
+                )
+                ..orderBy([
+                  (v) => OrderingTerm.asc(v.validFrom),
+                  (v) => OrderingTerm.asc(v.versionNumber),
+                ])
+                ..limit(1))
+              .getSingleOrNull();
+    }
     return version == null ? current : taskFromVersion(current, version);
   }
 
@@ -63,6 +79,8 @@ class TaskDefinitionResolver {
       startDate: _dateOnly(version.startDate),
       endDate: Value(version.endDate),
       dueDate: Value(version.dueDate),
+      plannedStartMinute: Value(version.plannedStartMinute),
+      plannedDurationMinutes: Value(version.plannedDurationMinutes),
       missedPolicy: version.missedPolicy,
       missedConsequence: version.missedConsequence,
       missedBufferDays: version.missedBufferDays,
@@ -113,6 +131,9 @@ class TaskDefinitionResolver {
     required DateTime effectiveDate,
     required String payloadJson,
   }) async {
+    if (group == TaskPendingDefinitionChangeGroup.calendar) {
+      CalendarPlanning.decode(payloadJson);
+    }
     await _ensureWritable(taskId);
     final normalizedDate = _dateOnly(effectiveDate);
     await _database.transaction(() async {
@@ -217,6 +238,13 @@ class TaskDefinitionResolver {
               postBufferBehavior: payload.postBufferBehavior,
               maxCarryoverCount: payload.maxCarryoverCount,
             );
+          } else if (change.groupKey ==
+              TaskPendingDefinitionChangeGroup.calendar) {
+            final payload = CalendarPlanning.decode(change.payloadJson);
+            task = task.copyWith(
+              plannedStartMinute: Value(payload.startMinute),
+              plannedDurationMinutes: Value(payload.durationMinutes),
+            );
           } else if (change.groupKey == TaskPendingDefinitionChangeGroup.goal) {
             final payload = TaskGoalChangePayload.decode(change.payloadJson);
             task = task.copyWith(
@@ -235,11 +263,34 @@ class TaskDefinitionResolver {
           await (_database.update(_database.aufgaben)..where(
             (candidate) => candidate.id.equals(task.id),
           )).write(_taskCompanion(task, updatedAt: now));
-          await _writer.createVersion(
+          final versionId = await _writer.createVersion(
             task,
             validFrom: _dateOnly(first.effectiveDate),
             createdAt: now,
           );
+          if (changes.any(
+            (change) =>
+                change.groupKey == TaskPendingDefinitionChangeGroup.calendar,
+          )) {
+            final start =
+                _dateOnly(first.effectiveDate).isAfter(_dateOnly(referenceDate))
+                    ? _dateOnly(first.effectiveDate)
+                    : _dateOnly(referenceDate);
+            await (_database.update(_database.taskEntries)..where(
+              (entry) =>
+                  entry.taskId.equals(task.id) &
+                  entry.status.equals(TaskEntryStatus.pending) &
+                  entry.scheduledDate.isBiggerOrEqualValue(start),
+            )).write(
+              TaskEntriesCompanion.custom(
+                plannedStartMinute: Variable(task.plannedStartMinute),
+                plannedDurationMinutes: Variable(task.plannedDurationMinutes),
+                taskDefinitionVersionId: Variable(versionId),
+                revision: const CustomExpression<int>('revision + 1'),
+                updatedAt: Variable(now),
+              ),
+            );
+          }
         }
         await (_database.update(_database.taskPendingDefinitionChanges)..where(
           (candidate) => candidate.id.isIn(changes.map((item) => item.id)),
@@ -270,6 +321,8 @@ class TaskDefinitionResolver {
 AufgabenCompanion _taskCompanion(Aufgabe task, {required DateTime updatedAt}) =>
     AufgabenCompanion(
       activeWeekdays: Value(task.activeWeekdays),
+      plannedStartMinute: Value(task.plannedStartMinute),
+      plannedDurationMinutes: Value(task.plannedDurationMinutes),
       recurrence: Value(task.recurrence),
       missedPolicy: Value(task.missedPolicy),
       missedConsequence: Value(task.missedConsequence),
@@ -285,6 +338,8 @@ AufgabenCompanion _taskCompanion(Aufgabe task, {required DateTime updatedAt}) =>
     );
 
 bool _sameAppliedDefinition(Aufgabe first, Aufgabe second) =>
+    first.plannedStartMinute == second.plannedStartMinute &&
+    first.plannedDurationMinutes == second.plannedDurationMinutes &&
     first.activeWeekdays == second.activeWeekdays &&
     first.recurrence == second.recurrence &&
     first.missedPolicy == second.missedPolicy &&

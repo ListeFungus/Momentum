@@ -712,6 +712,9 @@ class _PreparedCorrection {
 
 class _EntryState {
   const _EntryState({
+    this.plannedStartMinute,
+    this.plannedDurationMinutes,
+    this.hasPlanning = true,
     required this.status,
     required this.respondedAt,
     required this.finalizedAt,
@@ -730,6 +733,8 @@ class _EntryState {
 
   factory _EntryState.from(TaskEntry entry, TaskEntryValue? value) =>
       _EntryState(
+        plannedStartMinute: entry.plannedStartMinute,
+        plannedDurationMinutes: entry.plannedDurationMinutes,
         status: entry.status,
         respondedAt: entry.respondedAt,
         finalizedAt: entry.finalizedAt,
@@ -749,6 +754,9 @@ class _EntryState {
   factory _EntryState.decode(String source) {
     final json = jsonDecode(source) as Map<String, dynamic>;
     return _EntryState(
+      plannedStartMinute: json['plannedStartMinute'] as int?,
+      plannedDurationMinutes: json['plannedDurationMinutes'] as int?,
+      hasPlanning: json.containsKey('plannedStartMinute'),
       status: json['status'] as String,
       respondedAt: _decodeDate(json['respondedAt']),
       finalizedAt: _decodeDate(json['finalizedAt']),
@@ -769,6 +777,9 @@ class _EntryState {
     );
   }
 
+  final int? plannedStartMinute;
+  final int? plannedDurationMinutes;
+  final bool hasPlanning;
   final String status;
   final DateTime? respondedAt;
   final DateTime? finalizedAt;
@@ -785,6 +796,8 @@ class _EntryState {
   final _ValueState? value;
 
   String encode() => jsonEncode({
+    'plannedStartMinute': plannedStartMinute,
+    'plannedDurationMinutes': plannedDurationMinutes,
     'status': status,
     'respondedAt': respondedAt?.toIso8601String(),
     'finalizedAt': finalizedAt?.toIso8601String(),
@@ -806,6 +819,10 @@ class _EntryState {
     required int revision,
     required String fallbackPlanningOrigin,
   }) => TaskEntriesCompanion(
+    plannedStartMinute:
+        hasPlanning ? Value(plannedStartMinute) : const Value.absent(),
+    plannedDurationMinutes:
+        hasPlanning ? Value(plannedDurationMinutes) : const Value.absent(),
     status: Value(status),
     updatedAt: Value(updatedAt),
     respondedAt: Value(respondedAt),
@@ -906,6 +923,8 @@ class _ValueState {
 }
 
 TaskEntriesCompanion _entryCompanion(TaskEntry entry) => TaskEntriesCompanion(
+  plannedStartMinute: Value(entry.plannedStartMinute),
+  plannedDurationMinutes: Value(entry.plannedDurationMinutes),
   status: Value(entry.status),
   updatedAt: Value(entry.updatedAt),
   respondedAt: Value(entry.respondedAt),

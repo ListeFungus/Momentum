@@ -16,6 +16,17 @@ später ausgewertet wird. Habits verwenden dieselbe Grundstruktur.
 Eine Instanz ist ein einzelner geplanter Eintrag einer Aufgabe für einen
 bestimmten Tag.
 
+## Kalendervorkommen und Planungszeit
+
+Ein Kalendervorkommen ist entweder eine gespeicherte Instanz oder eine rein
+lesend berechnete Vorschau. Vorschauen erzeugen keine Instanzen und lösen keine
+Missed-Konsequenzen aus. Ein unbestimmter Folgetermin ist kein festes Vorkommen;
+eine +1?-Markierung benennt höchstens dessen frühesten begründbaren Tag.
+
+Planungszeit bezeichnet optionale lokale Startminute und Dauer, getrennt von
+gemessenen Werten und tatsächlichem Abschluss. Im Kalender V1 ist der Planungstag
+zugleich der Fälligkeitstag; eine unabhängige zusätzliche Deadline gibt es nicht.
+
 ## Pending
 
 `pending` bedeutet: Die Instanz ist noch offen und hat noch keinen

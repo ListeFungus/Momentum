@@ -30,6 +30,7 @@ void main() {
       final raw = sqlite3.open(file.path);
       raw.execute('DROP TABLE card_expansion_preferences');
       raw.execute('DROP TABLE card_display_settings');
+      raw.execute('DROP TABLE task_type_changes');
       raw.execute('PRAGMA user_version = 22');
       raw.dispose();
       db = AppDatabase.forTesting(NativeDatabase(file));

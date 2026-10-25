@@ -1,12 +1,78 @@
 # Momentum – Phase 21: Bereits umgesetzte Änderungen
 
-Stand: 16. Oktober 2026
+Stand: 22. Oktober 2026
 
-Status: Beide Pakete automatisiert geprüft; Gerätenachtest des Kartenpakets offen
+Status: #013, #002, bestehende Pakete und Kalender automatisiert geprüft; Gerätenachtests separat offen. Bestehende Kalender-APK 1.0.0+4 enthält #002/#013 nicht.
 
 Dieses Dokument unterscheidet das aus Phase 20 übernommene erste Paket
-(`7263ea9`) und das anschließend hier ausgearbeitete Kartenpaket. Die weitere
+(`7263ea9`), das Kartenpaket und den Kalender. Die weitere
 Themenplanung steht im [Arbeitsplan](test_improvements_plan.md).
+
+## Paket #013 – Aufgabenart Aufgabe ↔ Habit ändern
+
+Am 22. Oktober A0–A5 umgesetzt. **212 Tests bestanden** im vollständigen Lauf
+(65 Sekunden), gezielte Analyse von 17 Dateien ohne Befunde.
+
+- Bearbeiten → Aufgabenart → **Art ändern**, Umfang ausdrücklich auswählen.
+  Vorhandene Einträge behalten wahlweise ihre Art oder werden rückwirkend
+  umgeordnet. Identität, Werte, Rhythmus, Ziele, Kalenderzeiten und #002 bleiben erhalten.
+- Sperrmatrix im Schreibpfad und Dialog; aktuelles Laden auch von historischen
+  Karten, Schutz ungespeicherter Formulare, veralteter Vorschauen und atomarer Rollback.
+- Historische Typfilter in Listen/Scheduler; aktueller Projektbestand getrennt
+  von historischer Eintragszuordnung. Detailhinweis auf letzten Artenwechsel.
+- Schema 25: Artenwechselprotokoll, 20 Tabellen im Backup, Restore 22–25.
+  Kalenderlesen bleibt schreibfrei; keine neue APK und kein anderes Paket umgesetzt.
+
+Prüfdetails und **noch offener Gerätenachtest** im
+[#013-Umsetzungsplan](task_type_change_implementation_plan.md#prüfnachweis-und-gerätenachtest--22-oktober-2026).
+
+## Paket #002 – Startdatum nach Erstellung bearbeiten
+
+Am 22. Oktober implementiert und automatisiert geprüft: **184 Tests bestanden**
+mit `flutter test --no-pub --concurrency=2 --timeout=2m` (63 Sekunden).
+Gezielte Analyse der 11 betroffenen/neuen Dateien: keine Befunde.
+Neun neue #002-Tests decken Daten-/Formularfälle und laufende Streams ab.
+Ein vorhandener Zielhistorientest erhielt ausschließlich eine kalenderfeste
+Datumsrechnung für den Test über die Zeitumstellung; keine Statuszielregel geändert.
+
+- Freigegeben: reine Werttracker ohne Missed-Policy/Abschlussabstände, auch mit
+  täglicher Anzeige oder Wertziel. Aktuelle, historische und vorgemerkte Regeln
+  sowie vorhandene Instanzen werden vor dem Schreiben geprüft.
+- Terminserien, frühere verpflichtende Planung, widersprüchliche End-/Fälligkeits-
+  grenzen und Papierkorb bleiben gesperrt. Gleichzeitige Formularänderungen
+  umgehen die Sperre nicht; ein abgewiesenes Update bleibt atomar ohne Teilstand.
+- Neue Startgrenze gilt für erwartete Messungen. Vorhandene Werte behalten ID,
+  Datum, Einheit und Definition; Korrektur/Undo bleiben möglich. Frühere neue
+  Nachträge nutzen die früheste Definition, keine nachträgliche Messkonfiguration.
+- Kalender, Gesamter Verlauf, feste/custom Zeitfenster und Bündel (inklusive
+  Tagversatz/Teilmessung) behalten echte Messwerte vor dem neuen Start. Keine
+  künstlichen fehlenden Tage davor; Pausen/Ende und Bündelgültigkeit bleiben gültig.
+- Schema 24 unverändert; Export/Restore umfasst weiterhin die gesamte Historie.
+  Kein APK-Build, keine Umsetzung von #013 oder anderen Paketen.
+
+Technische Ausführung: Bei identischem Versionszeitpunkt entscheidet zusätzlich
+die Versionsnummer über das aktuelle Ziel. Wertauswertungsstreams reagieren auch
+auf Aufgaben-/Definitions-/Pausenänderungen, nicht nur Messwertänderungen.
+
+**Kurzer Gerätenachtest (noch offen):** Gewichtstracker bearbeiten → Beginn früher
+setzen → älteren Wert erfassen. Beginn wieder hinter den Wert setzen: Verlauf,
+passendes Zeitfenster und Kalender müssen ihn behalten, leere Tage davor dagegen
+nicht als erwartet zählen. Alten Wert korrigieren/Undo prüfen. Bei verpflichtender
+Terminserie muss das Startfeld mit Sperrgrund deaktiviert bleiben. Abbrechen
+ändert nichts. Die vorhandene Kalender-APK enthält #002 noch nicht.
+
+## Kalender #018/#017/T20-01 – K0–K7
+
+Aktueller zusätzlicher Stand: **Kalender K0–K7** am 21. Oktober umgesetzt,
+Schema 24 und APK `1.0.0+4`, 174 Tests und Analyse grün. Eigener Menüpunkt mit
+Tag/Woche/Monat/Liste, standardmäßig nur Aufgaben, persistente Filter,
+schreibfreie Zukunft und getrennte Überfällig-/Undatiert-/Unbestimmt-Listen.
+Optionale Planungsdauer/Start/Ende sind keine Messwerte; Serienänderungen ab
+morgen, freie offene Einzeltermine direkt per Dialog/Drag/Resize. Sperren werden
+transaktional erzwungen. Schema-22/23-Sicherungen bleiben importierbar.
+Details und Grenzen: [Kalenderplan](calendar_implementation_plan.md).
+Artefakt und offene manuelle Abnahme: [Kalender-Nachtest](calendar_retest.md).
+Keine Umsetzung weiterer Phase-21-Themen und kein Store-Release.
 
 ## Kartenpaket #003/#015 – Optionen und kompakte Karten
 

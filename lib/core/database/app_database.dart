@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:momentum/features/aufgaben/data/task_type_changes_table.dart';
+import 'package:momentum/features/calendar/data/calendar_settings_table.dart';
 import 'package:momentum/core/settings/card_display_tables.dart';
 
 import 'package:drift/drift.dart';
@@ -43,6 +45,8 @@ part 'app_database.g.dart';
     ProjectDeletionBatchItems,
     CardDisplaySettings,
     CardExpansionPreferences,
+    CalendarSettings,
+    TaskTypeChanges,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -53,12 +57,41 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.withExecutor(super.e);
 
   @override
-  int get schemaVersion => 23;
+  int get schemaVersion => 25;
 
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
       onUpgrade: (migrator, from, to) async {
+        if (from < 25) {
+          await migrator.createTable(taskTypeChanges);
+        }
+        // Older TableMigration steps use today's table definition. Introduce
+        // nullable calendar columns before those steps, otherwise SQLite's
+        // quoted-identifier fallback can copy a column name as a text literal.
+        if (from < 24) {
+          for (final table in [
+            'aufgaben',
+            'task_entries',
+            'task_definition_versions',
+          ]) {
+            final columns =
+                await customSelect('PRAGMA table_info("$table")').get();
+            if (columns.isEmpty) continue;
+            final names =
+                columns.map((row) => row.read<String>('name')).toSet();
+            for (final column in [
+              'planned_start_minute',
+              'planned_duration_minutes',
+            ]) {
+              if (!names.contains(column)) {
+                await customStatement(
+                  'ALTER TABLE "$table" ADD COLUMN "$column" INTEGER NULL',
+                );
+              }
+            }
+          }
+        }
         if (from < 2) {
           await customStatement(
             'ALTER TABLE aufgaben '
@@ -234,6 +267,62 @@ class AppDatabase extends _$AppDatabase {
         if (from < 23) {
           await migrator.createTable(cardDisplaySettings);
           await migrator.createTable(cardExpansionPreferences);
+        }
+        if (from < 24) {
+          await _addColumnIfMissing(
+            migrator,
+            'aufgaben',
+            aufgaben,
+            aufgaben.plannedStartMinute,
+          );
+          await _addColumnIfMissing(
+            migrator,
+            'aufgaben',
+            aufgaben,
+            aufgaben.plannedDurationMinutes,
+          );
+          await _addColumnIfMissing(
+            migrator,
+            'task_entries',
+            taskEntries,
+            taskEntries.plannedStartMinute,
+          );
+          await _addColumnIfMissing(
+            migrator,
+            'task_entries',
+            taskEntries,
+            taskEntries.plannedDurationMinutes,
+          );
+          await _addColumnIfMissing(
+            migrator,
+            'task_definition_versions',
+            taskDefinitionVersions,
+            taskDefinitionVersions.plannedStartMinute,
+          );
+          await _addColumnIfMissing(
+            migrator,
+            'task_definition_versions',
+            taskDefinitionVersions,
+            taskDefinitionVersions.plannedDurationMinutes,
+          );
+          final hasPendingChanges =
+              (await customSelect(
+                    "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'task_pending_definition_changes'",
+                  ).get())
+                  .isNotEmpty;
+          if (hasPendingChanges) {
+            await migrator.alterTable(
+              TableMigration(taskPendingDefinitionChanges),
+            );
+          } else {
+            await migrator.createTable(taskPendingDefinitionChanges);
+          }
+          if ((await customSelect(
+                "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'calendar_settings'",
+              ).get())
+              .isEmpty) {
+            await migrator.createTable(calendarSettings);
+          }
         }
       },
       beforeOpen: (details) async {

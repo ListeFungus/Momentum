@@ -4,6 +4,7 @@ import 'package:momentum/features/aufgaben/data/aufgaben_tabelle.dart';
 class TaskPendingDefinitionChangeGroup {
   static const schedule = 'schedule';
   static const goal = 'goal';
+  static const calendar = 'calendar';
 }
 
 class TaskPendingDefinitionChangeState {
@@ -41,7 +42,7 @@ class TaskPendingDefinitionChanges extends Table {
 
   @override
   List<String> get customConstraints => [
-    "CHECK (group_key IN ('schedule', 'goal'))",
+    "CHECK (group_key IN ('schedule', 'goal', 'calendar'))",
     "CHECK (state IN ('pending', 'applied', 'cancelled'))",
     'CHECK (payload_version >= 1)',
   ];

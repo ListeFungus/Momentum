@@ -1,8 +1,8 @@
 # Momentum – Phase 21: Arbeitsplan für Testergebnisse und Verbesserungen
 
-Stand: 16. Oktober 2026
+Stand: 25. Oktober 2026
 
-Status: Aktiv; #003/#015 implementiert, Gerätenachtest offen; #002 zur Umsetzung vorbereitet
+Status: Aktiv; #013 A0–A5 implementiert, 212 Tests grün und gezielte Analyse ohne Befunde. Kalender und #002 erhalten. Gerätenachtests offen; keine neue APK für #002/#013.
 
 ## Ziel und Quellen
 
@@ -26,14 +26,15 @@ Ursprung im Masterplan; hier stehen ihre konkreten Änderungspakete und der Stat
 
 | Bereich | Stand |
 |---|---|
-| Android-App | APK `1.0.0+3` am 16. Oktober gebaut; Gerätenachtest offen. Installierte Version `1.0.0+2` und externer Export zuvor bestätigt |
-| Daten | Lokale Drift-Datenbank; Kartenpaket hebt Schema 22 auf 23 an. Keine aktive Cloud-Synchronisierung |
-| Datensicherung #014 | Vollständiges Exportieren/Ersetzen; Format 1, maximal 50 MB. Schema 23 exportiert 18 Tabellen einschließlich Kartenpräferenzen; Import von Schema 22 und 23 möglich. Lesbarer Analyseexport offen |
+| Android-App | Kalender-APK `1.0.0+4` am 21. Oktober gebaut; Manifest/Signatur geprüft, Gerätenachtest offen. Installierte Version `1.0.0+2` und externer Export zuvor bestätigt |
+| Daten | Lokale Drift-Datenbank; Kalender hebt Schema 23 auf 24 an. Keine aktive Cloud-Synchronisierung |
+| Datensicherung #014 | Vollständiges Exportieren/Ersetzen; Format 1, maximal 50 MB. Schema 25 exportiert 20 Tabellen einschließlich Kalenderoptionen und Artenwechselprotokoll; Import von Schema 22–25 möglich. Lesbarer Analyseexport offen |
 | Datumsauswahl #001 | Umgesetzt; vorläufig heute/Vergangenheit. Zukunftsnavigation nach bestätigter Zwischenlösung gesperrt |
 | Tagesdiagramm #007 | Umgesetzt: sieben Tage mit erledigten Aufgaben und Habits, ohne reine Tracker; keine Zählung geplanter Aufgaben |
-| Abnahme | 156 Tests bestanden, Analyse ohne Befunde, Standards-/Spec-Review ohne relevante Findings. Nachtest von Version `1.0.0+3` offen; bisherige Gerätebestätigung betrifft Version `1.0.0+2` und Export nach Drive |
+| Abnahme | Kalenderstand: 174 Tests bestanden, Analyse ohne Befunde. Gerätebestätigung betrifft weiterhin nur Version `1.0.0+2` und Export nach Drive. Kalender-Gerätenachtest bleibt offen |
 | Code-Referenz | Erstes Paket `7263ea9`; Kartenpaket als anschließende Änderung am 16. Oktober umgesetzt |
 | Karten #003/#015 | Implementiert und automatisiert geprüft; Einstellungen unter Optionen → Kartenanzeige |
+| Kalender #018/#017/T20-01 | Menü → Kalender: vier Ansichten, sichere Zukunft, Zeitplanung und direkte Bearbeitung freier Einzeltermine. Automatisiert geprüft; APK bereit, Gerätenachtest siehe Kalender-Nachtestdokument |
 | Übrige Themen | Nicht umgesetzt beziehungsweise noch nicht entschieden; Einzelheiten unten |
 
 ## Arbeitsweise für die laufende Ausarbeitung
@@ -114,9 +115,16 @@ Wesentliche Verbindungen für spätere Pakete:
 Google Drive exportierte Sicherungsdatei. Keine Prüfung der Datei durch den Agenten
 und keine bestätigte manuelle Wiederherstellung.
 
-**Aktuelles Planungsthema:** #013, Aufgabenart Aufgabe ↔ Habit ändern.
-#002 ist fachlich geklärt und technisch zur Umsetzung vorbereitet; auf Wunsch
-des Nutzers wird zunächst mit der Planung weiterer Punkte fortgefahren.
+**Aktuelles Umsetzungsthema:** Kalenderfunktion #018 einschließlich geplanter
+Dauer #017 und sicherer Zukunftsvorschau T20-01. K0–K7 sind implementiert;
+174 Tests und Analyse sind grün. APK-Nachweis und Nachtest stehen in
+[calendar_retest.md](calendar_retest.md); Gerätenachtest bleibt offen.
+Maßgeblich sind das
+[Kalenderkonzept V0.4](../phase_20_private_test/calendar_concept.md) und der
+[Kalender-Umsetzungsplan](calendar_implementation_plan.md).
+#013 ist gemäß [Umsetzungsauftrag A0–A5](task_type_change_implementation_plan.md)
+implementiert und automatisiert geprüft; dort stehen Prüfnachweis und offener
+Gerätenachtest. #002 ist erhalten. Keine neue APK erstellt.
 #003/#015 einschließlich Optionsseite ist implementiert und automatisiert
 geprüft; der kurze Gerätenachtest für Version `1.0.0+3` bleibt separat offen.
 
@@ -125,7 +133,7 @@ geprüft; der kurze Gerätenachtest für Version `1.0.0+3` bleibt separat offen.
 | Schritt | Inhalt | Status |
 |---|---|---|
 | 21.1 | Testergebnisse übernehmen, priorisieren, bereits Erledigtes abgrenzen | erfolgt; fortlaufend ergänzen |
-| 21.2 | Konzept und Grenzen des nächsten ausgewählten Themas klären | für #003/#015 geklärt; #002 fachlich geklärt und technisch vorbereitet |
+| 21.2 | Konzept und Grenzen des nächsten ausgewählten Themas klären | für #003/#015 geklärt; #002 umgesetzt und automatisiert geprüft |
 | 21.3 | Umsetzungsauftrag mit Datenregeln, Abnahmekriterien und Nicht-Zielen festhalten | erstes Paket und #003/#015 dokumentiert |
 | 21.4 | Bestätigte Pakete umsetzen und angemessen automatisiert prüfen | #001/#007, Backup-Anteil #014 und #003/#015 umgesetzt und geprüft; lesbarer Export #014 offen |
 | 21.5 | Auf dem Handy nachtesten, Restpunkte aktualisieren | Version `1.0.0+2` und Export nach Drive bestätigt; Kartenpaket `1.0.0+3` noch offen, Beobachtungen in Phase 20 |
@@ -141,19 +149,20 @@ alle Ideen vor Veröffentlichung umzusetzen.
 | Paket | Quellen | Stand / Vorschlag | Vor Umsetzung wesentlich zu klären |
 |---|---|---|---|
 | Abnahme des ersten Pakets | #014, #001, #007 | Implementiert; Update und Export nach Drive bestätigt | Bestandsprüfung und Datum/Diagramm noch nicht ausdrücklich bestätigt; manueller Restore-Test optional gemäß Nachtestanleitung |
-| Sichere Zukunftsvorschau | T20-01, Bezug #018 | Offenes technisches Folgepaket; Schutzmaßnahme aktiv | Vorschau von Terminfortschreibung trennen: keine vorzeitigen Missed-Konsequenzen oder Definitionsänderungen; Umfang und Leistungsgrenzen festlegen |
+| Sichere Zukunftsvorschau | T20-01, Bezug #018 | Im separaten Kalender implementiert und schreibfrei geprüft | Normale Aufgaben-Tagesnavigation bleibt auf heute/Vergangenheit begrenzt; Kalender-Projektion erzeugt keine Instanzen |
 | Kompakte/einklappbare Karten | #003 + #015 | Implementiert und geprüft; Gerätenachtest offen | Regeln, Datenhaltung und Abnahme im Paketabschnitt unten |
-| Startdatum nach Erstellung bearbeiten | #002 | Fachlich geklärt, Umsetzung vorbereitet | Sichere reine Tracker früher/später beginnen lassen; Werte und Korrekturen erhalten, Auswertungsgrenzen anpassen; echte Terminserien bleiben gesperrt. Umsetzung und Prüffälle im Paketabschnitt |
-| Aufgabenart Aufgabe ↔ Habit ändern | #013 | Konvertierung statt Neuanlage gewünscht; derzeit gesperrt | Sicheren Wechsel mit/ohne Historie, Rhythmus und Auswertung ausarbeiten. Vorhandene Kopie erfüllt den Wechselwunsch nicht; als Ersatz nur nach ausdrücklicher Zustimmung. Nicht automatisch mit #002 lösen |
-| Tagesansicht, Tracker und Anzeigegruppen | #011 + #020 + A01 | Eigenes Konzeptpaket; Originalwünsche bleiben erhalten | Kompakte Trackerzeilen; frei benannte Anzeigegruppen mit festlegbarer Reihenfolge und optionalem Einklappen; Aufgaben bleiben unabhängig. Navigation/Monitoring ohne doppelte Datenerfassung. Datenart und übergreifende Darstellung noch klären |
+| Startdatum nach Erstellung bearbeiten | #002 | Implementiert und automatisiert geprüft | Reine Tracker früher/später beginnen lassen; Messhistorie, Korrekturen, Kalender und Bündel erhalten. Echte Terminserien bleiben gesperrt; Gerätenachtest separat offen |
+| Aufgabenart Aufgabe ↔ Habit ändern | #013 | A0–A5 implementiert und automatisiert geprüft; Gerätenachtest offen | Beide Historienoptionen, Sperrmatrix, Versionszuordnung, Kalender/Listenfilter und Schema-25-Protokoll; 212 Tests grün, keine APK |
+| Tagesansicht, Tracker und Anzeigegruppen | #011 + #020 + #004; Bezug A01 | Umsetzungsbereit G0–G6 im [Gruppenplan](daily_overview_groups_plan.md); noch nicht implementiert | Eigener Gruppentab, kompakte Tracker-Eingaben, vollständiger/teilweiser Abschluss und Nein-Semantik geklärt. Zuordnung, Datenhaltung, V1-Sperren, Backup und Tests dokumentiert. Monitoring ausdrücklich auf später verschoben |
+| Eigener Monitoringbereich | Rest A01 | Auf Nutzerwunsch vom 25. Oktober später separat planen | Messreihen, Check-ins und Auswertungszugang ohne doppelte Datenerfassung; kein Bestandteil des aktuellen Gruppen-/Trackerpakets |
 | Schnelle Aufgabenanlage | A02, nur Quick Task | Beschriebener erster Anwendungsfall; Priorität/Umsetzung noch offen | Bereits beschrieben: Titel genügt, normale einmalige heute fällige offene Aufgabe. Nur unbeschriebene Bedien-/Bearbeitungsfolgen klären. Allgemeine Vorlagen, Widgets, Quick Habit und Quick Note separat behandeln |
-| Routinen und Unteraufgaben | #004 + #010 | Eigenes Konzeptpaket | Gemeinsamer/teilweiser Abschluss, eigenständige Unteraufgaben versus Checkliste; Bearbeitungs-/Wartestatus getrennt vom wertenden Abschluss |
+| Routinen und Unteraufgaben | #004 + #010 | Gemeinsamer Abschluss #004 wird seit 25. Oktober im Gruppenpaket geklärt; #010 bleibt separat | Teilabschluss im Gruppenplan; eigenständige Unteraufgaben versus Checkliste und Bearbeitungs-/Wartestatus bleiben gesondert offen |
 | Kombinierte Messdiagramme | #005 | Spätere Erweiterung | Bereits vorhandene Bündel weiterverwenden; unterschiedliche Skalen und Zeitebenen, fehlende Werte, klare Aussagegrenzen |
 | Projekt-Dashboards | #006 | Eigener Ausbau nach Bedarf | Welche Anzeigen auswählbar, Reihenfolge/Speicherung, vorhandene Diagramme verwenden; nicht zwingend alle Dashboardfunktionen gemeinsam bauen |
 | Projektphasen | #012 | Eigener Fachentwurf | Nur zeitliche Markierung oder Steuerung von Trackern? Beginn/Ende, historische Zuordnung und Vergleich ohne Datenverlust |
-| Geschätzte Dauer und Tageslimit | #017 + #008 | Später, gemeinsam abstimmen | Freiwillige Dauer; Anzahl versus Zeitbudget; Hinweis statt harter Sperre; unbekannten Aufwand nicht als null werten |
+| Geschätzte Dauer und Tageslimit | #017 + #008 | Freiwillige Planungsdauer im Kalender implementiert; Tageslimit #008 bleibt offen | Anzahl versus Zeitbudget und Hinweise separat klären; kein automatisches Platzieren oder Tageslimit eingeführt |
 | Zeit-Tracking | #016 | Eigenes Erweiterungspaket | Originalidee: Timer starten/pausieren/stoppen, manuelle Dauer oder beides. Auswahl des Umfangs noch offen; danach App-Unterbrechung, mehrere Sitzungen und gegebenenfalls manuelle Ergänzung ohne Doppelzählung klären |
-| Kalender/Wochenplanung | #018 | Größerer Ausbau; #007 bereits als Erledigungsübersicht vorhanden | Planung und Erledigungen unterscheiden; Verschieben mit Historie; Zukunftsvorschau T20-01 vor schreibender Planung lösen |
+| Kalenderfunktion mit Zeitplanung | #018 + #017 + T20-01 | K0–K7 implementiert und automatisiert geprüft; APK bereit, Gerätenachtest offen | Paketnachweis im Kalender-Umsetzungsplan und calendar_retest.md; keine weiteren Phase-21-Themen umgesetzt |
 | Spielerische Priorisierung | #009 | Vorläufige Empfehlung: später bearbeiten; keine bestätigte Zurückstellung | Gewünschte Prioritätenliste durch spielerische Paarvergleiche erhalten; Nutzen und effizientes Verfahren prüfen |
 | Externe Kalender | #019 | Langfristige Idee; keine Phase-20-Pflicht, konkrete Einplanung offen | Termine aus externen Kalendern neben Aufgaben anzeigen; Lesen oder bidirektional, Quellen, Berechtigungen, Konflikte und doppelte Termine klären |
 | Weitere Sicherungs-/Exportfunktionen | Rest #014 | Nicht Teil des umgesetzten Mindestumfangs | Lesbarer Export, automatische Sicherungen und Zusammenführen getrennt priorisieren; bei künftiger Schemaänderung Backup-Migration verpflichtend mitplanen |
@@ -320,8 +329,9 @@ unter `build/phase21-tests.json` (generiertes, nicht versioniertes Artefakt).
 
 ## Paket #002 – Startdatum nach Erstellung bearbeiten
 
-**Status:** Fachliche Regeln bestätigt; begrenzter technischer Umsetzungsplan
-ausgearbeitet. Noch nicht implementiert. Keine weitere Grundsatzfrage offen.
+**Status am 22. Oktober 2026:** Implementiert und automatisiert geprüft: 184 Tests
+im Gesamtlauf bestanden, gezielte Analyse der 11 betroffenen/neuen Dateien ohne Befunde.
+Keine weitere Grundsatzfrage offen. Geräteprüfung separat offen.
 Der Karten-Gerätenachtest ist dadurch nicht als bestanden bestätigt.
 
 ### Ausgangspunkt und begrenzter Codebefund
@@ -515,15 +525,29 @@ ihr bisheriges Verhalten, da ihre Startdaten nicht nachträglich verändert wurd
   Nachtrag, späterem Beginn und gesperrter Terminserie bereitstellen. Bekannter
   offener Gerätenachtest des Kartenpakets bleibt separat offen.
 
-Die fachlichen Regeln sind geklärt. Die Umsetzung ist anhand dieses Pakets
-vorbereitet; App-Code wurde dafür noch nicht geändert. Nur bei einem konkreten
-Widerspruch zu diesen Regeln erneut nachfragen, nicht bereits bestätigte
-Anforderungen nochmals zur Wahl stellen.
+Umgesetzt: gemeinsame Freigabeprüfung in Formular und Repository, atomare
+Startänderung mit neuer Definition, früheste Definition für frühere Nachträge,
+aktuelle Erwartungsgrenze getrennt von unveränderter Messhistorie. Kalender,
+Gesamtverlauf/feste Fenster, Korrektur/Undo, Wertziele und Bündel einschließlich
+Tagversatz berücksichtigen die neue Grenze. Kein Schemawechsel; Schema 24 bleibt.
+Abnahmetests in `tracking_start_date_test.dart` und `tracking_start_edit_test.dart`.
+Nachweis und kurze Geräteprüfung: [Umgesetzte Änderungen](implemented_changes.md#paket-002--startdatum-nach-erstellung-bearbeiten).
+Nur #002 umgesetzt, keine APK erstellt, #013 unverändert außerhalb des Auftrags.
 
 ## Paket #013 – Aufgabenart Aufgabe ↔ Habit ändern
 
-**Status:** Beide Varianten der historischen Artzuordnung bestätigt;
-Rhythmus und Wechselgrenzen noch in Klärung. Keine Umsetzung.
+**Status am 22. Oktober:** A0–A5 implementiert und automatisiert geprüft:
+212 Tests bestanden, gezielte Analyse von 17 Dateien ohne Befunde. Beide
+Historienoptionen verfügbar; einmalige Aufgabe → Habit bleibt ausgeschlossen.
+Schema 25, Backup 22–25, Kalender und #002 erhalten. Gerätenachtest offen;
+keine APK erstellt. Nachweis und Nachtest im verlinkten Umsetzungsplan.
+
+**Maßgeblicher Auftrag:** [#013 – Umsetzungsplan A0–A5](task_type_change_implementation_plan.md).
+Er konkretisiert Freigaben/Sperren, den getrennten Artenwechsel-Dialog,
+Versionszuordnung und protokollierte rückwirkende Typkorrektur, Kalender-/Listenfilter,
+Migration/Backup sowie Abnahmetests. Kalender und inzwischen implementiertes #002
+sind berücksichtigt. Keine erneute Grundsatzrunde erforderlich; nur bei einem
+konkreten Konflikt mit Kernanforderungen nachfragen.
 
 ### Originalwunsch und gezielter Codebefund
 
@@ -537,9 +561,10 @@ Rhythmus und Wechselgrenzen noch in Klärung. Keine Umsetzung.
   Allerdings filtert `watchTaskListForDate` die Aufgaben vor der historischen
   Auflösung anhand ihrer aktuellen Art. Nur `taskType` freizuschalten würde
   die historische Zuordnung in der Tagesansicht nicht zuverlässig abbilden.
-- Einmalige Aufgaben besitzen eigene Terminlogik; Bündel verlangen derzeit
-  dieselbe Aufgabenart ihrer Quellen. Nach Festlegung der Historienregel diese
-  begrenzten Konfliktfälle prüfen, statt eine allgemeine Konvertierung zu versprechen.
+- Einmalige Aufgaben besitzen eigene Terminlogik und sind vom Wechsel zum Habit
+  ausgeschlossen (Nutzerentscheidung vom 21. Oktober). Bündel verlangen derzeit
+  dieselbe Aufgabenart ihrer Quellen; diese Konsistenz bei der technischen
+  Ausarbeitung berücksichtigen, keinen zusätzlichen Bündelumbau voraussetzen.
 
 ### Bestätigt: Nutzer wählt den Umfang des Artenwechsels
 
@@ -555,34 +580,53 @@ entscheidet für den jeweiligen Wechsel:
 Diese Auswahl betrifft die Artzuordnung. Daraus folgt keine Erlaubnis, Messwerte,
 Erledigungen oder deren Datum zu löschen oder rückwirkend neue Solltermine zu
 erzeugen. Die Umordnung muss in historischen Ansichten und nach Art getrennten
-Auswertungen konsistent sichtbar werden. Technische Ablage und Behandlung
-mehrfacher Wechsel im weiteren Plan konkretisieren; historische Rohdefinitionen
-nicht unbesehen überschreiben. Keine der beiden Optionen stillschweigend wählen;
-voreingestellte Auswahl und genaue Beschriftung sind noch nicht festgelegt.
+Auswertungen konsistent sichtbar werden. Ablage und mehrfache Wechsel sind im
+Umsetzungsplan konkretisiert: bestehende Versionsbindung erhalten oder bei
+ausdrücklicher Rückwirkung nur das Typ-Metadatum protokolliert korrigieren.
+Keine der beiden Optionen stillschweigend wählen; im Dialog ist zunächst kein
+Umfang ausgewählt. Übrige historische Definitionsfelder bleiben unverändert.
 
-### Nächste Entscheidung: Artenwechsel und Rhythmus
+### Bestätigte Begrenzung und abgeleiteter Normalfall
 
-Vorschlag, noch nicht bestätigt: Bestehenden Rhythmus bei beiden Richtungen
-erhalten. Aufgabe bedeutet nicht automatisch einmalig, Habit bedeutet nicht
-automatisch täglich. Beim Wechsel einer einmaligen Aufgabe zu einem Habit
-einen Wiederholungsrhythmus ausdrücklich auswählen lassen; diesen nicht
-rückwirkend auf alte Einträge anwenden. Sonstige Rhythmusänderungen bleiben
-eine getrennte, bewusste Bearbeitung. Anschließend Wechselgrenze und Umgang mit
-bereits offenen Einträgen klären, soweit durch diese Regel noch nicht bestimmt.
+**Nutzerentscheidung vom 21. Oktober:** Eine einmalige Aufgabe kann nicht in
+einen Habit umgewandelt werden. Dafür legt der Nutzer einen neuen Habit an.
+Der geringe Alltagsnutzen rechtfertigt keine spezielle Konvertierung. Der frühere
+Vorschlag einer Rhythmusauswahl für diesen Fall ist verworfen, nicht weiter offen.
+
+**Abgeleitete Umsetzung:** Den bestehenden Rhythmus beim Artenwechsel zwischen
+wiederkehrender Aufgabe und Habit erhalten. Der Wechsel ändert die Artzuordnung,
+nicht gleichzeitig die Terminserie. Keine automatische Umwandlung eines Habits
+in eine einmalige Aufgabe einbauen. Sonstige Rhythmusänderungen bleiben die
+vorhandene separate Bearbeitung. Dies ist eine begrenzende Umsetzungsvorgabe,
+keine zusätzlich ausdrücklich bestätigte Antwort auf die vorherige Rhythmusfrage.
+
+Für die weitere Planung Alltagsnutzen gegen Aufwand abwägen: seltene Komfortfälle
+mit einfachem bestehendem Ausweg knapp abgrenzen, statt sie bis ins Detail
+auszuarbeiten. Fragen nur für relevante fachliche Folgen und schwer revidierbare
+Entscheidungen stellen. Kleine Ausführungsdetails selbst sinnvoll festlegen.
+
+**Präzisierung des Nutzers am 21. Oktober:** Alle Fälle müssen bedacht werden;
+komplexe Fälle zunächst sperren, statt ihre vollständige Unterstützung zu planen.
+Für jedes Paket eine knappe Fallübersicht mit „freigegeben“ oder „vorerst gesperrt“
+und Begründung führen. Gesperrte Fälle erhalten einen verständlichen Hinweis und,
+wo vorhanden, einen einfachen Ausweg. Sperren müssen auch beim Speichern greifen.
+So bleiben Randfälle sicher behandelt und spätere Erweiterungen möglich, ohne
+für jeden Sonderfall eine weitere Entscheidungsrunde zu eröffnen. Konkrete
+Abgrenzungen als abgeleitet kennzeichnen; bestätigte Kernanforderungen erhalten.
 
 ## Bereits verbindliche Grenzen
 
 - Ein Import ersetzt vollständig; kein automatisches Zusammenführen.
 - Die Tageszählung umfasst positive Abschlüsse von Aufgaben und Habits nach
   tatsächlichem Erledigungstag. Reine Tracker werden nicht mitgezählt.
-- Zukunftsnavigation bleibt bis zu einer sicheren Vorschau gesperrt. Das ist
-  eine bestätigte Zwischenlösung, keine endgültige Produktentscheidung.
+- Zukunftsvorschau erfolgt inzwischen im implementierten schreibfreien Kalender;
+  daraus folgt keine Freigabe zukünftiger Scheduler-Schreibzugriffe.
 - Anzeigegruppen #020, Routinen #004 und Projekte sind unterschiedliche
   Konzepte. Nicht allein aufgrund ähnlicher Darstellung zusammenlegen.
-- Startdatumsänderungen werden gemäß #002 für sichere reine Trackingfälle
-  vorbereitet; wiederkehrende Aufgaben bleiben zunächst gesperrt. Für #013 sind
-  Artenwechsel ab dem Wechsel oder einschließlich bisheriger Zuordnung als
-  wählbare Optionen bestätigt; die technische Sperre besteht bis zur Umsetzung.
+- Startdatumsänderungen sind gemäß #002 für sichere reine Trackingfälle
+  implementiert; Terminserien bleiben gesperrt. Für #013 sind Artenwechsel
+  für neue Einträge oder einschließlich bisheriger Zuordnung als ausdrücklich
+  wählbare Optionen implementiert; die dokumentierten Konfliktsperren bleiben.
   Keine stillschweigende rückwirkende Umdeutung von Messungen oder Erledigungen.
 - Keine dieser Ideen setzt eine neue Cloud-Synchronisierung, Paywall oder
   Store-Veröffentlichung voraus. Deren Zuständigkeiten bleiben getrennt.

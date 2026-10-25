@@ -44,6 +44,24 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: StreamBuilder<TaskTypeChange?>(
+        stream: widget.repository.watchLatestTypeChange(widget.task.id),
+        builder: (context, snapshot) {
+          final change = snapshot.data;
+          if (change == null) return const SizedBox.shrink();
+          final day = change.changedAt.toLocal();
+          return SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Text(
+                'Letzter Artenwechsel: ${change.targetType == 'habit' ? 'Habit' : 'Aufgabe'} '
+                '(${change.scope == 'all_history' ? 'gesamte Historie' : 'nur neue Einträge'}), '
+                '${day.day}.${day.month}.${day.year}.',
+              ),
+            ),
+          );
+        },
+      ),
       appBar: AppBar(
         title: Text(widget.task.name),
         actions: [
@@ -464,7 +482,12 @@ class _TaskValueDetailContent extends StatelessWidget {
           children:
               TaskAnalyticsPeriod.values.map((period) {
                 return ChoiceChip(
-                  label: Text(period.label),
+                  label: Text(
+                    period == TaskAnalyticsPeriod.sinceStart &&
+                            task.valueCommitment == 'pure_tracking'
+                        ? 'Gesamter Verlauf'
+                        : period.label,
+                  ),
                   selected: period == selectedPeriod,
                   onSelected: (_) => onPeriodChanged(period),
                 );

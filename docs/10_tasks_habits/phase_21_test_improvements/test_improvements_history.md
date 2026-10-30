@@ -1,8 +1,41 @@
 # Momentum – Testergebnisse und Verbesserungen: Verlauf
 
-Stand: 25. Oktober 2026
+Stand: 28. Oktober 2026
 
 Status: #013, #002, Kartenpaket und Kalender umgesetzt und automatisiert geprüft; Gerätenachtests und weitere Konzepte offen
+
+## 28. Oktober 2026 – Zeitumstellungskorrektur umgesetzt und geprüft
+
+- Auf ausdrücklichen Folgeauftrag Zielzeiträume auf Kalenderarithmetik umgestellt;
+  Status-/Wert-/Bündelfenster, nächste Zielvormerkung und Mehrjahresblöcke geprüft.
+- Fünf neue feste Regressionstests zuerst rot, danach grün. Zusätzlich alten
+  Karten-Widgettest an Parser/Entwurfszustand angepasst und Verlust der
+  Fehlermarkierung beim Klappen korrigiert; entsprechende Widgettests grün.
+- Abschließende vollständige Suite: **229 bestanden, 0 fehlgeschlagen**, 95 s.
+  Gezielte Analyse acht Dateien ohne Befunde; Diff-Whitespaceprüfung sauber.
+- Keine Schema-/Datenmigration, kein Eingriff in persönlichen Bestand oder
+  bestehende Zielvormerkungen. Kein APK-Build; Gerätenachtest offen.
+  Details in `goal_calendar_fix.md`. Frühere Laufbefunde unten bleiben Historie.
+
+## 28. Oktober 2026 – Zwei Zielblockfehler gezielt reproduziert
+
+- Auf Nachfrage beide gemeldeten Repositorytests separat mit `flutter test
+  --no-pub test/features/aufgaben/data/aufgaben_repository_test.dart --name
+  'historische Statuszielbloecke listen laufenden Block nicht|plant reine
+  Zielaenderung ab naechstem Zielblock ohne aktive Aufgabe zu aendern'
+  --reporter=expanded` ausgeführt: 0 bestanden, 2 fehlgeschlagen.
+- Laufender Block erscheint verfrüht in der Historie; Zielvormerkung am
+  28. statt 29. Oktober. Befund und Korrekturempfehlung im Arbeitsplan ergänzt.
+- Keine Produktcode-/Nutzerdatenänderung und kein vollständiger Testlauf.
+  Persönlicher Langzeitbestand nicht geprüft; kein Nachweis von Messwertverlust.
+
+## 27. Oktober 2026 – Gruppen-/Trackerpaket implementiert
+
+#011/#020/#004 gemäß G0–G6 umgesetzt: Gruppentab, kompakte Zahlenfelder,
+Entwürfe, atomarer Voll-/expliziter Teilabschluss, Schema 26 und Backup 22–26.
+Neue Tests und Analyse grün. Zwei bestehende Zielblock-/Zeitumstellungsfehler
+bleiben sichtbar offen; keine uneingeschränkte Gesamtfreigabe. Gerätenachtest
+offen, keine APK. [Nachweise](daily_overview_groups_plan.md).
 
 ## 25. Oktober 2026 – Gruppen konkretisiert, Monitoring verschoben
 

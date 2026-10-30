@@ -11,6 +11,14 @@ Ausführliche Aufgaben-, Habit-, Instanz- und Auswertungsbegriffe stehen in
 Eine Aufgabe ist die fachliche Definition dessen, was angezeigt, beantwortet und
 später ausgewertet wird. Habits verwenden dieselbe Grundstruktur.
 
+## Anzeigegruppe
+
+Eine Anzeigegruppe ordnet eigenständige Aufgaben/Habits im Gruppentab. Sie ist
+weder Projekt noch Wertebündel. Ihre Vollständigkeit folgt den sichtbaren
+Einzelvorkommen; bewusstes Nein zählt als bearbeitet, nicht automatisch erfolgreich.
+Zuordnungen ändern die aktuelle Darstellung, nicht die Messhistorie. Gemeinsames
+Abschließen erfindet keine Werte; eine Teilaktion erfordert eine eigene Auswahl.
+
 ## Instanz
 
 Eine Instanz ist ein einzelner geplanter Eintrag einer Aufgabe für einen

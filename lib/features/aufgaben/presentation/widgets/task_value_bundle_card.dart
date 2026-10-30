@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
+import 'value_draft_scope.dart';
 import 'package:momentum/core/settings/card_display_scope.dart';
 import 'package:momentum/features/aufgaben/data/task_for_date.dart';
 import 'package:momentum/features/aufgaben/data/task_value_bundle_calculation.dart';
@@ -21,7 +23,8 @@ class TaskValueBundleCard extends StatelessWidget {
 
   final TaskValueBundleForDate bundle;
   final DateTime scheduledDate;
-  final void Function(TaskForDate task, TaskValueInput value) onValueSaved;
+  final FutureOr<void> Function(TaskForDate task, TaskValueInput value)
+  onValueSaved;
   final VoidCallback onOpenDetails;
   final VoidCallback onConfigureCardMetric;
   final VoidCallback onDissolve;
@@ -107,7 +110,11 @@ class TaskValueBundleCard extends StatelessWidget {
                   ),
                   PopupMenuButton<_BundleAction>(
                     tooltip: 'Bündeloptionen',
-                    onSelected: (action) {
+                    onSelected: (action) async {
+                      if (!await ValueDraftScope.confirm(context) ||
+                          !context.mounted) {
+                        return;
+                      }
                       switch (action) {
                         case _BundleAction.cardMetric:
                           onConfigureCardMetric();
@@ -215,7 +222,8 @@ class _BundlePartInput extends StatelessWidget {
   final String label;
   final TaskForDate task;
   final DateTime scheduledDate;
-  final void Function(TaskForDate task, TaskValueInput value) onValueSaved;
+  final FutureOr<void> Function(TaskForDate task, TaskValueInput value)
+  onValueSaved;
 
   @override
   Widget build(BuildContext context) {

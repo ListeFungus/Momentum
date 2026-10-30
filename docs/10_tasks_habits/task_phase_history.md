@@ -1,8 +1,23 @@
 # Momentum – Phasenprotokoll der Aufgabenstruktur
 
-Stand: 22. Oktober 2026
+Stand: 28. Oktober 2026
 
 Status: Aufgaben-Konzept, Regeln und Umsetzungshistorie
+
+## 28. Oktober 2026 – Phase 21: Zielzeiträume über Zeitumstellungen
+
+Zielblock-/Fensterberechnung korrigiert, fünf feste Regressionstests ergänzt und
+Eingabefehlermarkierung beim Kartenklappen erhalten. Vollständige Suite 229 Tests
+grün, Analyse acht Dateien ohne Befunde. Schema bleibt 26; keine Datenmigration,
+keine neue APK, Gerätenachtest und persönlicher Langzeitbestand separat offen.
+[Korrekturbericht](phase_21_test_improvements/goal_calendar_fix.md).
+
+## 27. Oktober 2026 – Phase 21: #011/#020/#004
+
+G0–G6 umgesetzt und dokumentiert, Schema 26: Anzeigegruppen, kompakte Eingaben,
+Entwurfsschutz und gemeinsame Aktionen. Neue Pakettests und gezielte Analyse grün.
+Bestehende Zielblock-/Zeitumstellungsfehler und Gerätenachtest offen; keine APK,
+kein Monitoring und keine weiteren Pakete. [Prüfnachweis](phase_21_test_improvements/daily_overview_groups_plan.md).
 
 ## 22. Oktober 2026 – Phase 21: ausschließlich #013
 

@@ -435,6 +435,8 @@ void main() {
     final legacy = edit((c) {
       c['schemaVersion'] = 24;
       c['tables'].remove('task_type_changes');
+      c['tables'].remove('task_display_groups');
+      c['tables'].remove('task_display_group_members');
     });
     await backup.restore(await backup.prepare(legacy));
     expect(await db.select(db.taskTypeChanges).get(), isEmpty);
@@ -461,6 +463,8 @@ void main() {
       await disk.close();
       final raw = sqlite3.open(file.path);
       raw.execute('DROP TABLE task_type_changes');
+      raw.execute('DROP TABLE task_display_group_members');
+      raw.execute('DROP TABLE task_display_groups');
       raw.execute('PRAGMA user_version = 24');
       raw.dispose();
       disk = AppDatabase.forTesting(NativeDatabase(file));
@@ -470,7 +474,7 @@ void main() {
           old.toJson(),
         );
         expect(await disk.select(disk.taskTypeChanges).get(), isEmpty);
-        expect(disk.schemaVersion, 25);
+        expect(disk.schemaVersion, 26);
       } finally {
         await disk.close();
         await dir.delete(recursive: true);

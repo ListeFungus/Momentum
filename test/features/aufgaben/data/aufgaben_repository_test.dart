@@ -24,6 +24,12 @@ import 'package:momentum/features/aufgaben/data/task_value_type.dart';
 import 'package:momentum/features/aufgaben/data/task_value_unit.dart';
 import 'package:sqlite3/sqlite3.dart';
 
+// Test fixtures describe local calendar days, not 24-hour durations. In
+// particular, the October DST transition must not turn midnight into 01:00.
+extension _TestCalendarDays on DateTime {
+  DateTime shiftDays(int offset) => DateTime(year, month, day + offset);
+}
+
 void main() {
   test('speichert Aufgabe und heutigen Tagesstatus', () async {
     final database = AppDatabase.forTesting(NativeDatabase.memory());
@@ -123,7 +129,7 @@ void main() {
     );
 
     final task = await database.select(database.aufgaben).getSingle();
-    final tomorrow = _today().add(const Duration(days: 1));
+    final tomorrow = _today().shiftDays(1);
 
     await repository.setTaskCompleted(
       taskId: task.id,
@@ -157,7 +163,7 @@ void main() {
     );
 
     final task = await database.select(database.aufgaben).getSingle();
-    final tomorrow = _today().add(const Duration(days: 1));
+    final tomorrow = _today().shiftDays(1);
 
     await repository.watchTasksForDate(tomorrow).first;
     await repository.deleteTask(task.id);
@@ -304,7 +310,7 @@ void main() {
     final scheduler = TaskInstanceScheduler(database);
     addTearDown(database.close);
 
-    final startDate = _today().subtract(const Duration(days: 3));
+    final startDate = _today().shiftDays(-3);
 
     await repository.createTask(
       name: 'Trinken',
@@ -331,8 +337,8 @@ void main() {
     expect(secondRunCreated, 0);
     expect(entries.map((entry) => entry.scheduledDate), [
       startDate,
-      startDate.add(const Duration(days: 1)),
-      startDate.add(const Duration(days: 2)),
+      startDate.shiftDays(1),
+      startDate.shiftDays(2),
       _today(),
     ]);
   });
@@ -366,7 +372,7 @@ void main() {
     final scheduler = TaskInstanceScheduler(database);
     addTearDown(database.close);
 
-    final yesterday = _today().subtract(const Duration(days: 1));
+    final yesterday = _today().shiftDays(-1);
 
     await repository.createTask(
       name: 'Training',
@@ -391,7 +397,7 @@ void main() {
     expect(entry.appliedMissedConsequence, MissedConsequence.markAsNotDone);
     expect(entry.respondedAt, isNull);
     expect(entry.finalizedAt, isNotNull);
-    expect(entry.effectiveAt, yesterday.add(const Duration(days: 1)));
+    expect(entry.effectiveAt, yesterday.shiftDays(1));
   });
 
   test('Scheduler verarbeitet direkte Konsequenz als Kein Eintrag', () async {
@@ -400,7 +406,7 @@ void main() {
     final scheduler = TaskInstanceScheduler(database);
     addTearDown(database.close);
 
-    final yesterday = _today().subtract(const Duration(days: 1));
+    final yesterday = _today().shiftDays(-1);
 
     await repository.createTask(
       name: 'Spaziergang',
@@ -425,7 +431,7 @@ void main() {
     expect(entry.appliedMissedConsequence, MissedConsequence.keepNeutral);
     expect(entry.respondedAt, isNull);
     expect(entry.finalizedAt, isNotNull);
-    expect(entry.effectiveAt, yesterday.add(const Duration(days: 1)));
+    expect(entry.effectiveAt, yesterday.shiftDays(1));
   });
 
   test('Scheduler verarbeitet Puffer als Misserfolg nach Ablauf', () async {
@@ -434,7 +440,7 @@ void main() {
     final scheduler = TaskInstanceScheduler(database);
     addTearDown(database.close);
 
-    final dueDate = _today().subtract(const Duration(days: 2));
+    final dueDate = _today().shiftDays(-2);
 
     await repository.createTask(
       name: 'Rechnung zahlen',
@@ -459,7 +465,7 @@ void main() {
     expect(entry.resolutionOrigin, TaskEntryResolutionOrigin.automatic);
     expect(entry.appliedMissedPolicy, MissedPolicy.buffer);
     expect(entry.appliedMissedConsequence, PostBufferBehavior.markAsFailure);
-    expect(entry.effectiveAt, dueDate.add(const Duration(days: 2)));
+    expect(entry.effectiveAt, dueDate.shiftDays(2));
   });
 
   test('Scheduler verarbeitet Puffer als Kein Eintrag nach Ablauf', () async {
@@ -468,7 +474,7 @@ void main() {
     final scheduler = TaskInstanceScheduler(database);
     addTearDown(database.close);
 
-    final dueDate = _today().subtract(const Duration(days: 2));
+    final dueDate = _today().shiftDays(-2);
 
     await repository.createTask(
       name: 'Notiz pruefen',
@@ -493,7 +499,7 @@ void main() {
     expect(entry.resolutionOrigin, TaskEntryResolutionOrigin.automatic);
     expect(entry.appliedMissedPolicy, MissedPolicy.buffer);
     expect(entry.appliedMissedConsequence, PostBufferBehavior.markAsNoEntry);
-    expect(entry.effectiveAt, dueDate.add(const Duration(days: 2)));
+    expect(entry.effectiveAt, dueDate.shiftDays(2));
   });
 
   test('Scheduler verarbeitet Puffer idempotent', () async {
@@ -502,7 +508,7 @@ void main() {
     final scheduler = TaskInstanceScheduler(database);
     addTearDown(database.close);
 
-    final dueDate = _today().subtract(const Duration(days: 2));
+    final dueDate = _today().shiftDays(-2);
 
     await repository.createTask(
       name: 'Puffer idempotent',
@@ -543,7 +549,7 @@ void main() {
       final scheduler = TaskInstanceScheduler(database);
       addTearDown(database.close);
 
-      final yesterday = _today().subtract(const Duration(days: 1));
+      final yesterday = _today().shiftDays(-1);
 
       await repository.createTask(
         name: 'Puffer Ueberschneidung',
@@ -576,7 +582,7 @@ void main() {
       final scheduler = TaskInstanceScheduler(database);
       addTearDown(database.close);
 
-      final startDate = _today().subtract(const Duration(days: 2));
+      final startDate = _today().shiftDays(-2);
 
       await repository.createTask(
         name: 'Puffer nach Abschluss',
@@ -597,10 +603,7 @@ void main() {
 
       expect(entries, hasLength(1));
       expect(entries.single.status, TaskEntryStatus.failure);
-      expect(
-        entries.single.effectiveAt,
-        startDate.add(const Duration(days: 2)),
-      );
+      expect(entries.single.effectiveAt, startDate.shiftDays(2));
     },
   );
 
@@ -613,9 +616,9 @@ void main() {
       addTearDown(database.close);
 
       final today = _today();
-      final fiveDaysAgo = today.subtract(const Duration(days: 5));
-      final threeDaysAgo = today.subtract(const Duration(days: 3));
-      final twoDaysAgo = today.subtract(const Duration(days: 2));
+      final fiveDaysAgo = today.shiftDays(-5);
+      final threeDaysAgo = today.shiftDays(-3);
+      final twoDaysAgo = today.shiftDays(-2);
 
       await repository.createTask(
         name: 'Carryover begrenzt',
@@ -661,7 +664,7 @@ void main() {
       addTearDown(database.close);
 
       final today = _today();
-      final twoDaysAgo = today.subtract(const Duration(days: 2));
+      final twoDaysAgo = today.shiftDays(-2);
 
       await repository.createTask(
         name: 'Carryover Kein Eintrag',
@@ -694,7 +697,7 @@ void main() {
     addTearDown(database.close);
 
     final today = _today();
-    final yesterday = today.subtract(const Duration(days: 1));
+    final yesterday = today.shiftDays(-1);
 
     await repository.createTask(
       name: 'Carryover sichtbar',
@@ -724,7 +727,7 @@ void main() {
     addTearDown(database.close);
 
     final today = _today();
-    final yesterday = today.subtract(const Duration(days: 1));
+    final yesterday = today.shiftDays(-1);
 
     await repository.createTask(
       name: 'Puffer sichtbar',
@@ -755,7 +758,7 @@ void main() {
     addTearDown(database.close);
 
     final today = _today();
-    final yesterday = today.subtract(const Duration(days: 1));
+    final yesterday = today.shiftDays(-1);
 
     await repository.createTask(
       name: 'Carryover Dringlichkeit',
@@ -792,10 +795,10 @@ void main() {
       addTearDown(database.close);
 
       final today = _today();
-      final fiveDaysAgo = today.subtract(const Duration(days: 5));
-      final fourDaysAgo = today.subtract(const Duration(days: 4));
-      final twoDaysAgo = today.subtract(const Duration(days: 2));
-      final yesterday = today.subtract(const Duration(days: 1));
+      final fiveDaysAgo = today.shiftDays(-5);
+      final fourDaysAgo = today.shiftDays(-4);
+      final twoDaysAgo = today.shiftDays(-2);
+      final yesterday = today.shiftDays(-1);
 
       await repository.createTask(
         name: 'Direkt Misserfolg',
@@ -958,8 +961,8 @@ void main() {
       final scheduler = TaskInstanceScheduler(database);
       addTearDown(database.close);
 
-      final startDate = _today().subtract(const Duration(days: 3));
-      final missedDate = startDate.add(const Duration(days: 1));
+      final startDate = _today().shiftDays(-3);
+      final missedDate = startDate.shiftDays(1);
 
       await repository.createTask(
         name: 'Alter Name',
@@ -1161,10 +1164,10 @@ void main() {
 
     final task = await database.select(database.aufgaben).getSingle();
     final today = _today();
-    final threeDaysAgo = today.subtract(const Duration(days: 3));
-    final twoDaysAgo = today.subtract(const Duration(days: 2));
-    final yesterday = today.subtract(const Duration(days: 1));
-    final tomorrow = today.add(const Duration(days: 1));
+    final threeDaysAgo = today.shiftDays(-3);
+    final twoDaysAgo = today.shiftDays(-2);
+    final yesterday = today.shiftDays(-1);
+    final tomorrow = today.shiftDays(1);
 
     await repository.setBooleanHabitValue(
       task: task,
@@ -1216,23 +1219,23 @@ void main() {
       beschreibung: '',
       erfassungsmodus: 'three_state',
       projectId: null,
-      startDate: today.subtract(const Duration(days: 40)),
+      startDate: today.shiftDays(-40),
     );
 
     final task = await database.select(database.aufgaben).getSingle();
     await repository.setBooleanHabitValue(
       task: task,
-      scheduledDate: today.subtract(const Duration(days: 25)),
+      scheduledDate: today.shiftDays(-25),
       value: true,
     );
     await repository.setBooleanHabitValue(
       task: task,
-      scheduledDate: today.subtract(const Duration(days: 6)),
+      scheduledDate: today.shiftDays(-6),
       value: true,
     );
     await repository.setBooleanHabitValue(
       task: task,
-      scheduledDate: today.subtract(const Duration(days: 1)),
+      scheduledDate: today.shiftDays(-1),
       value: false,
     );
 
@@ -1259,7 +1262,7 @@ void main() {
       beschreibung: '',
       erfassungsmodus: 'three_state',
       projectId: null,
-      startDate: today.subtract(const Duration(days: 10)),
+      startDate: today.shiftDays(-10),
       missedPolicy: MissedPolicy.direct,
       goalType: TaskGoalType.rollingSuccessCount,
       goalValue: 2,
@@ -1269,12 +1272,12 @@ void main() {
     final task = await database.select(database.aufgaben).getSingle();
     await repository.setBooleanHabitValue(
       task: task,
-      scheduledDate: today.subtract(const Duration(days: 2)),
+      scheduledDate: today.shiftDays(-2),
       value: true,
     );
     await repository.setBooleanHabitValue(
       task: task,
-      scheduledDate: today.subtract(const Duration(days: 1)),
+      scheduledDate: today.shiftDays(-1),
       value: true,
     );
 
@@ -1302,7 +1305,7 @@ void main() {
         beschreibung: '',
         erfassungsmodus: 'three_state',
         projectId: null,
-        startDate: today.subtract(const Duration(days: 10)),
+        startDate: today.shiftDays(-10),
         missedPolicy: MissedPolicy.direct,
         goalType: TaskGoalType.rollingSuccessCount,
         goalValue: 2,
@@ -1312,7 +1315,7 @@ void main() {
       final task = await database.select(database.aufgaben).getSingle();
       await repository.setBooleanHabitValue(
         task: task,
-        scheduledDate: today.subtract(const Duration(days: 1)),
+        scheduledDate: today.shiftDays(-1),
         value: true,
       );
       await repository.setBooleanHabitValue(
@@ -1345,7 +1348,7 @@ void main() {
         beschreibung: '',
         erfassungsmodus: 'three_state',
         projectId: null,
-        startDate: today.subtract(const Duration(days: 10)),
+        startDate: today.shiftDays(-10),
         missedPolicy: MissedPolicy.direct,
         goalType: TaskGoalType.rollingSuccessCount,
         goalValue: 3,
@@ -1355,12 +1358,12 @@ void main() {
       final task = await database.select(database.aufgaben).getSingle();
       await repository.setBooleanHabitValue(
         task: task,
-        scheduledDate: today.subtract(const Duration(days: 2)),
+        scheduledDate: today.shiftDays(-2),
         value: false,
       );
       await repository.setBooleanHabitValue(
         task: task,
-        scheduledDate: today.subtract(const Duration(days: 1)),
+        scheduledDate: today.shiftDays(-1),
         value: true,
       );
       await repository.setBooleanHabitValue(
@@ -1394,7 +1397,7 @@ void main() {
         beschreibung: '',
         erfassungsmodus: 'three_state',
         projectId: null,
-        startDate: today.subtract(const Duration(days: 14)),
+        startDate: today.shiftDays(-14),
         missedPolicy: MissedPolicy.direct,
         goalType: TaskGoalType.rollingSuccessCount,
         goalValue: 2,
@@ -1404,22 +1407,22 @@ void main() {
       final task = await database.select(database.aufgaben).getSingle();
       await repository.setBooleanHabitValue(
         task: task,
-        scheduledDate: today.subtract(const Duration(days: 14)),
+        scheduledDate: today.shiftDays(-14),
         value: true,
       );
       await repository.setBooleanHabitValue(
         task: task,
-        scheduledDate: today.subtract(const Duration(days: 13)),
+        scheduledDate: today.shiftDays(-13),
         value: false,
       );
       await repository.setBooleanHabitValue(
         task: task,
-        scheduledDate: today.subtract(const Duration(days: 7)),
+        scheduledDate: today.shiftDays(-7),
         value: true,
       );
       await repository.setBooleanHabitValue(
         task: task,
-        scheduledDate: today.subtract(const Duration(days: 6)),
+        scheduledDate: today.shiftDays(-6),
         value: true,
       );
 
@@ -1450,7 +1453,7 @@ void main() {
       beschreibung: '',
       erfassungsmodus: 'three_state',
       projectId: null,
-      startDate: today.subtract(const Duration(days: 6)),
+      startDate: today.shiftDays(-6),
       missedPolicy: MissedPolicy.direct,
       goalType: TaskGoalType.rollingSuccessCount,
       goalValue: 2,
@@ -1460,7 +1463,7 @@ void main() {
     final task = await database.select(database.aufgaben).getSingle();
     await repository.setBooleanHabitValue(
       task: task,
-      scheduledDate: today.subtract(const Duration(days: 1)),
+      scheduledDate: today.shiftDays(-1),
       value: true,
     );
     await repository.setBooleanHabitValue(
@@ -1491,7 +1494,7 @@ void main() {
         beschreibung: '',
         erfassungsmodus: 'three_state',
         projectId: null,
-        startDate: today.subtract(const Duration(days: 7)),
+        startDate: today.shiftDays(-7),
         missedPolicy: MissedPolicy.direct,
         goalType: TaskGoalType.rollingSuccessCount,
         goalValue: 2,
@@ -1501,12 +1504,12 @@ void main() {
       final task = await database.select(database.aufgaben).getSingle();
       await repository.setBooleanHabitValue(
         task: task,
-        scheduledDate: today.subtract(const Duration(days: 7)),
+        scheduledDate: today.shiftDays(-7),
         value: true,
       );
       await repository.setBooleanHabitValue(
         task: task,
-        scheduledDate: today.subtract(const Duration(days: 6)),
+        scheduledDate: today.shiftDays(-6),
         value: null,
       );
 
@@ -1537,7 +1540,7 @@ void main() {
         beschreibung: '',
         erfassungsmodus: 'three_state',
         projectId: null,
-        startDate: today.subtract(const Duration(days: 6)),
+        startDate: today.shiftDays(-6),
         missedPolicy: MissedPolicy.direct,
         goalType: TaskGoalType.rollingSuccessCount,
         goalValue: 1,
@@ -1569,7 +1572,7 @@ void main() {
               .select(database.taskPendingDefinitionChanges)
               .getSingle();
       expect(pending.groupKey, 'goal');
-      expect(pending.effectiveDate, today.add(const Duration(days: 1)));
+      expect(pending.effectiveDate, today.shiftDays(1));
     },
   );
 
@@ -1586,7 +1589,7 @@ void main() {
         beschreibung: '',
         erfassungsmodus: 'three_state',
         projectId: null,
-        startDate: today.subtract(const Duration(days: 6)),
+        startDate: today.shiftDays(-6),
         missedPolicy: MissedPolicy.direct,
         goalType: TaskGoalType.rollingSuccessCount,
         goalValue: 1,
@@ -1601,7 +1604,7 @@ void main() {
       );
       await repository.setBooleanHabitValue(
         task: task,
-        scheduledDate: today.add(const Duration(days: 1)),
+        scheduledDate: today.shiftDays(1),
         value: null,
       );
       await repository.scheduleTaskGoalChangeForNextBlock(
@@ -1620,10 +1623,10 @@ void main() {
       );
       await TaskDefinitionResolver(
         database,
-      ).applyDueChanges(today.add(const Duration(days: 1)));
+      ).applyDueChanges(today.shiftDays(1));
       final afterChange = await repository.getTaskGoalEvaluationSummary(
         task: task,
-        today: today.add(const Duration(days: 1)),
+        today: today.shiftDays(1),
       );
 
       expect(beforeChange.requiredSuccessCount, 1);
@@ -1646,7 +1649,7 @@ void main() {
         beschreibung: '',
         erfassungsmodus: 'three_state',
         projectId: null,
-        startDate: today.subtract(const Duration(days: 14)),
+        startDate: today.shiftDays(-14),
         missedPolicy: MissedPolicy.direct,
         goalType: TaskGoalType.rollingSuccessCount,
         goalValue: 2,
@@ -1661,26 +1664,26 @@ void main() {
         goalWindowDays: 7,
         goalPeriod: GoalPeriod.week,
         goalPeriodAlignment: GoalPeriodAlignment.fromStartDate,
-        today: today.subtract(const Duration(days: 8)),
+        today: today.shiftDays(-8),
       );
       await repository.setBooleanHabitValue(
         task: task,
-        scheduledDate: today.subtract(const Duration(days: 14)),
+        scheduledDate: today.shiftDays(-14),
         value: true,
       );
       await repository.setBooleanHabitValue(
         task: task,
-        scheduledDate: today.subtract(const Duration(days: 13)),
+        scheduledDate: today.shiftDays(-13),
         value: true,
       );
       await repository.setBooleanHabitValue(
         task: task,
-        scheduledDate: today.subtract(const Duration(days: 7)),
+        scheduledDate: today.shiftDays(-7),
         value: true,
       );
       await repository.setBooleanHabitValue(
         task: task,
-        scheduledDate: today.subtract(const Duration(days: 6)),
+        scheduledDate: today.shiftDays(-6),
         value: true,
       );
 
@@ -1714,7 +1717,7 @@ void main() {
         beschreibung: '',
         erfassungsmodus: 'three_state',
         projectId: null,
-        startDate: today.subtract(const Duration(days: 3)),
+        startDate: today.shiftDays(-3),
         missedPolicy: MissedPolicy.direct,
         goalType: TaskGoalType.rollingSuccessCount,
         goalValue: 2,
@@ -1752,12 +1755,12 @@ void main() {
 
       await repository.setBooleanHabitValue(
         task: task,
-        scheduledDate: today.subtract(const Duration(days: 3)),
+        scheduledDate: today.shiftDays(-3),
         value: true,
       );
       await repository.setBooleanHabitValue(
         task: task,
-        scheduledDate: today.subtract(const Duration(days: 2)),
+        scheduledDate: today.shiftDays(-2),
         value: true,
       );
 
@@ -1851,7 +1854,7 @@ void main() {
     final scheduler = TaskInstanceScheduler(database);
     addTearDown(database.close);
 
-    final yesterday = _today().subtract(const Duration(days: 1));
+    final yesterday = _today().shiftDays(-1);
 
     await repository.createTask(
       name: 'Pflichtwert erfasst',
@@ -1896,7 +1899,7 @@ void main() {
     final scheduler = TaskInstanceScheduler(database);
     addTearDown(database.close);
 
-    final yesterday = _today().subtract(const Duration(days: 1));
+    final yesterday = _today().shiftDays(-1);
 
     await repository.createTask(
       name: 'Pflichtwert verpasst',
@@ -1937,7 +1940,7 @@ void main() {
       final scheduler = TaskInstanceScheduler(database);
       addTearDown(database.close);
 
-      final twoDaysAgo = _today().subtract(const Duration(days: 2));
+      final twoDaysAgo = _today().shiftDays(-2);
 
       await repository.createTask(
         name: 'Pflichtwert mit Puffer',
@@ -1976,7 +1979,7 @@ void main() {
     final scheduler = TaskInstanceScheduler(database);
     addTearDown(database.close);
 
-    final threeDaysAgo = _today().subtract(const Duration(days: 3));
+    final threeDaysAgo = _today().shiftDays(-3);
 
     await repository.createTask(
       name: 'Pflichtwert mit Carryover',
@@ -2235,8 +2238,8 @@ void main() {
     addTearDown(database.close);
 
     final today = _today();
-    final twoDaysAgo = today.subtract(const Duration(days: 2));
-    final yesterday = today.subtract(const Duration(days: 1));
+    final twoDaysAgo = today.shiftDays(-2);
+    final yesterday = today.shiftDays(-1);
 
     await repository.createTask(
       name: 'Pflichtgewicht',
@@ -2290,7 +2293,7 @@ void main() {
       projectId: null,
       taskType: TaskTypes.habit,
       recurrence: HabitRecurrence.daily,
-      startDate: today.subtract(const Duration(days: 6)),
+      startDate: today.shiftDays(-6),
       missedPolicy: MissedPolicy.direct,
       valueType: TaskValueType.number,
       valueCommitment: TaskValueCommitment.required,
@@ -2303,7 +2306,7 @@ void main() {
     final task = await database.select(database.aufgaben).getSingle();
     await repository.setTaskEntryValue(
       task: task,
-      scheduledDate: today.subtract(const Duration(days: 1)),
+      scheduledDate: today.shiftDays(-1),
       valueType: TaskValueType.number,
       numberValue: 1.5,
     );
@@ -2520,7 +2523,7 @@ void main() {
       projectId: null,
       taskType: TaskTypes.habit,
       recurrence: HabitRecurrence.daily,
-      startDate: today.subtract(const Duration(days: 2)),
+      startDate: today.shiftDays(-2),
       valueType: TaskValueType.number,
       valueCommitment: TaskValueCommitment.pureTracking,
       valueUnitKey: TaskValueUnitKey.custom,
@@ -2529,7 +2532,7 @@ void main() {
     var task = await database.select(database.aufgaben).getSingle();
     await repository.setTaskEntryValue(
       task: task,
-      scheduledDate: today.subtract(const Duration(days: 1)),
+      scheduledDate: today.shiftDays(-1),
       valueType: TaskValueType.number,
       numberValue: 80,
     );
@@ -2570,7 +2573,7 @@ void main() {
         projectId: null,
         taskType: TaskTypes.habit,
         recurrence: HabitRecurrence.daily,
-        startDate: today.subtract(const Duration(days: 6)),
+        startDate: today.shiftDays(-6),
         missedPolicy: MissedPolicy.direct,
         valueType: TaskValueType.duration,
         valueCommitment: TaskValueCommitment.required,
@@ -2583,7 +2586,7 @@ void main() {
       final task = await database.select(database.aufgaben).getSingle();
       await repository.setTaskEntryValue(
         task: task,
-        scheduledDate: today.subtract(const Duration(days: 1)),
+        scheduledDate: today.shiftDays(-1),
         valueType: TaskValueType.duration,
         durationSeconds: 20 * 60,
       );
@@ -2621,7 +2624,7 @@ void main() {
         projectId: null,
         taskType: TaskTypes.habit,
         recurrence: HabitRecurrence.daily,
-        startDate: today.subtract(const Duration(days: 1)),
+        startDate: today.shiftDays(-1),
         missedPolicy: MissedPolicy.direct,
         missedConsequence: MissedConsequence.keepNeutral,
         valueType: TaskValueType.number,
@@ -2641,7 +2644,7 @@ void main() {
         numberValue: 120,
       );
       await scheduler.ensureEntriesInRange(
-        from: today.subtract(const Duration(days: 1)),
+        from: today.shiftDays(-1),
         to: today,
       );
 
@@ -2880,7 +2883,7 @@ void main() {
       projectId: null,
       taskType: TaskTypes.habit,
       recurrence: HabitRecurrence.daily,
-      startDate: today.subtract(const Duration(days: 1)),
+      startDate: today.shiftDays(-1),
       valueType: TaskValueType.number,
       valueCommitment: TaskValueCommitment.pureTracking,
       valueUnitKey: TaskValueUnitKey.custom,
@@ -2893,7 +2896,7 @@ void main() {
       projectId: null,
       taskType: TaskTypes.habit,
       recurrence: HabitRecurrence.daily,
-      startDate: today.subtract(const Duration(days: 1)),
+      startDate: today.shiftDays(-1),
       valueType: TaskValueType.number,
       valueCommitment: TaskValueCommitment.pureTracking,
       valueUnitKey: TaskValueUnitKey.custom,
@@ -2916,20 +2919,20 @@ void main() {
       goalType: TaskGoalType.valueSumMin,
       goalValue: 500,
       goalWindowDays: 7,
-      validFrom: today.subtract(const Duration(days: 1)),
+      validFrom: today.shiftDays(-1),
     );
     final version =
         await database.select(database.taskValueBundleVersions).getSingle();
 
     await repository.setTaskEntryValue(
       task: intake,
-      scheduledDate: today.subtract(const Duration(days: 1)),
+      scheduledDate: today.shiftDays(-1),
       valueType: TaskValueType.number,
       numberValue: 3000,
     );
     await repository.setTaskEntryValue(
       task: burn,
-      scheduledDate: today.subtract(const Duration(days: 1)),
+      scheduledDate: today.shiftDays(-1),
       valueType: TaskValueType.number,
       numberValue: 2500,
     );
@@ -3280,7 +3283,10 @@ void main() {
       validFrom: today,
     );
 
-    expect(await database.select(database.taskValueBundles).get(), hasLength(2));
+    expect(
+      await database.select(database.taskValueBundles).get(),
+      hasLength(2),
+    );
   });
 
   test('Bündel-Erstellung listet nur passende zweite Trackings', () async {
@@ -3649,14 +3655,13 @@ void main() {
 
     await repository.deleteTask(first.id);
 
-    final trashed = await (database.select(
-      database.aufgaben,
-    )..where((row) => row.id.equals(first.id))).getSingle();
+    final trashed =
+        await (database.select(database.aufgaben)
+          ..where((row) => row.id.equals(first.id))).getSingle();
     expect(trashed.trashedAt, isNotNull);
     expect(
-      await (database.select(
-        database.taskValueBundles,
-      )..where((row) => row.id.equals(bundleId))).getSingleOrNull(),
+      await (database.select(database.taskValueBundles)
+        ..where((row) => row.id.equals(bundleId))).getSingleOrNull(),
       isNotNull,
     );
   });

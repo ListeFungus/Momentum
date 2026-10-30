@@ -1,8 +1,14 @@
 # Momentum – Phase 21: Testergebnisse ausarbeiten und umsetzen
 
-Stand: 25. Oktober 2026
+Stand: 28. Oktober 2026
 
-Status: Aktiv; #013 A0–A5 implementiert, 212 Tests grün, gezielte Analyse ohne Befunde. Kalender und #002 erhalten. Schema 25; Gerätenachtests offen. Keine neue APK für #002/#013.
+Status: Aktiv; #011/#020/#004 implementiert, Schema 26. Zielblock-/Zeitumstellungsfehler korrigiert; vollständige Suite 229 Tests grün, gezielte Analyse ohne Befunde. Gerätenachtest offen. Keine neue APK.
+
+## Aktuelle Test-APK
+
+Am 28. Oktober auf Nutzerauftrag **1.0.0+5** gebaut und Signatur/Version geprüft.
+27 Update-/Datenprüfungen erneut grün; ersetzt die obige frühere Aussage „Keine
+neue APK“. [Downloadpfad, Nachweis und Installation](update_1_0_0_5.md).
 
 ## Zweck
 
@@ -12,14 +18,16 @@ implementiert und tatsächlich auf dem Handy nachgetestet ist.
 
 ## Dokumente
 
+- [Zielzeiträume und Zeitumstellung – Korrektur vom 28. Oktober](goal_calendar_fix.md)
+  – Ursache, Umsetzung, vollständiger Prüfnachweis und Grenzen der Datenprüfung.
 - [#011/#020/A01 und Bezug #004 – Gruppenplanung](daily_overview_groups_plan.md)
-  – umsetzungsbereit G0–G6: eigener Gruppentab, kompakte Eingaben, vollständiger/
+  – G0–G6 umgesetzt und dokumentiert: eigener Gruppentab, kompakte Eingaben, vollständiger/
   teilweiser Abschluss, Zuordnung, V1-Sperren, Migration/Backup und Abnahme.
-  Monitoring/A01 ist auf Nutzerwunsch verschoben; noch keine Implementierung.
+  Monitoring/A01 ist auf Nutzerwunsch verschoben; Prüfvorbehalte siehe Gruppenplan.
 - [Arbeitsplan und Themenübersicht](test_improvements_plan.md) – alle offenen
   Themen, Prioritäten, Abhängigkeiten und Übergabe an den nächsten Chat.
 - [#013 – Aufgabenart wechseln: Auftrag A0–A5](task_type_change_implementation_plan.md)
-  – zur Umsetzung vorbereitet, noch nicht implementiert. Beide Historienoptionen,
+  – implementiert. Beide Historienoptionen,
   Sperrmatrix, aktueller Kalender-/Trackingstand, Datenregeln und Tests.
 - [Kalender-Umsetzungsplan und Auftrag K0–K7](calendar_implementation_plan.md) –
   aktuelle Priorität; bestätigter Umfang, Daten-/Projektionsregeln, Freigaben und

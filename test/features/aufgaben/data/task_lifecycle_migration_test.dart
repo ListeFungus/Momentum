@@ -26,7 +26,7 @@ void main() {
     final versions =
         await database.select(database.taskValueBundleVersions).get();
 
-    expect(database.schemaVersion, 25);
+    expect(database.schemaVersion, 26);
     expect(tasks.map((task) => task.id), containsAll(['task-a', 'task-b']));
     expect(tasks.every((task) => task.trashedAt == null), isTrue);
     expect(tasks.every((task) => task.lifecycleRevision == 0), isTrue);
@@ -84,7 +84,7 @@ void main() {
     final changes =
         await database.select(database.taskProjectAssignmentChanges).get();
 
-    expect(database.schemaVersion, 25);
+    expect(database.schemaVersion, 26);
     expect(project.name, 'Bestand');
     expect(project.archivedAt, isNull);
     expect(project.revision, 0);

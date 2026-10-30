@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
+import 'value_draft_scope.dart';
 import 'package:momentum/core/settings/card_display_scope.dart';
 import 'package:momentum/core/theme/hex_color.dart';
 import 'package:momentum/features/aufgaben/data/task_for_date.dart';
@@ -32,7 +34,7 @@ class TaskCard extends StatelessWidget {
   final DateTime scheduledDate;
   final ValueChanged<bool> onCompletedChanged;
   final ValueChanged<bool?> onBooleanValueChanged;
-  final ValueChanged<TaskValueInput> onValueSaved;
+  final FutureOr<void> Function(TaskValueInput) onValueSaved;
   final VoidCallback onEditNote;
   final VoidCallback onOpenDetails;
   final VoidCallback onEdit;
@@ -51,6 +53,14 @@ class TaskCard extends StatelessWidget {
   );
 
   Widget _buildCard(BuildContext context, bool expanded, Widget toggle) {
+    final compactNumber =
+        !expanded &&
+        task.task.erfassungsmodus == 'value' &&
+        task.task.valueType == 'number';
+    final inlineNumber =
+        compactNumber &&
+        MediaQuery.sizeOf(context).width > 600 &&
+        MediaQuery.textScalerOf(context).scale(14) < 22;
     final colorScheme = Theme.of(context).colorScheme;
     final hasDescription = task.task.beschreibung.trim().isNotEmpty;
     final hasQuestion = task.task.questionText.trim().isNotEmpty;
@@ -126,6 +136,19 @@ class TaskCard extends StatelessWidget {
                               ),
                             ),
                           ),
+                          if (inlineNumber)
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                ),
+                                child: ValueTaskInput(
+                                  task: task,
+                                  scheduledDate: scheduledDate,
+                                  onSave: onValueSaved,
+                                ),
+                              ),
+                            ),
                           if (metaLabel != null) ...[
                             const SizedBox(width: 8),
                             Text(
@@ -142,10 +165,16 @@ class TaskCard extends StatelessWidget {
                           toggle,
                           PopupMenuButton<_TaskAction>(
                             tooltip: 'Aufgabenoptionen',
-                            onSelected: (action) {
+                            onSelected: (action) async {
+                              if (!await ValueDraftScope.confirm(context) ||
+                                  !context.mounted) {
+                                return;
+                              }
                               switch (action) {
                                 case _TaskAction.details:
                                   onOpenDetails();
+                                case _TaskAction.note:
+                                  onEditNote();
                                 case _TaskAction.edit:
                                   onEdit();
                                 case _TaskAction.cardMetric:
@@ -162,6 +191,10 @@ class TaskCard extends StatelessWidget {
                             },
                             itemBuilder:
                                 (context) => [
+                                  const PopupMenuItem(
+                                    value: _TaskAction.note,
+                                    child: Text('Notiz bearbeiten'),
+                                  ),
                                   const PopupMenuItem(
                                     value: _TaskAction.details,
                                     child: Row(
@@ -256,7 +289,7 @@ class TaskCard extends StatelessWidget {
                           ),
                         ),
                       ],
-                      if (hasQuestion) ...[
+                      if (hasQuestion && !compactNumber) ...[
                         const SizedBox(height: 8),
                         Text(
                           task.task.questionText,
@@ -289,8 +322,8 @@ class TaskCard extends StatelessWidget {
                               ),
                             ),
                       ],
-                      if (task.task.erfassungsmodus ==
-                          TaskCaptureMode.value) ...[
+                      if (task.task.erfassungsmodus == TaskCaptureMode.value &&
+                          !inlineNumber) ...[
                         SizedBox(height: expanded ? 14 : 4),
                         ValueTaskInput(
                           key: ValueKey('input:${task.task.id}:$scheduledDate'),
@@ -371,6 +404,7 @@ class _LinkedBundleHint extends StatelessWidget {
 }
 
 enum _TaskAction {
+  note,
   details,
   cardMetric,
   bundle,

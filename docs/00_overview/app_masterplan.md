@@ -1,10 +1,16 @@
 # Momentum – App-Masterplan
 
-Stand: 22. Oktober 2026
+Stand: 28. Oktober 2026
 
 Status: Lebendes Konzept- und Orientierungsdokument
 
-Aktueller Umsetzungsstand: Phase 21 #013 ermöglicht Aufgabe ↔ Habit bei
+Aktueller Umsetzungsstand: Phase 21 #011/#020/#004 implementiert: Gruppentab,
+kompakte Zahleneingaben, gemeinsame Aktionen und Entwurfsschutz. Schema 26;
+Zeitumstellungsfehler am 28. Oktober korrigiert, vollständige Suite 229 Tests grün,
+gezielte Analyse ohne Befunde. Gerätenachtest offen. Keine neue APK und kein Monitoring.
+[Prüfnachweis](../10_tasks_habits/phase_21_test_improvements/daily_overview_groups_plan.md).
+
+Vorheriger Stand: Phase 21 #013 ermöglicht Aufgabe ↔ Habit bei
 wiederkehrenden Einträgen, mit ausdrücklich gewähltem Historienumfang und Sperrmatrix.
 Schema 25, 212 Tests und gezielte Analyse grün; Kalender und #002 erhalten.
 Gerätenachtest offen, keine neue APK.

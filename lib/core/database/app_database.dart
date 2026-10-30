@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:momentum/features/aufgaben/data/task_display_group_tables.dart';
 import 'package:momentum/features/aufgaben/data/task_type_changes_table.dart';
 import 'package:momentum/features/calendar/data/calendar_settings_table.dart';
 import 'package:momentum/core/settings/card_display_tables.dart';
@@ -47,6 +48,8 @@ part 'app_database.g.dart';
     CardExpansionPreferences,
     CalendarSettings,
     TaskTypeChanges,
+    TaskDisplayGroups,
+    TaskDisplayGroupMembers,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -57,12 +60,16 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.withExecutor(super.e);
 
   @override
-  int get schemaVersion => 25;
+  int get schemaVersion => 26;
 
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
       onUpgrade: (migrator, from, to) async {
+        if (from < 26) {
+          await migrator.createTable(taskDisplayGroups);
+          await migrator.createTable(taskDisplayGroupMembers);
+        }
         if (from < 25) {
           await migrator.createTable(taskTypeChanges);
         }

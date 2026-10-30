@@ -85,8 +85,8 @@ class CompletedOneTimeTasksScreen extends StatelessWidget {
                         value: value,
                       );
                     },
-                    onValueSaved: (value) {
-                      repository.setTaskEntryValue(
+                    onValueSaved: (value) async {
+                      await repository.setTaskEntryValue(
                         task: task.task,
                         scheduledDate: scheduledDate,
                         valueType: task.task.valueType,

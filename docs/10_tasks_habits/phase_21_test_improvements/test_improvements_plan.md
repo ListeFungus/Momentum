@@ -1,8 +1,46 @@
 # Momentum – Phase 21: Arbeitsplan für Testergebnisse und Verbesserungen
 
-Stand: 25. Oktober 2026
+Stand: 28. Oktober 2026
 
-Status: Aktiv; #013 A0–A5 implementiert, 212 Tests grün und gezielte Analyse ohne Befunde. Kalender und #002 erhalten. Gerätenachtests offen; keine neue APK für #002/#013.
+Status: Aktiv; #011/#020/#004 implementiert, Schema 26. Zielblock-/Zeitumstellungsfehler am 28. Oktober korrigiert: vollständige Suite 229 Tests grün, gezielte Analyse ohne Befunde. Gerätenachtest offen; keine neue APK.
+
+## Nachtrag 29. Oktober: Eingaben in der Projektansicht
+
+Auf Nutzerwunsch umgesetzt: Aufgaben und Habits direkt im Projekt beantworten,
+abhaken oder Werte eingeben, jeweils für konkrete heutige/übertragene Einträge.
+Vier gezielte Tests bestanden, Analyse ohne Befunde; Geräteabnahme und APK offen.
+Umfang und Prüfungen: [Umgesetzte Änderungen](implemented_changes.md).
+
+## Behoben: Zielzeiträume über die Zeitumstellung
+
+Am 28. Oktober vor der Korrektur beide gemeldeten Tests gezielt reproduziert:
+
+- `historische Statuszielbloecke listen laufenden Block nicht`: erwartet keine
+  abgeschlossenen Blöcke, tatsächlich ein Block. Der laufende Block wird zu früh
+  als vergangen geführt.
+- `plant reine Zielaenderung ab naechstem Zielblock ohne aktive Aufgabe zu aendern`:
+  erwartet Wirksamkeit am 29. Oktober 2026, tatsächlich 28. Oktober 2026.
+
+Ursprünglicher Codebefund: `task_goal_evaluation_summary.dart` berechnete Blockgrenzen mit
+`Duration(days: ...)` und Tagesabstände mit `difference(...).inDays` auf lokalen
+Datumswerten. Die Zielvormerkung übernimmt die so berechnete nächste Blockgrenze.
+24-Stunden-Abstände sind über die Zeitumstellung keine verlässlichen Kalendertage.
+Der Fehler konnte daher Auswertungen und gespeicherte Wirksamkeitsdaten von
+Zieländerungen betreffen; kein reiner Anzeigefehler.
+
+Kein Nachweis gelöschter Messwerte durch diese beiden Fehler. Die Prüfung lief
+mit In-Memory-Testdatenbanken, nicht mit dem persönlichen Langzeitbestand.
+Keine Aussage über dessen vollständige Integrität oder sämtliche Altvormerkungen.
+Auf anschließenden Nutzerauftrag implementiert: gemeinsame Kalenderarithmetik
+für Zielgrenzen und Tagesfilter, feste Tests für beide Zeitumstellungen,
+Zielvormerkung, Einzel-/Bündelwerte und einen künstlichen Mehrjahresbestand.
+Zusätzlich Erhalt von Eingabe-Fehlermarkierungen beim Kartenklappen korrigiert.
+Vollständige Suite **229 Tests grün**, Analyse acht Dateien ohne Befunde.
+Details, Grenzen und Befehle im [Korrekturbericht](goal_calendar_fix.md).
+
+Keine Datenmigration; vorhandene Zielvormerkungen nicht pauschal rückwirkend
+verschoben. Einen echten Langzeitexport bei Bedarf separat auf einer Kopie prüfen;
+keine automatische Wiederherstellung in die benutzte App. Kein APK-Build.
 
 ## Ziel und Quellen
 
@@ -28,7 +66,7 @@ Ursprung im Masterplan; hier stehen ihre konkreten Änderungspakete und der Stat
 |---|---|
 | Android-App | Kalender-APK `1.0.0+4` am 21. Oktober gebaut; Manifest/Signatur geprüft, Gerätenachtest offen. Installierte Version `1.0.0+2` und externer Export zuvor bestätigt |
 | Daten | Lokale Drift-Datenbank; Kalender hebt Schema 23 auf 24 an. Keine aktive Cloud-Synchronisierung |
-| Datensicherung #014 | Vollständiges Exportieren/Ersetzen; Format 1, maximal 50 MB. Schema 25 exportiert 20 Tabellen einschließlich Kalenderoptionen und Artenwechselprotokoll; Import von Schema 22–25 möglich. Lesbarer Analyseexport offen |
+| Datensicherung #014 | Vollständiges Exportieren/Ersetzen; Format 1, maximal 50 MB. Schema 26 exportiert 22 Tabellen einschließlich Anzeigegruppen und Mitglieder; Import von Schema 22–26 möglich. Lesbarer Analyseexport offen |
 | Datumsauswahl #001 | Umgesetzt; vorläufig heute/Vergangenheit. Zukunftsnavigation nach bestätigter Zwischenlösung gesperrt |
 | Tagesdiagramm #007 | Umgesetzt: sieben Tage mit erledigten Aufgaben und Habits, ohne reine Tracker; keine Zählung geplanter Aufgaben |
 | Abnahme | Kalenderstand: 174 Tests bestanden, Analyse ohne Befunde. Gerätebestätigung betrifft weiterhin nur Version `1.0.0+2` und Export nach Drive. Kalender-Gerätenachtest bleibt offen |
@@ -153,10 +191,10 @@ alle Ideen vor Veröffentlichung umzusetzen.
 | Kompakte/einklappbare Karten | #003 + #015 | Implementiert und geprüft; Gerätenachtest offen | Regeln, Datenhaltung und Abnahme im Paketabschnitt unten |
 | Startdatum nach Erstellung bearbeiten | #002 | Implementiert und automatisiert geprüft | Reine Tracker früher/später beginnen lassen; Messhistorie, Korrekturen, Kalender und Bündel erhalten. Echte Terminserien bleiben gesperrt; Gerätenachtest separat offen |
 | Aufgabenart Aufgabe ↔ Habit ändern | #013 | A0–A5 implementiert und automatisiert geprüft; Gerätenachtest offen | Beide Historienoptionen, Sperrmatrix, Versionszuordnung, Kalender/Listenfilter und Schema-25-Protokoll; 212 Tests grün, keine APK |
-| Tagesansicht, Tracker und Anzeigegruppen | #011 + #020 + #004; Bezug A01 | Umsetzungsbereit G0–G6 im [Gruppenplan](daily_overview_groups_plan.md); noch nicht implementiert | Eigener Gruppentab, kompakte Tracker-Eingaben, vollständiger/teilweiser Abschluss und Nein-Semantik geklärt. Zuordnung, Datenhaltung, V1-Sperren, Backup und Tests dokumentiert. Monitoring ausdrücklich auf später verschoben |
+| Tagesansicht, Tracker und Anzeigegruppen | #011 + #020 + #004; Bezug A01 | Implementiert; Prüfnachweise und offene Abnahme im [Gruppenplan](daily_overview_groups_plan.md) | Eigener Gruppentab, kompakte Eingaben, atomarer Vollabschluss und explizite Teilaktion, Entwurfschutz, Zuordnung, Bündelsperren und Backup. Monitoring bleibt verschoben |
 | Eigener Monitoringbereich | Rest A01 | Auf Nutzerwunsch vom 25. Oktober später separat planen | Messreihen, Check-ins und Auswertungszugang ohne doppelte Datenerfassung; kein Bestandteil des aktuellen Gruppen-/Trackerpakets |
 | Schnelle Aufgabenanlage | A02, nur Quick Task | Beschriebener erster Anwendungsfall; Priorität/Umsetzung noch offen | Bereits beschrieben: Titel genügt, normale einmalige heute fällige offene Aufgabe. Nur unbeschriebene Bedien-/Bearbeitungsfolgen klären. Allgemeine Vorlagen, Widgets, Quick Habit und Quick Note separat behandeln |
-| Routinen und Unteraufgaben | #004 + #010 | Gemeinsamer Abschluss #004 wird seit 25. Oktober im Gruppenpaket geklärt; #010 bleibt separat | Teilabschluss im Gruppenplan; eigenständige Unteraufgaben versus Checkliste und Bearbeitungs-/Wartestatus bleiben gesondert offen |
+| Routinen und Unteraufgaben | #004 + #010 | Gemeinsamer Abschluss #004 im Gruppenpaket implementiert; #010 bleibt separat | Teilabschluss im Gruppenplan; eigenständige Unteraufgaben versus Checkliste und Bearbeitungs-/Wartestatus bleiben gesondert offen |
 | Kombinierte Messdiagramme | #005 | Spätere Erweiterung | Bereits vorhandene Bündel weiterverwenden; unterschiedliche Skalen und Zeitebenen, fehlende Werte, klare Aussagegrenzen |
 | Projekt-Dashboards | #006 | Eigener Ausbau nach Bedarf | Welche Anzeigen auswählbar, Reihenfolge/Speicherung, vorhandene Diagramme verwenden; nicht zwingend alle Dashboardfunktionen gemeinsam bauen |
 | Projektphasen | #012 | Eigener Fachentwurf | Nur zeitliche Markierung oder Steuerung von Trackern? Beginn/Ende, historische Zuordnung und Vergleich ohne Datenverlust |

@@ -14682,6 +14682,755 @@ class TaskTypeChangesCompanion extends UpdateCompanion<TaskTypeChange> {
   }
 }
 
+class $TaskDisplayGroupsTable extends TaskDisplayGroups
+    with TableInfo<$TaskDisplayGroupsTable, TaskDisplayGroup> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TaskDisplayGroupsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sortOrderMeta = const VerificationMeta(
+    'sortOrder',
+  );
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+    'sort_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _isCollapsedMeta = const VerificationMeta(
+    'isCollapsed',
+  );
+  @override
+  late final GeneratedColumn<bool> isCollapsed = GeneratedColumn<bool>(
+    'is_collapsed',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_collapsed" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _revisionMeta = const VerificationMeta(
+    'revision',
+  );
+  @override
+  late final GeneratedColumn<int> revision = GeneratedColumn<int>(
+    'revision',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    sortOrder,
+    isCollapsed,
+    createdAt,
+    updatedAt,
+    revision,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'task_display_groups';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TaskDisplayGroup> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(
+        _sortOrderMeta,
+        sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sortOrderMeta);
+    }
+    if (data.containsKey('is_collapsed')) {
+      context.handle(
+        _isCollapsedMeta,
+        isCollapsed.isAcceptableOrUnknown(
+          data['is_collapsed']!,
+          _isCollapsedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('revision')) {
+      context.handle(
+        _revisionMeta,
+        revision.isAcceptableOrUnknown(data['revision']!, _revisionMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  TaskDisplayGroup map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TaskDisplayGroup(
+      id:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}id'],
+          )!,
+      name:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}name'],
+          )!,
+      sortOrder:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}sort_order'],
+          )!,
+      isCollapsed:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.bool,
+            data['${effectivePrefix}is_collapsed'],
+          )!,
+      createdAt:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.dateTime,
+            data['${effectivePrefix}created_at'],
+          )!,
+      updatedAt:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.dateTime,
+            data['${effectivePrefix}updated_at'],
+          )!,
+      revision:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}revision'],
+          )!,
+    );
+  }
+
+  @override
+  $TaskDisplayGroupsTable createAlias(String alias) {
+    return $TaskDisplayGroupsTable(attachedDatabase, alias);
+  }
+}
+
+class TaskDisplayGroup extends DataClass
+    implements Insertable<TaskDisplayGroup> {
+  final String id;
+  final String name;
+  final int sortOrder;
+  final bool isCollapsed;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final int revision;
+  const TaskDisplayGroup({
+    required this.id,
+    required this.name,
+    required this.sortOrder,
+    required this.isCollapsed,
+    required this.createdAt,
+    required this.updatedAt,
+    required this.revision,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    map['sort_order'] = Variable<int>(sortOrder);
+    map['is_collapsed'] = Variable<bool>(isCollapsed);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    map['revision'] = Variable<int>(revision);
+    return map;
+  }
+
+  TaskDisplayGroupsCompanion toCompanion(bool nullToAbsent) {
+    return TaskDisplayGroupsCompanion(
+      id: Value(id),
+      name: Value(name),
+      sortOrder: Value(sortOrder),
+      isCollapsed: Value(isCollapsed),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      revision: Value(revision),
+    );
+  }
+
+  factory TaskDisplayGroup.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TaskDisplayGroup(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      isCollapsed: serializer.fromJson<bool>(json['isCollapsed']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      revision: serializer.fromJson<int>(json['revision']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+      'isCollapsed': serializer.toJson<bool>(isCollapsed),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'revision': serializer.toJson<int>(revision),
+    };
+  }
+
+  TaskDisplayGroup copyWith({
+    String? id,
+    String? name,
+    int? sortOrder,
+    bool? isCollapsed,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    int? revision,
+  }) => TaskDisplayGroup(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    sortOrder: sortOrder ?? this.sortOrder,
+    isCollapsed: isCollapsed ?? this.isCollapsed,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    revision: revision ?? this.revision,
+  );
+  TaskDisplayGroup copyWithCompanion(TaskDisplayGroupsCompanion data) {
+    return TaskDisplayGroup(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      isCollapsed:
+          data.isCollapsed.present ? data.isCollapsed.value : this.isCollapsed,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      revision: data.revision.present ? data.revision.value : this.revision,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TaskDisplayGroup(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('isCollapsed: $isCollapsed, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('revision: $revision')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    name,
+    sortOrder,
+    isCollapsed,
+    createdAt,
+    updatedAt,
+    revision,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TaskDisplayGroup &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.sortOrder == this.sortOrder &&
+          other.isCollapsed == this.isCollapsed &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.revision == this.revision);
+}
+
+class TaskDisplayGroupsCompanion extends UpdateCompanion<TaskDisplayGroup> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<int> sortOrder;
+  final Value<bool> isCollapsed;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> revision;
+  final Value<int> rowid;
+  const TaskDisplayGroupsCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.isCollapsed = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.revision = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TaskDisplayGroupsCompanion.insert({
+    required String id,
+    required String name,
+    required int sortOrder,
+    this.isCollapsed = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.revision = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       name = Value(name),
+       sortOrder = Value(sortOrder);
+  static Insertable<TaskDisplayGroup> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<int>? sortOrder,
+    Expression<bool>? isCollapsed,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? revision,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (isCollapsed != null) 'is_collapsed': isCollapsed,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (revision != null) 'revision': revision,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TaskDisplayGroupsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? name,
+    Value<int>? sortOrder,
+    Value<bool>? isCollapsed,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? revision,
+    Value<int>? rowid,
+  }) {
+    return TaskDisplayGroupsCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      sortOrder: sortOrder ?? this.sortOrder,
+      isCollapsed: isCollapsed ?? this.isCollapsed,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      revision: revision ?? this.revision,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (isCollapsed.present) {
+      map['is_collapsed'] = Variable<bool>(isCollapsed.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (revision.present) {
+      map['revision'] = Variable<int>(revision.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TaskDisplayGroupsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('isCollapsed: $isCollapsed, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('revision: $revision, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TaskDisplayGroupMembersTable extends TaskDisplayGroupMembers
+    with TableInfo<$TaskDisplayGroupMembersTable, TaskDisplayGroupMember> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TaskDisplayGroupMembersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _taskIdMeta = const VerificationMeta('taskId');
+  @override
+  late final GeneratedColumn<String> taskId = GeneratedColumn<String>(
+    'task_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES aufgaben (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _groupIdMeta = const VerificationMeta(
+    'groupId',
+  );
+  @override
+  late final GeneratedColumn<String> groupId = GeneratedColumn<String>(
+    'group_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES task_display_groups (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _sortOrderMeta = const VerificationMeta(
+    'sortOrder',
+  );
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+    'sort_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [taskId, groupId, sortOrder];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'task_display_group_members';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<TaskDisplayGroupMember> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('task_id')) {
+      context.handle(
+        _taskIdMeta,
+        taskId.isAcceptableOrUnknown(data['task_id']!, _taskIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_taskIdMeta);
+    }
+    if (data.containsKey('group_id')) {
+      context.handle(
+        _groupIdMeta,
+        groupId.isAcceptableOrUnknown(data['group_id']!, _groupIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_groupIdMeta);
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(
+        _sortOrderMeta,
+        sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sortOrderMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {taskId};
+  @override
+  TaskDisplayGroupMember map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TaskDisplayGroupMember(
+      taskId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}task_id'],
+          )!,
+      groupId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}group_id'],
+          )!,
+      sortOrder:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}sort_order'],
+          )!,
+    );
+  }
+
+  @override
+  $TaskDisplayGroupMembersTable createAlias(String alias) {
+    return $TaskDisplayGroupMembersTable(attachedDatabase, alias);
+  }
+}
+
+class TaskDisplayGroupMember extends DataClass
+    implements Insertable<TaskDisplayGroupMember> {
+  final String taskId;
+  final String groupId;
+  final int sortOrder;
+  const TaskDisplayGroupMember({
+    required this.taskId,
+    required this.groupId,
+    required this.sortOrder,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['task_id'] = Variable<String>(taskId);
+    map['group_id'] = Variable<String>(groupId);
+    map['sort_order'] = Variable<int>(sortOrder);
+    return map;
+  }
+
+  TaskDisplayGroupMembersCompanion toCompanion(bool nullToAbsent) {
+    return TaskDisplayGroupMembersCompanion(
+      taskId: Value(taskId),
+      groupId: Value(groupId),
+      sortOrder: Value(sortOrder),
+    );
+  }
+
+  factory TaskDisplayGroupMember.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TaskDisplayGroupMember(
+      taskId: serializer.fromJson<String>(json['taskId']),
+      groupId: serializer.fromJson<String>(json['groupId']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'taskId': serializer.toJson<String>(taskId),
+      'groupId': serializer.toJson<String>(groupId),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+    };
+  }
+
+  TaskDisplayGroupMember copyWith({
+    String? taskId,
+    String? groupId,
+    int? sortOrder,
+  }) => TaskDisplayGroupMember(
+    taskId: taskId ?? this.taskId,
+    groupId: groupId ?? this.groupId,
+    sortOrder: sortOrder ?? this.sortOrder,
+  );
+  TaskDisplayGroupMember copyWithCompanion(
+    TaskDisplayGroupMembersCompanion data,
+  ) {
+    return TaskDisplayGroupMember(
+      taskId: data.taskId.present ? data.taskId.value : this.taskId,
+      groupId: data.groupId.present ? data.groupId.value : this.groupId,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TaskDisplayGroupMember(')
+          ..write('taskId: $taskId, ')
+          ..write('groupId: $groupId, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(taskId, groupId, sortOrder);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TaskDisplayGroupMember &&
+          other.taskId == this.taskId &&
+          other.groupId == this.groupId &&
+          other.sortOrder == this.sortOrder);
+}
+
+class TaskDisplayGroupMembersCompanion
+    extends UpdateCompanion<TaskDisplayGroupMember> {
+  final Value<String> taskId;
+  final Value<String> groupId;
+  final Value<int> sortOrder;
+  final Value<int> rowid;
+  const TaskDisplayGroupMembersCompanion({
+    this.taskId = const Value.absent(),
+    this.groupId = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TaskDisplayGroupMembersCompanion.insert({
+    required String taskId,
+    required String groupId,
+    required int sortOrder,
+    this.rowid = const Value.absent(),
+  }) : taskId = Value(taskId),
+       groupId = Value(groupId),
+       sortOrder = Value(sortOrder);
+  static Insertable<TaskDisplayGroupMember> custom({
+    Expression<String>? taskId,
+    Expression<String>? groupId,
+    Expression<int>? sortOrder,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (taskId != null) 'task_id': taskId,
+      if (groupId != null) 'group_id': groupId,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TaskDisplayGroupMembersCompanion copyWith({
+    Value<String>? taskId,
+    Value<String>? groupId,
+    Value<int>? sortOrder,
+    Value<int>? rowid,
+  }) {
+    return TaskDisplayGroupMembersCompanion(
+      taskId: taskId ?? this.taskId,
+      groupId: groupId ?? this.groupId,
+      sortOrder: sortOrder ?? this.sortOrder,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (taskId.present) {
+      map['task_id'] = Variable<String>(taskId.value);
+    }
+    if (groupId.present) {
+      map['group_id'] = Variable<String>(groupId.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TaskDisplayGroupMembersCompanion(')
+          ..write('taskId: $taskId, ')
+          ..write('groupId: $groupId, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -14726,6 +15475,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $TaskTypeChangesTable taskTypeChanges = $TaskTypeChangesTable(
     this,
   );
+  late final $TaskDisplayGroupsTable taskDisplayGroups =
+      $TaskDisplayGroupsTable(this);
+  late final $TaskDisplayGroupMembersTable taskDisplayGroupMembers =
+      $TaskDisplayGroupMembersTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -14751,6 +15504,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     cardExpansionPreferences,
     calendarSettings,
     taskTypeChanges,
+    taskDisplayGroups,
+    taskDisplayGroupMembers,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -14935,6 +15690,24 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('task_type_changes', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'aufgaben',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate('task_display_group_members', kind: UpdateKind.delete),
+      ],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'task_display_groups',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate('task_display_group_members', kind: UpdateKind.delete),
+      ],
     ),
   ]);
 }
@@ -16138,6 +16911,34 @@ final class $$AufgabenTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<
+    $TaskDisplayGroupMembersTable,
+    List<TaskDisplayGroupMember>
+  >
+  _taskDisplayGroupMembersRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.taskDisplayGroupMembers,
+        aliasName: $_aliasNameGenerator(
+          db.aufgaben.id,
+          db.taskDisplayGroupMembers.taskId,
+        ),
+      );
+
+  $$TaskDisplayGroupMembersTableProcessedTableManager
+  get taskDisplayGroupMembersRefs {
+    final manager = $$TaskDisplayGroupMembersTableTableManager(
+      $_db,
+      $_db.taskDisplayGroupMembers,
+    ).filter((f) => f.taskId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _taskDisplayGroupMembersRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$AufgabenTableFilterComposer
@@ -16586,6 +17387,32 @@ class $$AufgabenTableFilterComposer
                 $removeJoinBuilderFromRootComposer,
           ),
     );
+    return f(composer);
+  }
+
+  Expression<bool> taskDisplayGroupMembersRefs(
+    Expression<bool> Function($$TaskDisplayGroupMembersTableFilterComposer f) f,
+  ) {
+    final $$TaskDisplayGroupMembersTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.taskDisplayGroupMembers,
+          getReferencedColumn: (t) => t.taskId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$TaskDisplayGroupMembersTableFilterComposer(
+                $db: $db,
+                $table: $db.taskDisplayGroupMembers,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
     return f(composer);
   }
 }
@@ -17218,6 +18045,33 @@ class $$AufgabenTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> taskDisplayGroupMembersRefs<T extends Object>(
+    Expression<T> Function($$TaskDisplayGroupMembersTableAnnotationComposer a)
+    f,
+  ) {
+    final $$TaskDisplayGroupMembersTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.taskDisplayGroupMembers,
+          getReferencedColumn: (t) => t.taskId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$TaskDisplayGroupMembersTableAnnotationComposer(
+                $db: $db,
+                $table: $db.taskDisplayGroupMembers,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$AufgabenTableTableManager
@@ -17244,6 +18098,7 @@ class $$AufgabenTableTableManager
             bool taskPlanningInterruptionsRefs,
             bool cardExpansionPreferencesRefs,
             bool taskTypeChangesRefs,
+            bool taskDisplayGroupMembersRefs,
           })
         > {
   $$AufgabenTableTableManager(_$AppDatabase db, $AufgabenTable table)
@@ -17434,6 +18289,7 @@ class $$AufgabenTableTableManager
             taskPlanningInterruptionsRefs = false,
             cardExpansionPreferencesRefs = false,
             taskTypeChangesRefs = false,
+            taskDisplayGroupMembersRefs = false,
           }) {
             return PrefetchHooks(
               db: db,
@@ -17449,6 +18305,7 @@ class $$AufgabenTableTableManager
                 if (taskPlanningInterruptionsRefs) db.taskPlanningInterruptions,
                 if (cardExpansionPreferencesRefs) db.cardExpansionPreferences,
                 if (taskTypeChangesRefs) db.taskTypeChanges,
+                if (taskDisplayGroupMembersRefs) db.taskDisplayGroupMembers,
               ],
               addJoins: <
                 T extends TableManagerState<
@@ -17673,6 +18530,27 @@ class $$AufgabenTableTableManager
                               referencedItems.where((e) => e.taskId == item.id),
                       typedResults: items,
                     ),
+                  if (taskDisplayGroupMembersRefs)
+                    await $_getPrefetchedData<
+                      Aufgabe,
+                      $AufgabenTable,
+                      TaskDisplayGroupMember
+                    >(
+                      currentTable: table,
+                      referencedTable: $$AufgabenTableReferences
+                          ._taskDisplayGroupMembersRefsTable(db),
+                      managerFromTypedResult:
+                          (p0) =>
+                              $$AufgabenTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).taskDisplayGroupMembersRefs,
+                      referencedItemsForCurrentItem:
+                          (item, referencedItems) =>
+                              referencedItems.where((e) => e.taskId == item.id),
+                      typedResults: items,
+                    ),
                 ];
               },
             );
@@ -17704,6 +18582,7 @@ typedef $$AufgabenTableProcessedTableManager =
         bool taskPlanningInterruptionsRefs,
         bool cardExpansionPreferencesRefs,
         bool taskTypeChangesRefs,
+        bool taskDisplayGroupMembersRefs,
       })
     >;
 typedef $$TaskDefinitionVersionsTableCreateCompanionBuilder =
@@ -27396,6 +28275,789 @@ typedef $$TaskTypeChangesTableProcessedTableManager =
       TaskTypeChange,
       PrefetchHooks Function({bool taskId, bool definitionVersionId})
     >;
+typedef $$TaskDisplayGroupsTableCreateCompanionBuilder =
+    TaskDisplayGroupsCompanion Function({
+      required String id,
+      required String name,
+      required int sortOrder,
+      Value<bool> isCollapsed,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> revision,
+      Value<int> rowid,
+    });
+typedef $$TaskDisplayGroupsTableUpdateCompanionBuilder =
+    TaskDisplayGroupsCompanion Function({
+      Value<String> id,
+      Value<String> name,
+      Value<int> sortOrder,
+      Value<bool> isCollapsed,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> revision,
+      Value<int> rowid,
+    });
+
+final class $$TaskDisplayGroupsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $TaskDisplayGroupsTable,
+          TaskDisplayGroup
+        > {
+  $$TaskDisplayGroupsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static MultiTypedResultKey<
+    $TaskDisplayGroupMembersTable,
+    List<TaskDisplayGroupMember>
+  >
+  _taskDisplayGroupMembersRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.taskDisplayGroupMembers,
+        aliasName: $_aliasNameGenerator(
+          db.taskDisplayGroups.id,
+          db.taskDisplayGroupMembers.groupId,
+        ),
+      );
+
+  $$TaskDisplayGroupMembersTableProcessedTableManager
+  get taskDisplayGroupMembersRefs {
+    final manager = $$TaskDisplayGroupMembersTableTableManager(
+      $_db,
+      $_db.taskDisplayGroupMembers,
+    ).filter((f) => f.groupId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _taskDisplayGroupMembersRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$TaskDisplayGroupsTableFilterComposer
+    extends Composer<_$AppDatabase, $TaskDisplayGroupsTable> {
+  $$TaskDisplayGroupsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isCollapsed => $composableBuilder(
+    column: $table.isCollapsed,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> taskDisplayGroupMembersRefs(
+    Expression<bool> Function($$TaskDisplayGroupMembersTableFilterComposer f) f,
+  ) {
+    final $$TaskDisplayGroupMembersTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.taskDisplayGroupMembers,
+          getReferencedColumn: (t) => t.groupId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$TaskDisplayGroupMembersTableFilterComposer(
+                $db: $db,
+                $table: $db.taskDisplayGroupMembers,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+}
+
+class $$TaskDisplayGroupsTableOrderingComposer
+    extends Composer<_$AppDatabase, $TaskDisplayGroupsTable> {
+  $$TaskDisplayGroupsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isCollapsed => $composableBuilder(
+    column: $table.isCollapsed,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$TaskDisplayGroupsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TaskDisplayGroupsTable> {
+  $$TaskDisplayGroupsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumn<bool> get isCollapsed => $composableBuilder(
+    column: $table.isCollapsed,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get revision =>
+      $composableBuilder(column: $table.revision, builder: (column) => column);
+
+  Expression<T> taskDisplayGroupMembersRefs<T extends Object>(
+    Expression<T> Function($$TaskDisplayGroupMembersTableAnnotationComposer a)
+    f,
+  ) {
+    final $$TaskDisplayGroupMembersTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.taskDisplayGroupMembers,
+          getReferencedColumn: (t) => t.groupId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$TaskDisplayGroupMembersTableAnnotationComposer(
+                $db: $db,
+                $table: $db.taskDisplayGroupMembers,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+}
+
+class $$TaskDisplayGroupsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $TaskDisplayGroupsTable,
+          TaskDisplayGroup,
+          $$TaskDisplayGroupsTableFilterComposer,
+          $$TaskDisplayGroupsTableOrderingComposer,
+          $$TaskDisplayGroupsTableAnnotationComposer,
+          $$TaskDisplayGroupsTableCreateCompanionBuilder,
+          $$TaskDisplayGroupsTableUpdateCompanionBuilder,
+          (TaskDisplayGroup, $$TaskDisplayGroupsTableReferences),
+          TaskDisplayGroup,
+          PrefetchHooks Function({bool taskDisplayGroupMembersRefs})
+        > {
+  $$TaskDisplayGroupsTableTableManager(
+    _$AppDatabase db,
+    $TaskDisplayGroupsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer:
+              () => $$TaskDisplayGroupsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer:
+              () => $$TaskDisplayGroupsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer:
+              () => $$TaskDisplayGroupsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+                Value<bool> isCollapsed = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> revision = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TaskDisplayGroupsCompanion(
+                id: id,
+                name: name,
+                sortOrder: sortOrder,
+                isCollapsed: isCollapsed,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                revision: revision,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String name,
+                required int sortOrder,
+                Value<bool> isCollapsed = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> revision = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TaskDisplayGroupsCompanion.insert(
+                id: id,
+                name: name,
+                sortOrder: sortOrder,
+                isCollapsed: isCollapsed,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                revision: revision,
+                rowid: rowid,
+              ),
+          withReferenceMapper:
+              (p0) =>
+                  p0
+                      .map(
+                        (e) => (
+                          e.readTable(table),
+                          $$TaskDisplayGroupsTableReferences(db, table, e),
+                        ),
+                      )
+                      .toList(),
+          prefetchHooksCallback: ({taskDisplayGroupMembersRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (taskDisplayGroupMembersRefs) db.taskDisplayGroupMembers,
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (taskDisplayGroupMembersRefs)
+                    await $_getPrefetchedData<
+                      TaskDisplayGroup,
+                      $TaskDisplayGroupsTable,
+                      TaskDisplayGroupMember
+                    >(
+                      currentTable: table,
+                      referencedTable: $$TaskDisplayGroupsTableReferences
+                          ._taskDisplayGroupMembersRefsTable(db),
+                      managerFromTypedResult:
+                          (p0) =>
+                              $$TaskDisplayGroupsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).taskDisplayGroupMembersRefs,
+                      referencedItemsForCurrentItem:
+                          (item, referencedItems) => referencedItems.where(
+                            (e) => e.groupId == item.id,
+                          ),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$TaskDisplayGroupsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $TaskDisplayGroupsTable,
+      TaskDisplayGroup,
+      $$TaskDisplayGroupsTableFilterComposer,
+      $$TaskDisplayGroupsTableOrderingComposer,
+      $$TaskDisplayGroupsTableAnnotationComposer,
+      $$TaskDisplayGroupsTableCreateCompanionBuilder,
+      $$TaskDisplayGroupsTableUpdateCompanionBuilder,
+      (TaskDisplayGroup, $$TaskDisplayGroupsTableReferences),
+      TaskDisplayGroup,
+      PrefetchHooks Function({bool taskDisplayGroupMembersRefs})
+    >;
+typedef $$TaskDisplayGroupMembersTableCreateCompanionBuilder =
+    TaskDisplayGroupMembersCompanion Function({
+      required String taskId,
+      required String groupId,
+      required int sortOrder,
+      Value<int> rowid,
+    });
+typedef $$TaskDisplayGroupMembersTableUpdateCompanionBuilder =
+    TaskDisplayGroupMembersCompanion Function({
+      Value<String> taskId,
+      Value<String> groupId,
+      Value<int> sortOrder,
+      Value<int> rowid,
+    });
+
+final class $$TaskDisplayGroupMembersTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $TaskDisplayGroupMembersTable,
+          TaskDisplayGroupMember
+        > {
+  $$TaskDisplayGroupMembersTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $AufgabenTable _taskIdTable(_$AppDatabase db) =>
+      db.aufgaben.createAlias(
+        $_aliasNameGenerator(db.taskDisplayGroupMembers.taskId, db.aufgaben.id),
+      );
+
+  $$AufgabenTableProcessedTableManager get taskId {
+    final $_column = $_itemColumn<String>('task_id')!;
+
+    final manager = $$AufgabenTableTableManager(
+      $_db,
+      $_db.aufgaben,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_taskIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $TaskDisplayGroupsTable _groupIdTable(_$AppDatabase db) =>
+      db.taskDisplayGroups.createAlias(
+        $_aliasNameGenerator(
+          db.taskDisplayGroupMembers.groupId,
+          db.taskDisplayGroups.id,
+        ),
+      );
+
+  $$TaskDisplayGroupsTableProcessedTableManager get groupId {
+    final $_column = $_itemColumn<String>('group_id')!;
+
+    final manager = $$TaskDisplayGroupsTableTableManager(
+      $_db,
+      $_db.taskDisplayGroups,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_groupIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$TaskDisplayGroupMembersTableFilterComposer
+    extends Composer<_$AppDatabase, $TaskDisplayGroupMembersTable> {
+  $$TaskDisplayGroupMembersTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$AufgabenTableFilterComposer get taskId {
+    final $$AufgabenTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.taskId,
+      referencedTable: $db.aufgaben,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AufgabenTableFilterComposer(
+            $db: $db,
+            $table: $db.aufgaben,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$TaskDisplayGroupsTableFilterComposer get groupId {
+    final $$TaskDisplayGroupsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.groupId,
+      referencedTable: $db.taskDisplayGroups,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TaskDisplayGroupsTableFilterComposer(
+            $db: $db,
+            $table: $db.taskDisplayGroups,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$TaskDisplayGroupMembersTableOrderingComposer
+    extends Composer<_$AppDatabase, $TaskDisplayGroupMembersTable> {
+  $$TaskDisplayGroupMembersTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$AufgabenTableOrderingComposer get taskId {
+    final $$AufgabenTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.taskId,
+      referencedTable: $db.aufgaben,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AufgabenTableOrderingComposer(
+            $db: $db,
+            $table: $db.aufgaben,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$TaskDisplayGroupsTableOrderingComposer get groupId {
+    final $$TaskDisplayGroupsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.groupId,
+      referencedTable: $db.taskDisplayGroups,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TaskDisplayGroupsTableOrderingComposer(
+            $db: $db,
+            $table: $db.taskDisplayGroups,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$TaskDisplayGroupMembersTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TaskDisplayGroupMembersTable> {
+  $$TaskDisplayGroupMembersTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  $$AufgabenTableAnnotationComposer get taskId {
+    final $$AufgabenTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.taskId,
+      referencedTable: $db.aufgaben,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AufgabenTableAnnotationComposer(
+            $db: $db,
+            $table: $db.aufgaben,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$TaskDisplayGroupsTableAnnotationComposer get groupId {
+    final $$TaskDisplayGroupsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.groupId,
+          referencedTable: $db.taskDisplayGroups,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$TaskDisplayGroupsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.taskDisplayGroups,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+}
+
+class $$TaskDisplayGroupMembersTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $TaskDisplayGroupMembersTable,
+          TaskDisplayGroupMember,
+          $$TaskDisplayGroupMembersTableFilterComposer,
+          $$TaskDisplayGroupMembersTableOrderingComposer,
+          $$TaskDisplayGroupMembersTableAnnotationComposer,
+          $$TaskDisplayGroupMembersTableCreateCompanionBuilder,
+          $$TaskDisplayGroupMembersTableUpdateCompanionBuilder,
+          (TaskDisplayGroupMember, $$TaskDisplayGroupMembersTableReferences),
+          TaskDisplayGroupMember,
+          PrefetchHooks Function({bool taskId, bool groupId})
+        > {
+  $$TaskDisplayGroupMembersTableTableManager(
+    _$AppDatabase db,
+    $TaskDisplayGroupMembersTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer:
+              () => $$TaskDisplayGroupMembersTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer:
+              () => $$TaskDisplayGroupMembersTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer:
+              () => $$TaskDisplayGroupMembersTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> taskId = const Value.absent(),
+                Value<String> groupId = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => TaskDisplayGroupMembersCompanion(
+                taskId: taskId,
+                groupId: groupId,
+                sortOrder: sortOrder,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String taskId,
+                required String groupId,
+                required int sortOrder,
+                Value<int> rowid = const Value.absent(),
+              }) => TaskDisplayGroupMembersCompanion.insert(
+                taskId: taskId,
+                groupId: groupId,
+                sortOrder: sortOrder,
+                rowid: rowid,
+              ),
+          withReferenceMapper:
+              (p0) =>
+                  p0
+                      .map(
+                        (e) => (
+                          e.readTable(table),
+                          $$TaskDisplayGroupMembersTableReferences(
+                            db,
+                            table,
+                            e,
+                          ),
+                        ),
+                      )
+                      .toList(),
+          prefetchHooksCallback: ({taskId = false, groupId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                T extends TableManagerState<
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic
+                >
+              >(state) {
+                if (taskId) {
+                  state =
+                      state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.taskId,
+                            referencedTable:
+                                $$TaskDisplayGroupMembersTableReferences
+                                    ._taskIdTable(db),
+                            referencedColumn:
+                                $$TaskDisplayGroupMembersTableReferences
+                                    ._taskIdTable(db)
+                                    .id,
+                          )
+                          as T;
+                }
+                if (groupId) {
+                  state =
+                      state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.groupId,
+                            referencedTable:
+                                $$TaskDisplayGroupMembersTableReferences
+                                    ._groupIdTable(db),
+                            referencedColumn:
+                                $$TaskDisplayGroupMembersTableReferences
+                                    ._groupIdTable(db)
+                                    .id,
+                          )
+                          as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$TaskDisplayGroupMembersTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $TaskDisplayGroupMembersTable,
+      TaskDisplayGroupMember,
+      $$TaskDisplayGroupMembersTableFilterComposer,
+      $$TaskDisplayGroupMembersTableOrderingComposer,
+      $$TaskDisplayGroupMembersTableAnnotationComposer,
+      $$TaskDisplayGroupMembersTableCreateCompanionBuilder,
+      $$TaskDisplayGroupMembersTableUpdateCompanionBuilder,
+      (TaskDisplayGroupMember, $$TaskDisplayGroupMembersTableReferences),
+      TaskDisplayGroupMember,
+      PrefetchHooks Function({bool taskId, bool groupId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -27472,4 +29134,11 @@ class $AppDatabaseManager {
       $$CalendarSettingsTableTableManager(_db, _db.calendarSettings);
   $$TaskTypeChangesTableTableManager get taskTypeChanges =>
       $$TaskTypeChangesTableTableManager(_db, _db.taskTypeChanges);
+  $$TaskDisplayGroupsTableTableManager get taskDisplayGroups =>
+      $$TaskDisplayGroupsTableTableManager(_db, _db.taskDisplayGroups);
+  $$TaskDisplayGroupMembersTableTableManager get taskDisplayGroupMembers =>
+      $$TaskDisplayGroupMembersTableTableManager(
+        _db,
+        _db.taskDisplayGroupMembers,
+      );
 }

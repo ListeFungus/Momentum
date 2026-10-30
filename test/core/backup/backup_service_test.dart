@@ -55,6 +55,16 @@ Future<void> seed(AppDatabase db) async {
     [task, other],
   );
   await db.customStatement(
+    "UPDATE task_value_bundle_versions SET cancelled_at = 1234 WHERE id = 'bv'",
+  );
+  await db.customStatement(
+    "INSERT INTO task_display_groups (id, name, sort_order) VALUES ('group', 'Morgen', 0)",
+  );
+  await db.customStatement(
+    "INSERT INTO task_display_group_members (task_id, group_id, sort_order) VALUES (?, 'group', 0)",
+    [task],
+  );
+  await db.customStatement(
     "INSERT INTO task_card_metric_preferences (id, task_id, config_json, is_reset, updated_at) VALUES ('pref', ?, '{\"items\":[]}', 1, 1234)",
     [task],
   );
@@ -121,7 +131,7 @@ Uint8List changePayload(
 }
 
 void main() {
-  test('all 20 populated tables survive replacement and reopening', () async {
+  test('all 22 populated tables survive replacement and reopening', () async {
     final source = AppDatabase.forTesting(NativeDatabase.memory());
     final directory = await Directory.systemTemp.createTemp(
       'momentum-backup-test-',
@@ -135,7 +145,7 @@ void main() {
     });
     await seed(source);
     final before = await snapshot(source);
-    expect(before.length, 20);
+    expect(before.length, 22);
     expect(before.values.every((rows) => (rows as List).isNotEmpty), isTrue);
     await seed(target);
     await target.customStatement(
@@ -234,6 +244,8 @@ void main() {
       final oldBackup = changePayload(await service.export(), (payload) {
         payload['schemaVersion'] = 22;
         payload['tables'].remove('task_type_changes');
+        payload['tables'].remove('task_display_groups');
+        payload['tables'].remove('task_display_group_members');
         payload['tables'].remove('calendar_settings');
         for (final table in [
           'aufgaben',
@@ -254,7 +266,9 @@ void main() {
         (name) =>
             !name.startsWith('card_') &&
             name != 'calendar_settings' &&
-            name != 'task_type_changes',
+            name != 'task_type_changes' &&
+            name != 'task_display_groups' &&
+            name != 'task_display_group_members',
       )) {
         expect(after[table], before[table], reason: table);
       }

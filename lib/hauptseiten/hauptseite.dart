@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:momentum/features/aufgaben/presentation/widgets/value_draft_scope.dart';
 import 'package:momentum/features/calendar/presentation/calendar_screen.dart';
 import 'package:momentum/core/settings/options_screen.dart';
 import 'package:momentum/core/backup/backup_service.dart';
@@ -31,11 +32,19 @@ class Hauptseite extends StatefulWidget {
 }
 
 class _HauptseiteState extends State<Hauptseite> {
+  final _drafts = ValueDraftStore();
+  @override
+  void dispose() {
+    _drafts.dispose();
+    super.dispose();
+  }
+
   int _selectedIndex = 0;
   bool _backupOpen = false;
   int _taskViewSession = 0;
 
-  void _selectPage(int index) {
+  void _selectPage(int index) async {
+    if (!await _drafts.confirm(context) || !mounted) return;
     setState(() {
       if (index != _selectedIndex) _taskViewSession++;
       _selectedIndex = index;
@@ -43,6 +52,7 @@ class _HauptseiteState extends State<Hauptseite> {
   }
 
   Future<void> _openBackup() async {
+    if (!await _drafts.confirm(context) || !mounted) return;
     Navigator.pop(context);
     setState(() => _backupOpen = true);
     // Dispose the task views (including pending undo controls) while replacing
@@ -61,7 +71,8 @@ class _HauptseiteState extends State<Hauptseite> {
     if (mounted) setState(() => _backupOpen = false);
   }
 
-  void _openTaskCreateScreen() {
+  void _openTaskCreateScreen() async {
+    if (!await _drafts.confirm(context) || !mounted) return;
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder:
@@ -74,7 +85,8 @@ class _HauptseiteState extends State<Hauptseite> {
     );
   }
 
-  void _openProjectCreateScreen() {
+  void _openProjectCreateScreen() async {
+    if (!await _drafts.confirm(context) || !mounted) return;
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder:
@@ -99,114 +111,135 @@ class _HauptseiteState extends State<Hauptseite> {
       ),
     ];
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Momentum'), toolbarHeight: 48),
-      drawer: Drawer(
-        child: SafeArea(
-          child: ListView(
-            children: [
-              const Padding(
-                padding: EdgeInsets.all(24),
-                child: Text(
-                  'Momentum',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
-                ),
-              ),
-              ListTile(
-                leading: const Icon(Icons.check_circle_outline),
-                title: const Text('Aufgaben & Habits'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _selectPage(0);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.folder_outlined),
-                title: const Text('Projekte'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _selectPage(1);
-                },
-              ),
-              const Divider(),
-              ListTile(
-                leading: const Icon(Icons.calendar_month),
-                title: const Text('Kalender'),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder:
-                          (_) => CalendarScreen(
-                            tasks: widget.aufgabenRepository,
-                            projects: widget.projectRepository,
-                          ),
+    return ValueDraftScope(
+      store: _drafts,
+      child: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) async {
+          if (didPop) return;
+          if (await _drafts.confirm(context) && context.mounted) {
+            Navigator.of(context).pop(result);
+          }
+        },
+        child: Scaffold(
+          appBar: AppBar(title: const Text('Momentum'), toolbarHeight: 48),
+          drawer: Drawer(
+            child: SafeArea(
+              child: ListView(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.all(24),
+                    child: Text(
+                      'Momentum',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                  );
-                },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.check_circle_outline),
+                    title: const Text('Aufgaben & Habits'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      _selectPage(0);
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.folder_outlined),
+                    title: const Text('Projekte'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      _selectPage(1);
+                    },
+                  ),
+                  const Divider(),
+                  ListTile(
+                    leading: const Icon(Icons.calendar_month),
+                    title: const Text('Kalender'),
+                    onTap: () async {
+                      if (!await _drafts.confirm(context) || !context.mounted) {
+                        return;
+                      }
+                      Navigator.pop(context);
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder:
+                              (_) => CalendarScreen(
+                                tasks: widget.aufgabenRepository,
+                                projects: widget.projectRepository,
+                              ),
+                        ),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.settings_outlined),
+                    title: const Text('Optionen'),
+                    onTap: () async {
+                      if (!await _drafts.confirm(context) || !context.mounted) {
+                        return;
+                      }
+                      Navigator.pop(context);
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const OptionsScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.save_outlined),
+                    title: const Text('Import & Export'),
+                    subtitle: const Text('Datensicherung'),
+                    onTap: _openBackup,
+                  ),
+                ],
               ),
-              ListTile(
-                leading: const Icon(Icons.settings_outlined),
-                title: const Text('Optionen'),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => const OptionsScreen(),
-                    ),
-                  );
-                },
+            ),
+          ),
+          body: SafeArea(
+            child:
+                _backupOpen
+                    ? const SizedBox.shrink()
+                    : IndexedStack(index: _selectedIndex, children: pages),
+          ),
+          floatingActionButton: ExpandableFloatingActionButton(
+            key: ValueKey(_selectedIndex),
+            options:
+                isTaskPage
+                    ? [
+                      FloatingActionOption(
+                        label: 'Freie Erstellung',
+                        icon: Icons.tune,
+                        onPressed: _openTaskCreateScreen,
+                      ),
+                    ]
+                    : [
+                      FloatingActionOption(
+                        label: 'Projekt hinzufügen',
+                        icon: Icons.create_new_folder,
+                        onPressed: _openProjectCreateScreen,
+                      ),
+                    ],
+          ),
+          bottomNavigationBar: NavigationBar(
+            selectedIndex: _selectedIndex,
+            onDestinationSelected: _selectPage,
+            destinations: const [
+              NavigationDestination(
+                icon: Icon(Icons.check_circle_outline),
+                selectedIcon: Icon(Icons.check_circle),
+                label: 'Aufgaben',
               ),
-              ListTile(
-                leading: const Icon(Icons.save_outlined),
-                title: const Text('Import & Export'),
-                subtitle: const Text('Datensicherung'),
-                onTap: _openBackup,
+              NavigationDestination(
+                icon: Icon(Icons.folder_outlined),
+                selectedIcon: Icon(Icons.folder),
+                label: 'Projekte',
               ),
             ],
           ),
         ),
-      ),
-      body: SafeArea(
-        child:
-            _backupOpen
-                ? const SizedBox.shrink()
-                : IndexedStack(index: _selectedIndex, children: pages),
-      ),
-      floatingActionButton: ExpandableFloatingActionButton(
-        key: ValueKey(_selectedIndex),
-        options:
-            isTaskPage
-                ? [
-                  FloatingActionOption(
-                    label: 'Freie Erstellung',
-                    icon: Icons.tune,
-                    onPressed: _openTaskCreateScreen,
-                  ),
-                ]
-                : [
-                  FloatingActionOption(
-                    label: 'Projekt hinzufügen',
-                    icon: Icons.create_new_folder,
-                    onPressed: _openProjectCreateScreen,
-                  ),
-                ],
-      ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedIndex,
-        onDestinationSelected: _selectPage,
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.check_circle_outline),
-            selectedIcon: Icon(Icons.check_circle),
-            label: 'Aufgaben',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.folder_outlined),
-            selectedIcon: Icon(Icons.folder),
-            label: 'Projekte',
-          ),
-        ],
       ),
     );
   }

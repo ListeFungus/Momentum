@@ -31,6 +31,8 @@ void main() {
       raw.execute('DROP TABLE card_expansion_preferences');
       raw.execute('DROP TABLE card_display_settings');
       raw.execute('DROP TABLE task_type_changes');
+      raw.execute('DROP TABLE task_display_group_members');
+      raw.execute('DROP TABLE task_display_groups');
       raw.execute('PRAGMA user_version = 22');
       raw.dispose();
       db = AppDatabase.forTesting(NativeDatabase(file));

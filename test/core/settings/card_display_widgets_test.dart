@@ -10,6 +10,7 @@ import 'package:momentum/features/aufgaben/data/task_for_date.dart';
 import 'package:momentum/features/aufgaben/data/task_value_bundle_for_date.dart';
 import 'package:momentum/features/aufgaben/presentation/widgets/task_card.dart';
 import 'package:momentum/features/aufgaben/presentation/widgets/task_value_bundle_card.dart';
+import 'package:momentum/features/aufgaben/presentation/widgets/value_draft_scope.dart';
 
 final day = DateTime(2026, 10, 16);
 
@@ -91,6 +92,10 @@ void main() {
   testWidgets('value draft and validation survive repeated folding', (
     tester,
   ) async {
+    // Drafts now live above cards, as in Hauptseite, so changing compact/full
+    // layouts cannot discard an input or its validation error.
+    final drafts = ValueDraftStore();
+    addTearDown(drafts.dispose);
     final valueTask = TaskForDate(
       task: task.task.copyWith(
         erfassungsmodus: 'value',
@@ -104,12 +109,20 @@ void main() {
       cardMetrics: task.cardMetrics,
     );
     await tester.pumpWidget(
-      MaterialApp(home: Scaffold(body: taskCard(valueTask))),
+      MaterialApp(
+        home: ValueDraftScope(
+          store: drafts,
+          child: Scaffold(body: taskCard(valueTask)),
+        ),
+      ),
     );
     await tester.enterText(find.byType(TextField), ',');
     await tester.tap(find.text('Speichern'));
     await tester.pump();
-    expect(find.text('Bitte gib eine gültige Zahl ein.'), findsOneWidget);
+    expect(
+      find.text('Bitte gib eine gültige, nicht negative Zahl ein.'),
+      findsOneWidget,
+    );
     await tester.tap(find.byTooltip('Karte aufklappen'));
     await tester.pump();
     await tester.tap(find.byTooltip('Karte einklappen'));
@@ -118,7 +131,10 @@ void main() {
       tester.widget<TextField>(find.byType(TextField)).controller!.text,
       ',',
     );
-    expect(find.text('Bitte gib eine gültige Zahl ein.'), findsOneWidget);
+    expect(
+      find.text('Bitte gib eine gültige, nicht negative Zahl ein.'),
+      findsOneWidget,
+    );
     await tester.pumpWidget(const SizedBox.shrink());
   });
 

@@ -1,6 +1,11 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:momentum/core/theme/hex_color.dart';
 import 'package:momentum/features/aufgaben/data/aufgaben_repository.dart';
+import 'package:momentum/core/date/calendar_days.dart';
+import 'package:momentum/features/aufgaben/data/task_for_date.dart';
+import 'project_task_entry_input.dart';
+import 'package:momentum/features/aufgaben/presentation/widgets/value_draft_scope.dart';
 import 'package:momentum/features/aufgaben/presentation/aufgabe_hinzufuegen_screen.dart';
 import 'package:momentum/features/aufgaben/presentation/task_detail_screen.dart';
 import 'package:momentum/features/aufgaben/data/task_types.dart';
@@ -8,7 +13,7 @@ import 'package:momentum/features/projekte/data/project_repository.dart';
 import 'package:momentum/features/projekte/presentation/project_content_assignment_screen.dart';
 import 'package:momentum/features/projekte/presentation/project_bundle_detail_screen.dart';
 
-class ProjectDetailScreen extends StatelessWidget {
+class ProjectDetailScreen extends StatefulWidget {
   const ProjectDetailScreen({
     required this.projectId,
     required this.repository,
@@ -21,44 +26,74 @@ class ProjectDetailScreen extends StatelessWidget {
   final AufgabenRepository aufgabenRepository;
 
   @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<ProjectDetail?>(
-      stream: repository.watchProjectDetail(projectId),
-      builder: (context, snapshot) {
-        final detail = snapshot.data;
+  State<ProjectDetailScreen> createState() => _ProjectDetailScreenState();
+}
 
-        return DefaultTabController(
-          length: 2,
-          child: Scaffold(
-            appBar: AppBar(
-              title: Text(detail?.project.name ?? 'Projekt'),
-              bottom: const TabBar(
-                tabs: [Tab(text: 'Uebersicht'), Tab(text: 'Analyse')],
+class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
+  final _drafts = ValueDraftStore();
+  late final _detail = widget.repository.watchProjectDetail(widget.projectId);
+  String get projectId => widget.projectId;
+  ProjectRepository get repository => widget.repository;
+  AufgabenRepository get aufgabenRepository => widget.aufgabenRepository;
+
+  @override
+  void dispose() {
+    _drafts.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueDraftScope(
+      store: _drafts,
+      child: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) async {
+          if (didPop) return;
+          if (await _drafts.confirm(context) && context.mounted) {
+            Navigator.of(context).pop(result);
+          }
+        },
+        child: StreamBuilder<ProjectDetail?>(
+          stream: _detail,
+          builder: (context, snapshot) {
+            final detail = snapshot.data;
+
+            return DefaultTabController(
+              length: 2,
+              child: Scaffold(
+                appBar: AppBar(
+                  title: Text(detail?.project.name ?? 'Projekt'),
+                  bottom: const TabBar(
+                    tabs: [Tab(text: 'Uebersicht'), Tab(text: 'Analyse')],
+                  ),
+                ),
+                body: _ProjectDetailBody(
+                  snapshot: snapshot,
+                  repository: repository,
+                  aufgabenRepository: aufgabenRepository,
+                  projectId: projectId,
+                ),
+                floatingActionButton:
+                    detail == null ||
+                            detail.project.archivedAt != null ||
+                            detail.project.trashedAt != null
+                        ? null
+                        : FloatingActionButton.extended(
+                          onPressed: () => _showAddContent(context),
+                          icon: const Icon(Icons.add),
+                          label: const Text('Inhalt hinzufügen'),
+                        ),
               ),
-            ),
-            body: _ProjectDetailBody(
-              snapshot: snapshot,
-              repository: repository,
-              aufgabenRepository: aufgabenRepository,
-              projectId: projectId,
-            ),
-            floatingActionButton:
-                detail == null ||
-                        detail.project.archivedAt != null ||
-                        detail.project.trashedAt != null
-                    ? null
-                    : FloatingActionButton.extended(
-                      onPressed: () => _showAddContent(context),
-                      icon: const Icon(Icons.add),
-                      label: const Text('Inhalt hinzufügen'),
-                    ),
-          ),
-        );
-      },
+            );
+          },
+        ),
+      ),
     );
   }
 
   Future<void> _showAddContent(BuildContext context) async {
+    if (!await _drafts.confirm(context) || !context.mounted) return;
     await showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
@@ -149,7 +184,7 @@ class _ProjectDetailBody extends StatelessWidget {
   }
 }
 
-class _ProjectOverviewTab extends StatelessWidget {
+class _ProjectOverviewTab extends StatefulWidget {
   const _ProjectOverviewTab({
     required this.detail,
     required this.repository,
@@ -161,7 +196,74 @@ class _ProjectOverviewTab extends StatelessWidget {
   final AufgabenRepository aufgabenRepository;
 
   @override
+  State<_ProjectOverviewTab> createState() => _ProjectOverviewTabState();
+}
+
+class _ProjectOverviewTabState extends State<_ProjectOverviewTab>
+    with AutomaticKeepAliveClientMixin, WidgetsBindingObserver {
+  late DateTime _day = calendarDay(DateTime.now());
+  late Stream<List<TaskForDate>> _entries = widget.aufgabenRepository
+      .watchProjectDayTasks(widget.detail.project.id, _day);
+  Timer? _dayTimer;
+
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _dayTimer = Timer.periodic(
+      const Duration(minutes: 1),
+      (_) => _refreshDay(),
+    );
+  }
+
+  void _refreshDay() {
+    final today = calendarDay(DateTime.now());
+    if (!mounted ||
+        today == _day ||
+        (ValueDraftScope.maybeOf(context)?.drafts.isNotEmpty ?? false)) {
+      return;
+    }
+    setState(() {
+      _day = today;
+      _entries = aufgabenRepository.watchProjectDayTasks(
+        detail.project.id,
+        _day,
+      );
+    });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _refreshDay();
+  }
+
+  @override
+  void dispose() {
+    _dayTimer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  ProjectDetail get detail => widget.detail;
+  ProjectRepository get repository => widget.repository;
+  AufgabenRepository get aufgabenRepository => widget.aufgabenRepository;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
+    return StreamBuilder<List<TaskForDate>>(
+      stream: _entries,
+      builder: (context, snapshot) => _buildOverview(context, snapshot),
+    );
+  }
+
+  Widget _buildOverview(
+    BuildContext context,
+    AsyncSnapshot<List<TaskForDate>> snapshot,
+  ) {
     final habits =
         detail.tasks
             .where((item) => item.task.taskType == TaskTypes.habit)
@@ -185,6 +287,11 @@ class _ProjectOverviewTab extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(24, 20, 24, 96),
       children: [
         _ProjectHeader(detail: detail, projectColor: projectColor),
+        if (snapshot.hasError)
+          const Padding(
+            padding: EdgeInsets.only(top: 12),
+            child: Text('Die Tageseinträge konnten nicht geladen werden.'),
+          ),
         _ContentGroup(
           title: 'Aufgaben',
           children: [
@@ -192,6 +299,7 @@ class _ProjectOverviewTab extends StatelessWidget {
               _ProjectTaskTile(
                 summary: task,
                 accentColor: projectColor,
+                inputs: _inputsFor(task, snapshot, projectColor),
                 onTap:
                     () => Navigator.of(context).push(
                       MaterialPageRoute<void>(
@@ -213,6 +321,7 @@ class _ProjectOverviewTab extends StatelessWidget {
               _ProjectTaskTile(
                 summary: habit,
                 accentColor: projectColor,
+                inputs: _inputsFor(habit, snapshot, projectColor),
                 onTap:
                     () => Navigator.of(context).push(
                       MaterialPageRoute<void>(
@@ -251,6 +360,47 @@ class _ProjectOverviewTab extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  List<Widget> _inputsFor(
+    ProjectTaskSummary summary,
+    AsyncSnapshot<List<TaskForDate>> snapshot,
+    Color color,
+  ) {
+    if (!snapshot.hasData ||
+        snapshot.hasError ||
+        detail.project.trashedAt != null) {
+      return const [];
+    }
+    final entries =
+        snapshot.data!.where((item) => item.task.id == summary.task.id).toList()
+          ..sort(
+            (a, b) => (a.entry?.scheduledDate ?? _day).compareTo(
+              b.entry?.scheduledDate ?? _day,
+            ),
+          );
+    if (entries.isEmpty) {
+      return const [
+        Padding(
+          padding: EdgeInsets.only(top: 12),
+          child: Text(
+            'Heute kein bearbeitbarer Eintrag. Frühere Einträge findest du in den Details.',
+          ),
+        ),
+      ];
+    }
+    return [
+      for (final entry in entries)
+        ProjectTaskEntryInput(
+          key: ValueKey(
+            '${entry.task.id}:${entry.entry?.scheduledDate ?? _day}',
+          ),
+          task: entry,
+          scheduledDate: entry.entry?.scheduledDate ?? _day,
+          repository: aufgabenRepository,
+          accentColor: color,
+        ),
+    ];
   }
 }
 
@@ -473,11 +623,13 @@ class _ProjectTaskTile extends StatelessWidget {
     required this.summary,
     required this.accentColor,
     required this.onTap,
+    required this.inputs,
   });
 
   final ProjectTaskSummary summary;
   final Color accentColor;
   final VoidCallback onTap;
+  final List<Widget> inputs;
 
   @override
   Widget build(BuildContext context) {
@@ -485,7 +637,9 @@ class _ProjectTaskTile extends StatelessWidget {
     final isHabit = summary.task.taskType == TaskTypes.habit;
 
     return InkWell(
-      onTap: onTap,
+      onTap: () async {
+        if (await ValueDraftScope.confirm(context) && context.mounted) onTap();
+      },
       borderRadius: BorderRadius.circular(14),
       child: DecoratedBox(
         decoration: BoxDecoration(
@@ -547,6 +701,7 @@ class _ProjectTaskTile extends StatelessWidget {
                     ),
                 ],
               ),
+              ...inputs,
             ],
           ),
         ),

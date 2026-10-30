@@ -1,3 +1,5 @@
+import 'package:momentum/core/date/calendar_days.dart';
+
 enum TaskAnalyticsPeriod {
   last7Days(days: 7, label: 'Letzte 7 Tage'),
   last20Days(days: 20, label: 'Letzte 20 Tage'),
@@ -21,7 +23,7 @@ enum TaskAnalyticsPeriod {
       return normalizedTaskStart;
     }
 
-    final rollingStart = normalizedToday.subtract(Duration(days: days - 1));
+    final rollingStart = calendarAddDays(normalizedToday, 1 - days);
     if (rollingStart.isBefore(normalizedTaskStart)) {
       return normalizedTaskStart;
     }

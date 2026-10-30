@@ -1,5 +1,10 @@
+import 'widgets/task_entry_dialogs.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'widgets/value_draft_scope.dart';
+import '../data/task_value_draft.dart';
+import 'package:momentum/core/database/app_database.dart';
+import 'package:momentum/features/aufgaben/data/task_display_group_service.dart';
 import 'package:momentum/core/settings/card_display_scope.dart';
 
 import 'package:momentum/core/theme/hex_color.dart';
@@ -22,7 +27,9 @@ import 'package:momentum/features/aufgaben/presentation/widgets/task_card_metric
 import 'package:momentum/features/aufgaben/presentation/widgets/task_value_bundle_card.dart';
 import 'package:momentum/features/projekte/data/project_repository.dart';
 
-enum TaskView { today, habits, urgency }
+part 'widgets/task_display_groups.dart';
+
+enum TaskView { today, habits, urgency, groups }
 
 class AufgabenScreen extends StatefulWidget {
   const AufgabenScreen({
@@ -77,6 +84,7 @@ class _AufgabenScreenState extends State<AufgabenScreen>
       return;
     }
     final followedToday = _selectedDate == _lastObservedToday;
+    if (ValueDraftScope.maybeOf(context)?.drafts.isNotEmpty ?? false) return;
     setState(() {
       _lastObservedToday = today;
       if (followedToday || _selectedDate.isAfter(today)) {
@@ -85,7 +93,8 @@ class _AufgabenScreenState extends State<AufgabenScreen>
     });
   }
 
-  void _changeDate(int days) {
+  void _changeDate(int days) async {
+    if (!await ValueDraftScope.confirm(context) || !mounted) return;
     final date = DateTime(
       _selectedDate.year,
       _selectedDate.month,
@@ -152,6 +161,7 @@ class _AufgabenScreenState extends State<AufgabenScreen>
       TaskView.urgency => widget.aufgabenRepository.watchTasksByUrgency().map(
         (tasks) => TaskListForDate(tasks: tasks, valueBundles: const []),
       ),
+      TaskView.groups => const Stream.empty(),
     };
   }
 
@@ -181,7 +191,11 @@ class _AufgabenScreenState extends State<AufgabenScreen>
                       IconButton(
                         tooltip: 'Pausierte & Papierkorb',
                         icon: const Icon(Icons.delete_sweep_outlined),
-                        onPressed: () {
+                        onPressed: () async {
+                          if (!await ValueDraftScope.confirm(context) ||
+                              !context.mounted) {
+                            return;
+                          }
                           Navigator.of(context).push(
                             MaterialPageRoute<void>(
                               builder:
@@ -196,7 +210,11 @@ class _AufgabenScreenState extends State<AufgabenScreen>
                       IconButton(
                         tooltip: 'Abgeschlossene Aufgaben',
                         icon: const Icon(Icons.done_all_outlined),
-                        onPressed: () {
+                        onPressed: () async {
+                          if (!await ValueDraftScope.confirm(context) ||
+                              !context.mounted) {
+                            return;
+                          }
                           Navigator.of(context).push(
                             MaterialPageRoute<void>(
                               builder:
@@ -211,7 +229,11 @@ class _AufgabenScreenState extends State<AufgabenScreen>
                       IconButton(
                         tooltip: 'Auswertung einmaliger Aufgaben',
                         icon: const Icon(Icons.insights_outlined),
-                        onPressed: () {
+                        onPressed: () async {
+                          if (!await ValueDraftScope.confirm(context) ||
+                              !context.mounted) {
+                            return;
+                          }
                           Navigator.of(context).push(
                             MaterialPageRoute<void>(
                               builder:
@@ -226,37 +248,53 @@ class _AufgabenScreenState extends State<AufgabenScreen>
                     ],
                   ),
                   const SizedBox(height: 16),
-                  SegmentedButton<TaskView>(
-                    segments: const [
-                      ButtonSegment(
-                        value: TaskView.today,
-                        icon: Icon(Icons.today_outlined),
-                        label: Text('Heute'),
-                      ),
-                      ButtonSegment(
-                        value: TaskView.habits,
-                        icon: Icon(Icons.repeat),
-                        label: Text('Habits'),
-                      ),
-                      ButtonSegment(
-                        value: TaskView.urgency,
-                        icon: Icon(Icons.priority_high),
-                        label: Text('Dringlichkeit'),
-                      ),
-                    ],
-                    selected: {_selectedView},
-                    showSelectedIcon: false,
-                    onSelectionChanged: (selection) {
-                      setState(() {
-                        _selectedView = selection.single;
-                      });
-                    },
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: SegmentedButton<TaskView>(
+                      segments: const [
+                        ButtonSegment(
+                          value: TaskView.today,
+                          icon: Icon(Icons.today_outlined),
+                          label: Text('Heute'),
+                        ),
+                        ButtonSegment(
+                          value: TaskView.habits,
+                          icon: Icon(Icons.repeat),
+                          label: Text('Habits'),
+                        ),
+                        ButtonSegment(
+                          value: TaskView.groups,
+                          icon: Icon(Icons.folder_copy_outlined),
+                          label: Text('Gruppen'),
+                        ),
+                        ButtonSegment(
+                          value: TaskView.urgency,
+                          icon: Icon(Icons.priority_high),
+                          label: Text('Dringlichkeit'),
+                        ),
+                      ],
+                      selected: {_selectedView},
+                      showSelectedIcon: false,
+                      onSelectionChanged: (selection) async {
+                        if (!await ValueDraftScope.confirm(context) ||
+                            !mounted) {
+                          return;
+                        }
+                        setState(() {
+                          _selectedView = selection.single;
+                        });
+                      },
+                    ),
                   ),
                   if (_selectedView != TaskView.urgency) ...[
                     const SizedBox(height: 16),
                     _DateNavigation(
                       selectedDate: _selectedDate,
                       onSelectDate: () async {
+                        if (!await ValueDraftScope.confirm(context) ||
+                            !context.mounted) {
+                          return;
+                        }
                         final selected = await showDatePicker(
                           context: context,
                           initialDate: _selectedDate,
@@ -285,78 +323,117 @@ class _AufgabenScreenState extends State<AufgabenScreen>
               ),
             ),
             Expanded(
-              child: StreamBuilder<TaskListForDate>(
-                stream: _taskStream(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    return const _MessageState(
-                      message: 'Die Aufgaben konnten nicht geladen werden.',
-                      isError: true,
-                    );
-                  }
-
-                  if (!snapshot.hasData) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-
-                  final taskList = snapshot.data!;
-                  final tasks = taskList.tasks;
-
-                  if (_selectedView == TaskView.urgency) {
-                    final visibleTasks =
-                        tasks.where((task) => !task.isAnswered).toList();
-                    return CardDisplaySession(
-                      key: ValueKey(
-                        'urgency:$_selectedDate:${widget.displaySession}',
-                      ),
-                      cards: [
-                        for (final task in visibleTasks)
-                          DisplayCardIdentity.task(
-                            task.task.id,
-                            task.entry?.scheduledDate ?? task.task.startDate,
-                          ),
-                      ],
-                      child: _UrgencyList(
-                        tasks: visibleTasks,
+              child:
+                  _selectedView == TaskView.groups
+                      ? _DisplayGroups(
                         repository: widget.aufgabenRepository,
                         projectRepository: widget.projectRepository,
-                        onUndoAvailable: _showUndo,
-                      ),
-                    );
-                  }
+                        date: _selectedDate,
+                        onUndo: _showUndo,
+                      )
+                      : StreamBuilder<List<TaskDisplayGroupMember>>(
+                        stream:
+                            widget.aufgabenRepository.displayGroups.store
+                                .watchMembers(),
+                        builder:
+                            (
+                              context,
+                              members,
+                            ) => StreamBuilder<TaskListForDate>(
+                              stream: _taskStream(),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasError) {
+                                  return const _MessageState(
+                                    message:
+                                        'Die Aufgaben konnten nicht geladen werden.',
+                                    isError: true,
+                                  );
+                                }
 
-                  return CardDisplaySession(
-                    key: ValueKey(
-                      '$_selectedView:$_selectedDate:${widget.displaySession}',
-                    ),
-                    cards: [
-                      for (final task in tasks)
-                        DisplayCardIdentity.task(
-                          task.task.id,
-                          task.entry?.scheduledDate ?? _selectedDate,
-                        ),
-                      for (final bundle in taskList.valueBundles)
-                        DisplayCardIdentity.bundle(
-                          bundle.bundle.id,
-                          _selectedDate,
-                        ),
-                    ],
-                    child: _ProjectGroupedTaskList(
-                      tasks: tasks,
-                      valueBundles: taskList.valueBundles,
-                      selectedDate: _selectedDate,
-                      groupAnswered: _selectedView == TaskView.habits,
-                      repository: widget.aufgabenRepository,
-                      projectRepository: widget.projectRepository,
-                      onUndoAvailable: _showUndo,
-                      emptyMessage:
-                          _selectedView == TaskView.habits
-                              ? 'Für diesen Tag sind keine Habits vorhanden.'
-                              : 'Für diesen Tag sind keine Aufgaben vorhanden.',
-                    ),
-                  );
-                },
-              ),
+                                if (!snapshot.hasData) {
+                                  return const Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                }
+
+                                final taskList = snapshot.data!;
+                                if (!members.hasData) {
+                                  return const Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                }
+                                final groupedIds =
+                                    members.data!.map((m) => m.taskId).toSet();
+                                final tasks =
+                                    taskList.tasks
+                                        .where(
+                                          (t) =>
+                                              !groupedIds.contains(t.task.id),
+                                        )
+                                        .toList();
+
+                                if (_selectedView == TaskView.urgency) {
+                                  final visibleTasks =
+                                      tasks
+                                          .where((task) => !task.isAnswered)
+                                          .toList();
+                                  return CardDisplaySession(
+                                    key: ValueKey(
+                                      'urgency:$_selectedDate:${widget.displaySession}',
+                                    ),
+                                    cards: [
+                                      for (final task in visibleTasks)
+                                        DisplayCardIdentity.task(
+                                          task.task.id,
+                                          task.entry?.scheduledDate ??
+                                              task.task.startDate,
+                                        ),
+                                    ],
+                                    child: _UrgencyList(
+                                      tasks: visibleTasks,
+                                      repository: widget.aufgabenRepository,
+                                      projectRepository:
+                                          widget.projectRepository,
+                                      onUndoAvailable: _showUndo,
+                                    ),
+                                  );
+                                }
+
+                                return CardDisplaySession(
+                                  key: ValueKey(
+                                    '$_selectedView:$_selectedDate:${widget.displaySession}',
+                                  ),
+                                  cards: [
+                                    for (final task in tasks)
+                                      DisplayCardIdentity.task(
+                                        task.task.id,
+                                        task.entry?.scheduledDate ??
+                                            _selectedDate,
+                                      ),
+                                    for (final bundle in taskList.valueBundles)
+                                      DisplayCardIdentity.bundle(
+                                        bundle.bundle.id,
+                                        _selectedDate,
+                                      ),
+                                  ],
+                                  child: _ProjectGroupedTaskList(
+                                    tasks: tasks,
+                                    valueBundles: taskList.valueBundles,
+                                    selectedDate: _selectedDate,
+                                    groupAnswered:
+                                        _selectedView == TaskView.habits,
+                                    repository: widget.aufgabenRepository,
+                                    projectRepository: widget.projectRepository,
+                                    onUndoAvailable: _showUndo,
+                                    emptyMessage:
+                                        _selectedView == TaskView.habits
+                                            ? 'Für diesen Tag sind keine Habits vorhanden.'
+                                            : 'Für diesen Tag sind keine Aufgaben vorhanden.',
+                                  ),
+                                );
+                              },
+                            ),
+                      ),
             ),
           ],
         ),
@@ -591,12 +668,14 @@ class _ValueBundleSection extends StatelessWidget {
               bundle: bundle,
               scheduledDate: selectedDate,
               onValueSaved: (task, value) async {
-                final performedOn = await _selectPerformedOnForPastEntry(
+                final performedOn = await selectPerformedOnForPastEntry(
                   context,
                   selectedDate,
                 );
                 if (performedOn == null) {
-                  return;
+                  throw StateError(
+                    'Speichern abgebrochen; Eingabe bleibt erhalten.',
+                  );
                 }
                 await repository.setTaskEntryValue(
                   task: task.task,
@@ -908,7 +987,7 @@ class _TaskGroup extends StatelessWidget {
             final previousValue = task.isCompleted;
             final performedOn =
                 isCompleted
-                    ? await _selectPerformedOnForPastEntry(
+                    ? await selectPerformedOnForPastEntry(
                       context,
                       scheduledDate,
                     )
@@ -938,7 +1017,7 @@ class _TaskGroup extends StatelessWidget {
             final isPositive = value == task.task.successValue;
             final performedOn =
                 isPositive
-                    ? await _selectPerformedOnForPastEntry(
+                    ? await selectPerformedOnForPastEntry(
                       context,
                       scheduledDate,
                     )
@@ -964,12 +1043,14 @@ class _TaskGroup extends StatelessWidget {
             );
           },
           onValueSaved: (value) async {
-            final performedOn = await _selectPerformedOnForPastEntry(
+            final performedOn = await selectPerformedOnForPastEntry(
               context,
               scheduledDate,
             );
             if (performedOn == null) {
-              return;
+              throw StateError(
+                'Speichern abgebrochen; Eingabe bleibt erhalten.',
+              );
             }
             await repository.setTaskEntryValue(
               task: task.task,
@@ -983,7 +1064,7 @@ class _TaskGroup extends StatelessWidget {
             );
           },
           onEditNote: () {
-            _editTaskEntryNote(
+            editTaskEntryNote(
               context: context,
               repository: repository,
               task: task,
@@ -1068,80 +1149,6 @@ class _TaskGroup extends StatelessWidget {
         ),
       );
     }).toList();
-  }
-}
-
-Future<void> _editTaskEntryNote({
-  required BuildContext context,
-  required AufgabenRepository repository,
-  required TaskForDate task,
-  required DateTime scheduledDate,
-}) async {
-  final note = await showDialog<String>(
-    context: context,
-    builder: (context) => _TaskEntryNoteDialog(initialNote: task.note),
-  );
-
-  if (note == null || !context.mounted) {
-    return;
-  }
-
-  await repository.setTaskEntryNote(
-    taskId: task.task.id,
-    scheduledDate: scheduledDate,
-    note: note,
-  );
-}
-
-class _TaskEntryNoteDialog extends StatefulWidget {
-  const _TaskEntryNoteDialog({required this.initialNote});
-
-  final String initialNote;
-
-  @override
-  State<_TaskEntryNoteDialog> createState() => _TaskEntryNoteDialogState();
-}
-
-class _TaskEntryNoteDialogState extends State<_TaskEntryNoteDialog> {
-  late final TextEditingController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController(text: widget.initialNote);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Tagesnotiz'),
-      content: TextField(
-        controller: _controller,
-        autofocus: true,
-        minLines: 3,
-        maxLines: 6,
-        decoration: const InputDecoration(
-          hintText: 'Optionale Notiz zu diesem Tag',
-          border: OutlineInputBorder(),
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Abbrechen'),
-        ),
-        FilledButton(
-          onPressed: () => Navigator.of(context).pop(_controller.text),
-          child: const Text('Speichern'),
-        ),
-      ],
-    );
   }
 }
 
@@ -1388,62 +1395,6 @@ class _MessageState extends StatelessWidget {
 }
 
 DateTime _dateOnly(DateTime date) => DateTime(date.year, date.month, date.day);
-
-Future<DateTime?> _selectPerformedOnForPastEntry(
-  BuildContext context,
-  DateTime scheduledDate,
-) async {
-  final today = _dateOnly(DateTime.now());
-  final plannedDay = _dateOnly(scheduledDate);
-  if (!plannedDay.isBefore(today)) {
-    return today;
-  }
-  final selection = await showDialog<String>(
-    context: context,
-    builder:
-        (context) => AlertDialog(
-          title: const Text('Wann wurde es durchgeführt?'),
-          content: const Text(
-            'Der Durchführungstag beeinflusst, ob der Eintrag rechtzeitig war. '
-            'Bestehende Folgetermine werden dadurch nicht verschoben.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Abbrechen'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop('planned'),
-              child: const Text('Am vorgesehenen Tag'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop('custom'),
-              child: const Text('Anderes Datum'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.of(context).pop('today'),
-              child: const Text('Heute'),
-            ),
-          ],
-        ),
-  );
-  if (!context.mounted || selection == null) {
-    return null;
-  }
-  if (selection == 'planned') {
-    return plannedDay;
-  }
-  if (selection == 'today') {
-    return today;
-  }
-  return showDatePicker(
-    context: context,
-    initialDate: plannedDay,
-    firstDate: plannedDay,
-    lastDate: today,
-    helpText: 'Tatsächlicher Durchführungstag',
-  );
-}
 
 String _formatDate(DateTime date) {
   const months = [

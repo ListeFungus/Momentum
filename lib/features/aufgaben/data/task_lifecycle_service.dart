@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'task_display_group_store.dart';
 import 'package:momentum/core/database/app_database.dart';
 import 'package:momentum/features/aufgaben/data/task_lifecycle_tables.dart';
 import 'package:uuid/uuid.dart';
@@ -297,6 +298,14 @@ class TaskLifecycleService {
 
   Future<void> restoreBundle(String bundleId) async {
     await _database.transaction(() async {
+      final versions =
+          await (_database.select(_database.taskValueBundleVersions)..where(
+            (v) => v.bundleId.equals(bundleId) & v.cancelledAt.isNull(),
+          )).get();
+      await TaskDisplayGroupStore.ensureBundleSourcesFree(
+        _database,
+        versions.expand((v) => [v.firstTaskId, v.secondTaskId]),
+      );
       final bundle = await _bundle(bundleId);
       if (bundle.trashedAt == null) return;
       final now = _now().toUtc();

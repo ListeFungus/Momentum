@@ -35,6 +35,8 @@ void main() {
       final raw = sqlite3.open(file.path);
       raw.execute('DROP TABLE calendar_settings');
       raw.execute('DROP TABLE task_type_changes');
+      raw.execute('DROP TABLE task_display_group_members');
+      raw.execute('DROP TABLE task_display_groups');
       for (final table in [
         'aufgaben',
         'task_entries',
@@ -142,6 +144,8 @@ void main() {
       final tables = content['tables'] as Map<String, dynamic>;
       tables.remove('calendar_settings');
       tables.remove('task_type_changes');
+      tables.remove('task_display_groups');
+      tables.remove('task_display_group_members');
       for (final name in [
         'aufgaben',
         'task_entries',

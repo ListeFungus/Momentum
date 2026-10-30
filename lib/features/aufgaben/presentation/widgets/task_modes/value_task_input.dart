@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
+import '../../../data/task_value_draft.dart';
+import '../value_draft_scope.dart';
 import 'package:flutter/services.dart';
 import 'package:momentum/features/aufgaben/data/task_for_date.dart';
 import 'package:momentum/features/aufgaben/data/task_value_type.dart';
@@ -14,17 +17,69 @@ class ValueTaskInput extends StatefulWidget {
 
   final TaskForDate task;
   final DateTime scheduledDate;
-  final ValueChanged<TaskValueInput> onSave;
+  final FutureOr<void> Function(TaskValueInput) onSave;
 
   @override
   State<ValueTaskInput> createState() => _ValueTaskInputState();
 }
 
-class _ValueTaskInputState extends State<ValueTaskInput> {
+class _ValueTaskInputState extends State<ValueTaskInput>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
   late final TextEditingController _controller;
   String? _errorText;
   late _ValueInputIdentity _lastIdentity;
   late int _dayOffset;
+  ValueDraftStore? _store;
+  bool _saving = false;
+  String get _key =>
+      '${widget.task.task.id}:${_dateOnly(widget.scheduledDate).toIso8601String()}';
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final store = ValueDraftScope.maybeOf(context);
+    if (_store != store) {
+      _store?.removeListener(_storeChanged);
+      _store = store;
+      _store?.addListener(_storeChanged);
+    }
+    final draft = _store?.drafts[_key];
+    if (draft != null) {
+      _controller.text = draft.text;
+      _dayOffset = draft.dayOffset;
+    }
+  }
+
+  void _storeChanged() {
+    if (!mounted) return;
+    if (_store?.drafts[_key] == null && !_saving) {
+      _controller.text = _initialText();
+      _dayOffset = widget.task.timeDayOffset;
+    }
+    setState(() {});
+  }
+
+  void _changed() {
+    final task = widget.task;
+    final onSave = widget.onSave;
+    final store = _store;
+    final key = _key;
+    final draft = TaskValueDraft(_controller.text, dayOffset: _dayOffset);
+    store?.changed(key, draft, () async {
+      final parsed = draft.parse(task.task);
+      await onSave(
+        TaskValueInput._(
+          numberValue: parsed.numberValue,
+          durationSeconds: parsed.durationSeconds,
+          timeMinutes: parsed.timeMinutes,
+          dayOffset: parsed.dayOffset,
+        ),
+      );
+      // A newer edit must not be cleared by a slow earlier save.
+      if (identical(store.drafts[key], draft)) store.saved([key]);
+    });
+  }
 
   @override
   void initState() {
@@ -39,29 +94,36 @@ class _ValueTaskInputState extends State<ValueTaskInput> {
     super.didUpdateWidget(oldWidget);
 
     final nextIdentity = _identityFor(widget);
-    if (nextIdentity == _lastIdentity) {
+    if (nextIdentity == _lastIdentity &&
+        oldWidget.task.numberValue == widget.task.numberValue &&
+        oldWidget.task.timeMinutes == widget.task.timeMinutes &&
+        oldWidget.task.timeDayOffset == widget.task.timeDayOffset) {
       return;
     }
 
     _lastIdentity = nextIdentity;
-    _controller.text = _initialText();
-    _dayOffset = widget.task.timeDayOffset;
+    _controller.text = _store?.drafts[_key]?.text ?? _initialText();
+    _dayOffset = _store?.drafts[_key]?.dayOffset ?? widget.task.timeDayOffset;
     _errorText = null;
   }
 
   @override
   void dispose() {
+    _store?.removeListener(_storeChanged);
     _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final task = widget.task.task;
     final valueType = task.valueType;
     final unitLabel = _unitLabel();
 
     final input = TextField(
+      enabled: !_saving,
+      key: _store?.anchor(_key),
       controller: _controller,
       keyboardType:
           valueType == TaskValueType.timeOfDay
@@ -74,10 +136,11 @@ class _ValueTaskInputState extends State<ValueTaskInput> {
       decoration: InputDecoration(
         labelText: _labelFor(valueType),
         suffixText: unitLabel.isEmpty ? null : unitLabel,
-        errorText: _errorText,
+        errorText: _store?.errors[_key] ?? _errorText,
         border: const OutlineInputBorder(),
       ),
       onSubmitted: (_) => _save(),
+      onChanged: (_) => _changed(),
     );
 
     return Column(
@@ -105,6 +168,7 @@ class _ValueTaskInputState extends State<ValueTaskInput> {
                 return;
               }
               setState(() => _dayOffset = value);
+              _changed();
             },
           ),
           const SizedBox(height: 10),
@@ -112,6 +176,19 @@ class _ValueTaskInputState extends State<ValueTaskInput> {
             alignment: Alignment.centerRight,
             child: FilledButton(
               onPressed: _save,
+              child: Text(
+                widget.task.entryValue == null ? 'Speichern' : 'Ändern',
+              ),
+            ),
+          ),
+        ] else if (MediaQuery.sizeOf(context).width < 420 ||
+            MediaQuery.textScalerOf(context).scale(14) > 20) ...[
+          input,
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerRight,
+            child: FilledButton(
+              onPressed: _saving ? null : _save,
               child: Text(
                 widget.task.entryValue == null ? 'Speichern' : 'Ändern',
               ),
@@ -135,63 +212,43 @@ class _ValueTaskInputState extends State<ValueTaskInput> {
     );
   }
 
-  void _save() {
+  Future<void> _save() async {
+    if (_saving) return;
     final parsed = _parseInput();
     if (parsed == null) {
       return;
     }
 
-    widget.onSave(parsed);
-    FocusScope.of(context).unfocus();
+    setState(() => _saving = true);
+    try {
+      await widget.onSave(parsed);
+      _store?.saved([_key]);
+      if (mounted) FocusScope.of(context).unfocus();
+    } catch (e) {
+      if (mounted) setState(() => _errorText = e.toString());
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
   }
 
   TaskValueInput? _parseInput() {
-    final raw = _controller.text.trim();
-    if (raw.isEmpty) {
-      setState(() {
-        _errorText = 'Bitte gib einen Wert ein.';
-      });
-      return null;
-    }
-
-    final valueType = widget.task.task.valueType;
-    if (valueType == TaskValueType.timeOfDay) {
-      final parsedTime = _parseTime(raw);
-      if (parsedTime == null) {
-        setState(() {
-          _errorText = 'Bitte im Format HH:MM eingeben.';
-        });
-        return null;
-      }
-
-      setState(() {
-        _errorText = null;
-      });
-      return TaskValueInput.time(minutes: parsedTime, dayOffset: _dayOffset);
-    }
-
-    final number = double.tryParse(raw.replaceAll(',', '.'));
-    if (number == null) {
-      setState(() {
-        _errorText = 'Bitte gib eine gültige Zahl ein.';
-      });
-      return null;
-    }
-
-    setState(() {
-      _errorText = null;
-    });
-
-    if (valueType == TaskValueType.duration) {
-      final unit = TaskValueUnits.byKey(widget.task.task.valueUnitKey);
-      final seconds = (number * (unit?.factorToBaseUnit ?? 60)).round();
-      return TaskValueInput.duration(
-        numberValue: number,
-        durationSeconds: seconds,
+    try {
+      final parsed = TaskValueDraft(
+        _controller.text,
+        dayOffset: _dayOffset,
+      ).parse(widget.task.task);
+      setState(() => _errorText = null);
+      return TaskValueInput._(
+        numberValue: parsed.numberValue,
+        durationSeconds: parsed.durationSeconds,
+        timeMinutes: parsed.timeMinutes,
+        dayOffset: parsed.dayOffset,
       );
+    } on FormatException catch (e) {
+      setState(() => _errorText = e.message);
+      _store?.mark({_key: e.message});
+      return null;
     }
-
-    return TaskValueInput.number(number);
   }
 
   String _initialText() {
@@ -314,22 +371,4 @@ class TaskValueInput {
   final int? durationSeconds;
   final int? timeMinutes;
   final int dayOffset;
-}
-
-int? _parseTime(String raw) {
-  final parts = raw.split(':');
-  if (parts.length != 2) {
-    return null;
-  }
-
-  final hour = int.tryParse(parts[0]);
-  final minute = int.tryParse(parts[1]);
-  if (hour == null || minute == null) {
-    return null;
-  }
-  if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
-    return null;
-  }
-
-  return hour * 60 + minute;
 }

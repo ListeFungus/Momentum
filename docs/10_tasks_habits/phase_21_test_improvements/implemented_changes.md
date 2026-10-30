@@ -1,12 +1,63 @@
 # Momentum – Phase 21: Bereits umgesetzte Änderungen
 
-Stand: 22. Oktober 2026
+Stand: 28. Oktober 2026
 
-Status: #013, #002, bestehende Pakete und Kalender automatisiert geprüft; Gerätenachtests separat offen. Bestehende Kalender-APK 1.0.0+4 enthält #002/#013 nicht.
+Status: Gruppen-/Trackerpaket und Zeitumstellungskorrektur implementiert; vollständige Suite 229 Tests grün, gezielte Analyse ohne Befunde. Gerätenachtests offen. Bestehende Kalender-APK 1.0.0+4 enthält die neuen Pakete nicht.
+
+Update vom 28. Oktober: APK **1.0.0+5** enthält nun die neuen Pakete und die
+Zeitkorrektur; Datenprüfungen, Signatur und Version geprüft. Geräteabnahme offen.
+[Buildnachweis und Installation](update_1_0_0_5.md).
 
 Dieses Dokument unterscheidet das aus Phase 20 übernommene erste Paket
 (`7263ea9`), das Kartenpaket und den Kalender. Die weitere
 Themenplanung steht im [Arbeitsplan](test_improvements_plan.md).
+
+## Direkte Eingaben in Projekten – 29. Oktober 2026
+
+Nutzerwunsch umgesetzt: Aufgaben und Habits direkt in der Projektübersicht
+bearbeiten/erledigen. Heutige Einträge und übertragene offene Vorkommen erhalten
+dieselben Checkbox-, Ja/Nein- und Werteingaben wie die Tagesansicht. Jedes
+Vorkommen zeigt seinen Planungstag; ein Abschluss beendet keine ganze Serie.
+Bei überfälligem Erfolg wird der Durchführungstag abgefragt. Werte werden nicht
+erfunden, die konfigurierte Erfolgsantwort eines Habits bleibt maßgeblich.
+
+Abgeleitete Umsetzung: aktuelle Projektmitglieder, auch Gruppen-/Bündelquellen,
+verwenden die bestehende Tagesprojektion und Speicherwege. Historische Zuordnung
+und Planungstag bleiben erhalten. Ohne bearbeitbares Tagesvorkommen bleibt der
+Detailzugang. Archivierung ändert weiterhin nur die Projektsichtbarkeit.
+Werteentwürfe bleiben beim Analyse-Tabwechsel erhalten; beim Verlassen werden
+Speichern, Verwerfen oder Abbrechen angeboten. Kein Schemawechsel, keine neue APK.
+
+Geprüft: vier neue Widget-/Datenbanktests (Aufgabe abschließen/wieder öffnen und
+Zukunft ausschließen; Nein als Habit-Erfolg; Wertevalidierung/Entwurfschutz;
+überfälliger Planungstag versus Durchführungstag) bestanden. Gezielte Analyse
+von sechs Dateien ohne Befunde. Kein neuer vollständiger Testlauf; Geräteprüfung offen.
+
+## Korrektur Zielzeiträume – 28. Oktober 2026
+
+Kalendertage statt 24-Stunden-Abstände für Zielblöcke, rollierende Zielzeiträume,
+Versionsgrenzen und Bündelquelltage. Keine Schema-/Datenmigration oder pauschale
+Änderung alter Zielvormerkungen. Fünf neue Regressionstests einschließlich beider
+Zeitumstellungen und künstlicher Mehrjahreshistorie; Eingabefehlermarkierungen
+bleiben beim Kartenklappen erhalten. Vollständiger Lauf: **229 Tests grün**
+(95 Sekunden), Analyse acht Dateien ohne Befunde. [Details](goal_calendar_fix.md).
+Persönlicher Langzeitbestand und Geräteverhalten bleiben separat ungeprüft.
+
+## Paket #011/#020/#004 – kompakte Tracker und Anzeigegruppen
+
+Am 27. Oktober G0–G6 umgesetzt und dokumentiert. Eigener Gruppentab, explizites
+Verschieben, Reihenfolge/Einklappen, abgeleitete Vollständigkeit und atomarer
+Vollabschluss; fehlende Werte markieren und einfache Einträge nur auf ausdrückliche
+Teilaktion abhaken. Bewusstes Nein bleibt erhalten. Entwürfe werden beim Verlassen
+gespeichert, verworfen oder behalten. Kompakte Zahlenfelder brechen bei wenig Platz um.
+
+Schema 26 mit zwei Gruppentabellen, Backup 22–26, beidseitige Bündelsperren.
+Keine globale Filterung: Kalender, Projekte und Auswertungen behalten ihre Daten.
+Keine APK und kein Monitoring. 11 neue Datentests plus Widgettest und gezielte
+Analyse grün. Zum damaligen Abschluss war der Gesamtlauf wegen zweier bestehender
+Zielblocktests nicht vollständig grün. Diese sind seit 28. Oktober korrigiert,
+siehe oben; keine Erfolgs-/Zielregel geändert.
+[Prüfverlauf und Gerätenachtest](daily_overview_groups_plan.md).
 
 ## Paket #013 – Aufgabenart Aufgabe ↔ Habit ändern
 

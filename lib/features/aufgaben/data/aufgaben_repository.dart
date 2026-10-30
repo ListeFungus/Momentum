@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'task_display_group_store.dart';
+import 'task_display_group_service.dart';
 import 'task_type_change_service.dart';
 import 'tracking_start_policy.dart';
 import 'package:momentum/features/calendar/data/calendar_planning.dart';
@@ -46,6 +48,8 @@ import 'package:momentum/features/aufgaben/data/task_value_unit.dart';
 import 'package:uuid/uuid.dart';
 
 class AufgabenRepository {
+  TaskDisplayGroupService get displayGroups =>
+      TaskDisplayGroupService(_database, this, now: _now);
   AufgabenRepository(this._database, {DateTime Function()? now})
     : _definitionVersionWriter = TaskDefinitionVersionWriter(_database),
       _definitionResolver = TaskDefinitionResolver(_database, now: now),
@@ -108,46 +112,14 @@ class AufgabenRepository {
       taskType: taskType,
     );
 
-    final query = _database.select(_database.aufgaben).join([
-      leftOuterJoin(
-        _database.taskEntries,
-        _database.taskEntries.taskId.equalsExp(_database.aufgaben.id) &
-            (_database.taskEntries.scheduledDate.equals(selectedDate) |
-                (_database.taskEntries.status.equals(TaskEntryStatus.pending) &
-                    _database.taskEntries.scheduledDate.isSmallerThanValue(
-                      selectedDate,
-                    ))),
-      ),
-      leftOuterJoin(
-        _database.taskEntryValues,
-        _database.taskEntryValues.entryId.equalsExp(_database.taskEntries.id),
-      ),
-      leftOuterJoin(
-        _database.projects,
-        _database.projects.id.equalsExp(_database.aufgaben.projectId),
-      ),
-    ]);
-
-    query.where(
-      _database.aufgaben.isActive.equals(true) &
-          _database.aufgaben.trashedAt.isNull(),
-    );
+    final query = _dailyTaskQuery(selectedDate);
 
     yield* _watchWithCardMetricDependencies(query.watch(), (rows) async {
-      final rawTasks = _mapAndSortTasks(rows);
-      final tasks = <TaskForDate>[];
-      for (final task in rawTasks) {
-        tasks.add(await _resolvedTaskForDate(task, selectedDate));
-      }
-
-      final visibleTasks = <TaskForDate>[];
-
-      for (final task in tasks) {
-        if (task.task.taskType == taskType &&
-            await _isTaskVisibleOnDate(task, selectedDate)) {
-          visibleTasks.add(task);
-        }
-      }
+      final visibleTasks = await _visibleDayRows(
+        rows,
+        selectedDate,
+        taskType: taskType,
+      );
 
       final allValueBundles = [
         ...await _valueBundlesForTasks(date: selectedDate),
@@ -203,6 +175,80 @@ class AufgabenRepository {
         ),
       );
     });
+  }
+
+  /// Shared pre-bundle projection. Reads only; callers prepare today's scheduler
+  /// separately, never during a group transaction or a calendar preview.
+  Future<List<TaskForDate>> readDisplayGroupDay(DateTime date) async {
+    final day = _dateOnly(date);
+    return _withTaskCardMetrics(
+      await _visibleDayRows(await _dailyTaskQuery(day).get(), day),
+      day,
+    );
+  }
+
+  /// Actionable day entries for the project's current members, including
+  /// carryovers and sources otherwise represented by bundles/display groups.
+  /// Resolving each occurrence preserves its historical definition/assignment.
+  Stream<List<TaskForDate>> watchProjectDayTasks(
+    String projectId,
+    DateTime date,
+  ) async* {
+    final day = _dateOnly(date);
+    await ensureTaskInstancesUpToDate(date: day);
+    final query = _dailyTaskQuery(day)
+      ..where(_database.aufgaben.projectId.equals(projectId));
+    yield* _watchWithCardMetricDependencies(
+      query.watch(),
+      (rows) => _visibleDayRows(rows, day),
+    );
+  }
+
+  Future<List<TaskForDate>> _visibleDayRows(
+    List<TypedResult> rows,
+    DateTime day, {
+    String? taskType,
+  }) async {
+    final visible = <TaskForDate>[];
+    for (final raw in _mapAndSortTasks(rows)) {
+      final task = await _resolvedTaskForDate(raw, day);
+      if ((taskType == null || task.task.taskType == taskType) &&
+          await _isTaskVisibleOnDate(task, day)) {
+        visible.add(task);
+      }
+    }
+    return visible;
+  }
+
+  JoinedSelectStatement<HasResultSet, dynamic> _dailyTaskQuery(
+    DateTime selectedDate,
+  ) {
+    final query = _database.select(_database.aufgaben).join([
+      leftOuterJoin(
+        _database.taskEntries,
+        _database.taskEntries.taskId.equalsExp(_database.aufgaben.id) &
+            (_database.taskEntries.scheduledDate.equals(selectedDate) |
+                (_database.taskEntries.status.equals(TaskEntryStatus.pending) &
+                    _database.taskEntries.scheduledDate.isSmallerThanValue(
+                      selectedDate,
+                    ))),
+      ),
+      leftOuterJoin(
+        _database.taskEntryValues,
+        _database.taskEntryValues.entryId.equalsExp(_database.taskEntries.id),
+      ),
+      leftOuterJoin(
+        _database.projects,
+        _database.projects.id.equalsExp(_database.aufgaben.projectId),
+      ),
+    ]);
+
+    query.where(
+      _database.aufgaben.isActive.equals(true) &
+          _database.aufgaben.trashedAt.isNull(),
+    );
+
+    return query;
   }
 
   Future<int> ensureTaskInstancesUpToDate({DateTime? date}) async {
@@ -786,7 +832,7 @@ class AufgabenRepository {
     final windowDays = goalWindowDaysForTask(effectiveTask);
     final summary = await getTaskAnalyticsSummary(
       taskId: task.id,
-      from: referenceDate.subtract(Duration(days: windowDays - 1)),
+      from: calendarAddDays(referenceDate, 1 - windowDays),
       to: referenceDate,
       today: referenceDate,
     );
@@ -817,7 +863,7 @@ class AufgabenRepository {
 
     final source = watchTaskAnalyticsSummary(
       taskId: task.id,
-      from: referenceDate.subtract(Duration(days: windowDays - 1)),
+      from: calendarAddDays(referenceDate, 1 - windowDays),
       to: referenceDate,
       today: referenceDate,
     );
@@ -847,7 +893,7 @@ class AufgabenRepository {
         await _analyticsEntriesQuery(
           taskId: task.id,
           from: task.startDate,
-          to: referenceDate.subtract(const Duration(days: 1)),
+          to: calendarAddDays(referenceDate, -1),
         ).get();
 
     return _buildTaskGoalHistorySummary(
@@ -869,7 +915,7 @@ class AufgabenRepository {
         _analyticsEntriesQuery(
           taskId: task.id,
           from: task.startDate,
-          to: referenceDate.subtract(const Duration(days: 1)),
+          to: calendarAddDays(referenceDate, -1),
         ).watch();
     return _watchWithCardMetricDependencies(source, (entries) async {
       return _buildTaskGoalHistorySummary(
@@ -894,7 +940,7 @@ class AufgabenRepository {
     final windowDays = goalWindowDaysForTask(effectiveTask);
     final summary = await getTaskValueAnalyticsSummaryForPeriodRange(
       task: task,
-      from: referenceDate.subtract(Duration(days: windowDays - 1)),
+      from: calendarAddDays(referenceDate, 1 - windowDays),
       to: referenceDate,
       today: referenceDate,
     );
@@ -926,7 +972,7 @@ class AufgabenRepository {
 
     final source = watchTaskValueAnalyticsSummaryForPeriodRange(
       task: task,
-      from: referenceDate.subtract(Duration(days: windowDays - 1)),
+      from: calendarAddDays(referenceDate, 1 - windowDays),
       to: referenceDate,
       today: referenceDate,
     );
@@ -1027,7 +1073,7 @@ class AufgabenRepository {
     String taskId,
     DateTime date,
   ) {
-    final nextDay = _dateOnly(date).add(const Duration(days: 1));
+    final nextDay = calendarAddDays(date, 1);
 
     return (_database.select(_database.taskDefinitionVersions)
           ..where(
@@ -1093,7 +1139,7 @@ class AufgabenRepository {
         _goalDefinitionVersionForDateFromList(versions, blockStart),
       );
       final windowDays = goalWindowDaysForTask(blockTask);
-      final blockEnd = blockStart.add(Duration(days: windowDays - 1));
+      final blockEnd = calendarAddDays(blockStart, windowDays - 1);
 
       if (!blockEnd.isBefore(referenceDate)) {
         break;
@@ -1129,7 +1175,7 @@ class AufgabenRepository {
         );
       }
 
-      blockStart = blockEnd.add(const Duration(days: 1));
+      blockStart = calendarAddDays(blockEnd, 1);
     }
 
     return TaskGoalHistorySummary(
@@ -2512,6 +2558,10 @@ class AufgabenRepository {
     final versionId = _uuid.v4();
 
     await _database.transaction(() async {
+      await TaskDisplayGroupStore.ensureBundleSourcesFree(_database, [
+        firstTaskId,
+        secondTaskId,
+      ]);
       await _database
           .into(_database.taskValueBundles)
           .insert(
@@ -2603,7 +2653,7 @@ class AufgabenRepository {
     final effectiveToday = _dateOnly(today ?? DateTime.now());
     final windowDays = goalWindowDaysForBundle(version);
     final periodEnd = effectiveToday;
-    final periodStart = periodEnd.subtract(Duration(days: windowDays - 1));
+    final periodStart = calendarAddDays(periodEnd, 1 - windowDays);
     final summary = await _buildTaskValueBundleAnalyticsSummary(
       version: version,
       periodStart: periodStart,
@@ -2617,13 +2667,13 @@ class AufgabenRepository {
     final interrupted =
         await _hasLifecycleInterruption(
           version.firstTaskId,
-          periodStart.add(Duration(days: version.firstTaskDayOffset)),
-          periodEnd.add(Duration(days: version.firstTaskDayOffset)),
+          calendarAddDays(periodStart, version.firstTaskDayOffset),
+          calendarAddDays(periodEnd, version.firstTaskDayOffset),
         ) ||
         await _hasLifecycleInterruption(
           version.secondTaskId,
-          periodStart.add(Duration(days: version.secondTaskDayOffset)),
-          periodEnd.add(Duration(days: version.secondTaskDayOffset)),
+          calendarAddDays(periodStart, version.secondTaskDayOffset),
+          calendarAddDays(periodEnd, version.secondTaskDayOffset),
         );
     return interrupted ? _notEvaluatedValueGoal(result) : result;
   }
@@ -2636,7 +2686,7 @@ class AufgabenRepository {
     final effectiveToday = _dateOnly(today ?? DateTime.now());
     final windowDays = goalWindowDaysForBundle(version);
     final periodEnd = effectiveToday;
-    final periodStart = periodEnd.subtract(Duration(days: windowDays - 1));
+    final periodStart = calendarAddDays(periodEnd, 1 - windowDays);
     final query = _database.select(_database.taskEntries).join([
       leftOuterJoin(
         _database.taskEntryValues,
@@ -2648,7 +2698,7 @@ class AufgabenRepository {
       (_database.taskEntries.taskId.equals(version.firstTaskId) |
               _database.taskEntries.taskId.equals(version.secondTaskId)) &
           _database.taskEntries.scheduledDate.isBiggerOrEqualValue(
-            periodStart.add(Duration(days: version.firstTaskDayOffset)),
+            calendarAddDays(periodStart, version.firstTaskDayOffset),
           ) &
           _database.taskEntries.scheduledDate.isSmallerOrEqualValue(periodEnd),
     );
@@ -2667,13 +2717,13 @@ class AufgabenRepository {
       final interrupted =
           await _hasLifecycleInterruption(
             version.firstTaskId,
-            periodStart.add(Duration(days: version.firstTaskDayOffset)),
-            periodEnd.add(Duration(days: version.firstTaskDayOffset)),
+            calendarAddDays(periodStart, version.firstTaskDayOffset),
+            calendarAddDays(periodEnd, version.firstTaskDayOffset),
           ) ||
           await _hasLifecycleInterruption(
             version.secondTaskId,
-            periodStart.add(Duration(days: version.secondTaskDayOffset)),
-            periodEnd.add(Duration(days: version.secondTaskDayOffset)),
+            calendarAddDays(periodStart, version.secondTaskDayOffset),
+            calendarAddDays(periodEnd, version.secondTaskDayOffset),
           );
       return interrupted ? _notEvaluatedValueGoal(result) : result;
     });
@@ -2816,6 +2866,10 @@ class AufgabenRepository {
     }
     final now = _now().toUtc();
     await _database.transaction(() async {
+      await TaskDisplayGroupStore.ensureBundleSourcesFree(_database, [
+        current.firstTaskId,
+        current.secondTaskId,
+      ]);
       if (_dateOnly(current.validFrom) == date) {
         await (_database.update(_database.taskValueBundleVersions)
           ..where((version) => version.id.equals(current.id))).write(
@@ -2959,7 +3013,7 @@ class AufgabenRepository {
     final availableSecondTask = secondTask!;
     final pairsByTaskDate = await _taskEntryValuePairsByTaskDate(
       taskIds: {version.firstTaskId, version.secondTaskId},
-      from: periodStart.add(Duration(days: version.firstTaskDayOffset)),
+      from: calendarAddDays(periodStart, version.firstTaskDayOffset),
       to: periodEnd,
     );
 
@@ -4740,7 +4794,7 @@ DateTime _nextLocalDay(DateTime date) =>
     DateTime(date.year, date.month, date.day + 1);
 
 DateTime _bundleSourceDate(DateTime bundleDate, int dayOffset) {
-  return _dateOnly(bundleDate).add(Duration(days: dayOffset));
+  return calendarAddDays(bundleDate, dayOffset);
 }
 
 bool _bundleUsesSourceDate(TaskValueBundleForDate bundle, DateTime sourceDate) {

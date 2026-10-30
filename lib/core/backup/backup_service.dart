@@ -87,6 +87,7 @@ class BackupService {
       if (schema != 22 &&
           schema != 23 &&
           schema != 24 &&
+          schema != 25 &&
           schema != scratch.schemaVersion) {
         throw const BackupException(
           'Die Datenversion dieser Sicherung passt nicht zu dieser App-Version. Der aktuelle Bestand bleibt erhalten.',
@@ -96,6 +97,12 @@ class BackupService {
       final rawTables = content['tables'] as Map<String, dynamic>;
       final expected = scratch.allTables.map((t) => t.actualTableName).toSet();
       final sourceTables = {...expected};
+      if (schema < 26) {
+        sourceTables.removeAll({
+          'task_display_groups',
+          'task_display_group_members',
+        });
+      }
       if (schema < 24) {
         sourceTables.remove('calendar_settings');
       }
@@ -119,6 +126,10 @@ class BackupService {
         rawTables['card_expansion_preferences'] = <dynamic>[];
       }
       final tables = <String, List<Map<String, Object?>>>{};
+      if (schema < 26) {
+        rawTables['task_display_groups'] = <dynamic>[];
+        rawTables['task_display_group_members'] = <dynamic>[];
+      }
       if (schema < 25) rawTables['task_type_changes'] = <dynamic>[];
       if (schema < 24) {
         rawTables['calendar_settings'] = <dynamic>[];
@@ -196,6 +207,20 @@ class BackupService {
         }
       }
       _validateTypeChanges(tables);
+      final members =
+          tables['task_display_group_members']!
+              .map((m) => m['task_id'])
+              .toSet();
+      if (tables['task_value_bundle_versions']!.any(
+        (v) =>
+            v['cancelled_at'] == null &&
+            (members.contains(v['first_task_id']) ||
+                members.contains(v['second_task_id'])),
+      )) {
+        throw const BackupException(
+          'Bündelgebundene Einträge können keiner Gruppe zugeordnet werden.',
+        );
+      }
       final backup = PreparedBackup._(createdAt, tables);
       await _replace(scratch, backup);
       return backup;

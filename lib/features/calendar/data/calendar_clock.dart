@@ -1,9 +1,6 @@
 import 'calendar_planning.dart';
 
-DateTime calendarDay(DateTime value) =>
-    DateTime(value.year, value.month, value.day);
-DateTime calendarAddDays(DateTime value, int days) =>
-    DateTime(value.year, value.month, value.day + days);
+export 'package:momentum/core/date/calendar_days.dart';
 
 /// Injectable wall-time resolver. Both endpoints must have exactly one instant.
 class CalendarClock {

@@ -1,10 +1,73 @@
 # Phase 21 – #011/#020/A01: Tagesübersicht, kompakte Tracker und Gruppen
 
-Stand: 25. Oktober 2026
+Stand: 28. Oktober 2026
 
-Status: Umsetzungsbereit für G0–G6. Fachliche Nutzerentscheidungen und abgeleitete
-V1-Grenzen sind unten getrennt dokumentiert. Der gemeinsame Abschluss bezieht
-auch #004 ein. Noch keine App-Änderung für dieses Paket. Monitoring ist verschoben.
+Status: G0–G4 implementiert; G5 ausgeführt und G6 dokumentiert. Nach separater
+Zeitumstellungskorrektur am 28. Oktober vollständige Suite 229 Tests grün,
+gezielte Analyse ohne Befunde. Gerätenachtest weiterhin offen.
+Fachliche Nutzerentscheidungen und abgeleitete V1-Grenzen bleiben unten getrennt
+dokumentiert. Der gemeinsame Abschluss bezieht auch #004 ein. Monitoring bleibt
+verschoben. Nachträglich am 28. Oktober auf ausdrücklichen Auftrag APK 1.0.0+5
+erstellt: [Updateprüfung und Nachtest](update_1_0_0_5.md). Frühere Build-Aussagen
+unten dokumentieren den damaligen Stand.
+
+## Umsetzungsfortschritt am 27. Oktober
+
+| Schritt | Tatsächlicher Stand |
+|---|---|
+| G0 | Abgeglichen: sauberes Arbeitsverzeichnis, Schema 25, Kalender/#002/#013 vorhanden; keine fachliche Rückfrage erforderlich. |
+| G1 | Schema 26, zwei Gruppentabellen, CRUD, Reihenfolge/Einklappen, explizites Verschieben und beidseitiger Bündelschutz; Backup 22–26. Gezielte Daten-/Migrationstests grün. |
+| G2 | Gemeinsame Tagesauflösung vor Bündeldarstellung, abgeleitete Vollständigkeit, Vorschau/Fingerprint und atomare Voll-/Teilaktion über vorhandene Schreibwege. Service-Abnahmefälle grün. |
+| G3 | Gruppentab, Verwaltung, Sortierung, Einklappen; exklusive Filter nur in operativen UI-Listen. Kalender/Projektzugriffe bleiben vollständig. |
+| G4 | Zahlenzeile im kompakten Modus, gemeinsamer Parser, zentral gehaltene Entwürfe, Navigation mit Speichern/Verwerfen/Abbrechen, Feldmarkierung und Teilaktion. Integrierter Widgettest grün. |
+| G5 | Analyse von 25 geänderten Dart-Dateien ohne Befunde. 11 neue Daten-/Migrationstests und ein integrierter Widgettest grün. Gesamtlauf und gezielte Wiederholungen siehe Prüfnachweis unten; keine uneingeschränkte Gesamtfreigabe. |
+| G6 | Umsetzung, Grenzen, Prüfbefunde und Gerätenachtest dokumentiert; keine APK gebaut. |
+
+### Prüfnachweis und verbleibende Abnahme
+
+**Aktualisierung 28. Oktober:** Die unten historisch beschriebenen Testfehler
+sind behoben. Vollständige Suite 229 Tests grün, Analyse acht Dateien ohne
+Befunde. Auch der Erhalt von Eingabe-Fehlermarkierungen beim Kartenklappen ist
+abgesichert. [Korrekturbericht und Befehle](goal_calendar_fix.md).
+Die folgenden Laufzahlen dokumentieren den früheren Stand vom 27. Oktober.
+
+- Ein vollständiger Testlauf: 212 bestanden, 12 fehlgeschlagen. Darunter
+  zeitumstellungsabhängige ältere Tests sowie eine neue Migrations-Testfixture
+  mit fehlender Dauer zur Startuhrzeit. Die Fixture wurde korrigiert.
+- Testdaten im Repository-Test verwenden nun Kalendertage statt 24-Stunden-
+  Subtraktion. Anschließender gezielter Lauf `test/features/aufgaben/data`:
+  **168 bestanden, 2 fehlgeschlagen**. Die neuen Gruppenfälle sind grün.
+- Verbleibend: `historische Statuszielbloecke listen laufenden Block nicht` und
+  `plant reine Zielaenderung ab naechstem Zielblock ohne aktive Aufgabe zu aendern`.
+  Die bestehende Zielblockberechnung in `task_goal_evaluation_summary.dart`
+  verwendet weiterhin Duration-Tage über die Zeitumstellung. Nicht Teil dieses
+  Gruppenpakets; nicht durch geänderte Erwartungen kaschiert.
+- Integrierter Widgettest grün: exklusive Listenanzeige, fehlende/ungültige
+  Werte, explizite Teilaktion, erhaltene Entwürfe, Navigation abbrechen,
+  vollständiges Speichern und schmale Ansicht mit großer Schrift.
+- Kein erneuter vollständiger Testlauf nach den Korrekturen, um Nutzung zu sparen.
+  Daher wird ausdrücklich kein vollständig grüner Gesamtlauf behauptet.
+
+Kurzer Gerätenachtest (noch offen):
+
+1. Gruppe mit Checkbox, Ja/Nein-Habit und Zahlentracker erstellen; normale Tabs
+   dürfen diese Mitglieder nicht doppelt zeigen, Kalender bleibt vollständig.
+2. Vollabschluss ohne Wert versuchen: Feld markiert, nichts teilweise gespeichert.
+   Explizite Teilaktion testen; eingetippte Zahl muss erhalten bleiben.
+3. Gültigen Wert einschließlich 0 speichern, bewusstes Nein und erneutes Öffnen
+   prüfen; Gruppenstatus muss den Einzelzuständen folgen.
+4. Einklappen, Reihenfolge, Verschieben und Gruppenlöschung testen; Aufgaben und
+   Messwerte bleiben erhalten. Entwurf beim Tab-/Datumswechsel abbrechen/verwerfen.
+5. Neustart und Backup/Import prüfen; Gruppenzuordnung und Reihenfolge bleiben.
+   Alte offene Tage einzeln bearbeiten; keine rückwirkende Sammelaktion.
+
+Die bisherige APK enthält dieses Paket nicht. Monitoring/A01, Unteraufgaben und
+weitere Phase-21-Pakete bleiben unberührt.
+
+Technische Ableitungen: Gruppen-/Mitgliederreihenfolge über „nach oben“-Aktionen;
+Einzelstatus-/Wertänderungen bleiben in den vorhandenen Karten. Unter 420 Pixeln
+oder bei großer Schrift bricht die numerische Eingabe in eine vertikale Anordnung
+um. Weder neue Aufgabenart noch neue Erfolgsregel. Geräteabnahme separat offen.
 
 ## Quellen und ursprünglicher Umfang
 

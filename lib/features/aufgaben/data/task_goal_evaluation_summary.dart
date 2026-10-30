@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:momentum/core/date/calendar_days.dart';
 import 'package:momentum/core/database/app_database.dart';
 import 'package:momentum/features/aufgaben/data/task_analytics_summary.dart';
 import 'package:momentum/features/aufgaben/data/task_capture_mode.dart';
@@ -41,7 +42,7 @@ class TaskGoalEvaluationSummary {
     required int windowDays,
   }) {
     final periodEnd = _dateOnly(today);
-    final periodStart = periodEnd.subtract(Duration(days: windowDays - 1));
+    final periodStart = calendarAddDays(periodEnd, 1 - windowDays);
 
     return TaskGoalEvaluationSummary(
       state: TaskGoalEvaluationState.noGoal,
@@ -67,7 +68,7 @@ class TaskGoalEvaluationSummary {
     final goalType = task.goalType;
     final windowDays = goalWindowDaysForTask(task);
     final periodEnd = _dateOnly(today);
-    final periodStart = periodEnd.subtract(Duration(days: windowDays - 1));
+    final periodStart = calendarAddDays(periodEnd, 1 - windowDays);
 
     if (goalType == TaskGoalType.none) {
       return TaskGoalEvaluationSummary.noGoal(
@@ -189,7 +190,7 @@ class TaskValueGoalEvaluationSummary {
   }) {
     final windowDays = goalWindowDaysForTask(task);
     final periodEnd = _dateOnly(today);
-    final periodStart = periodEnd.subtract(Duration(days: windowDays - 1));
+    final periodStart = calendarAddDays(periodEnd, 1 - windowDays);
     final targetValue = valueGoalTargetForTask(task);
 
     if (task.goalType == TaskGoalType.none) {
@@ -294,7 +295,7 @@ class TaskValueGoalEvaluationSummary {
     final version = summary.version;
     final windowDays = goalWindowDaysForBundle(version);
     final periodEnd = _dateOnly(today);
-    final periodStart = periodEnd.subtract(Duration(days: windowDays - 1));
+    final periodStart = calendarAddDays(periodEnd, 1 - windowDays);
     final targetValue = valueGoalTargetForBundle(version);
     final valueView = _bundleValueView(summary);
 
@@ -475,7 +476,7 @@ class TaskGoalHistorySummary {
     final blocks = <TaskGoalHistoryBlock>[];
 
     while (true) {
-      final blockEnd = blockStart.add(Duration(days: windowDays - 1));
+      final blockEnd = calendarAddDays(blockStart, windowDays - 1);
       if (!blockEnd.isBefore(referenceDate)) {
         break;
       }
@@ -495,7 +496,7 @@ class TaskGoalHistorySummary {
         ),
       );
 
-      blockStart = blockEnd.add(const Duration(days: 1));
+      blockStart = calendarAddDays(blockEnd, 1);
     }
 
     return TaskGoalHistorySummary(
@@ -729,17 +730,14 @@ DateTime currentGoalBlockStartForTask(Aufgabe task, DateTime date) {
     return startDate;
   }
 
-  final elapsedDays = referenceDate.difference(startDate).inDays;
+  final elapsedDays = calendarDaysBetween(startDate, referenceDate);
   final blockOffset = elapsedDays ~/ windowDays;
-  return startDate.add(Duration(days: blockOffset * windowDays));
+  return calendarAddDays(startDate, blockOffset * windowDays);
 }
 
 DateTime nextGoalBlockStartForTask(Aufgabe task, DateTime date) {
   final windowDays = goalWindowDaysForTask(task);
-  return currentGoalBlockStartForTask(
-    task,
-    date,
-  ).add(Duration(days: windowDays));
+  return calendarAddDays(currentGoalBlockStartForTask(task, date), windowDays);
 }
 
 bool isSupportedStatusGoalForTask(Aufgabe task) {

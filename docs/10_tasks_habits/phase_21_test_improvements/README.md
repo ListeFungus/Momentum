@@ -18,6 +18,8 @@ implementiert und tatsächlich auf dem Handy nachgetestet ist.
 
 ## Dokumente
 
+- [Neuer Android-Praxistest N01–N11 (Phase 20)](../phase_20_private_test/mobile_test_round_2_2026_10_11.md) – neue Nutzerbeobachtungen, noch nicht fachlich entschieden oder umgesetzt; für weitere Planung zunächst berücksichtigen.
+
 - [Zielzeiträume und Zeitumstellung – Korrektur vom 28. Oktober](goal_calendar_fix.md)
   – Ursache, Umsetzung, vollständiger Prüfnachweis und Grenzen der Datenprüfung.
 - [#011/#020/A01 und Bezug #004 – Gruppenplanung](daily_overview_groups_plan.md)
